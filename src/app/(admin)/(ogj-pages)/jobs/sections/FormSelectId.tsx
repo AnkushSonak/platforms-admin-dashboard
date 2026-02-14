@@ -5,7 +5,7 @@ import {
   SelectValue,
   SelectContent,
   SelectItem,
-} from '@/components/ui/select';
+} from '@/components/shadcn/ui/select';
 
 interface FormSelectIdProps<T extends FieldValues> {
   name: Path<T>;

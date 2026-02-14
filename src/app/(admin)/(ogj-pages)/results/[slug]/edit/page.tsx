@@ -2,30 +2,27 @@
 
 // Clean, modern react-hook-form-based Edit Result Page
 "use client";
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/shadcn/ui/card';
+import { Button } from '@/components/shadcn/ui/button';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import { useParams } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { useForm, FormProvider, Controller } from 'react-hook-form';
-// import { getJobListings } from '@/app/lib/api/jobs';
-import { Input } from '@/components/ui/input';
-import RichTextEditor from '@/app/components/RichTextEditor';
+import { Input } from '@/components/shadcn/ui/input';
+import RichTextEditor from '@/components/form/existing/RichTextEditor';
 import { ApplicationMode, Job } from '@/app/helper/interfaces/Job';
-import { getCategories } from '@/app/lib/api/categories';
 import { Category } from '@/app/helper/interfaces/Category';
 import { State } from '@/app/helper/interfaces/State';
-import { getStates } from '@/app/lib/api/states';
-import { JsonFieldDialog } from '@/app/components/JsonFieldDialog';
+import { JsonFieldDialog } from '@/components/form/existing/JsonFieldDialog';
 import DynamicFieldsSection from '../../../jobs/sections/DynamicFieldsSection';
-import { MultiSelect } from '@/components/ui/multi-select';
-import LogoSelector from '@/app/components/LogoSelector';
-import { Checkbox } from '@/components/ui/checkbox';
+import { MultiSelect } from '@/components/shadcn/ui/multi-select';
+import LogoSelector from '@/components/form/existing/LogoSelector';
+import { Checkbox } from '@/components/shadcn/ui/checkbox';
 import { organizations } from '@/app/helper/constants/Organizations';
 import { INewsAndNtfn } from '@/app/helper/interfaces/INewsAndNtfn';
 import { useSelector } from 'react-redux';
-import { RootState } from '@/app/state/store';
+import { RootState } from '@/state/store';
 import { SelectOrTypeInput } from '../../../jobs/sections/SelectOrTypeInput';
 import { FormSelect } from '../../../jobs/sections/FormSelect';
 import { FormMultiSelectIds } from '../../../jobs/sections/FormMultiSelectIds';
@@ -34,12 +31,12 @@ import { FormColorPicker } from '../../../jobs/sections/FormColorPicker';
 import { FormTagInput } from '../../../jobs/sections/FormTagInput';
 import { FormVideoLinksInput } from '../../../jobs/sections/FormVideoLinksInput';
 import { SEOFields } from '../../../jobs/sections/SEOFields';
-import { DateTimePicker } from '@/components/ui/date-time-picker';
+import { DateTimePicker } from '@/components/shadcn/ui/date-time-picker';
 import { DynamicLinksEditor } from '../../../jobs/sections/DynamicLinksEditor';
 import { ResultFormInterface } from '../../../form-interfaces/ResultFormInterface';
 import { ResultStatus } from '@/app/helper/interfaces/Result';
 import { getResultBySlugForForms, updateResult } from '@/app/lib/api/Results';
-import { JOBS_API } from '@/app/envConfig';
+import { CATEGORY_API, JOBS_API, STATE_API } from '@/app/envConfig';
 import { getPaginatedEntity } from '@/lib/api/global/Generic';
 
 const JOB_TO_RESULT_MAP: Record<string, keyof ResultFormInterface> = {
@@ -190,8 +187,15 @@ useEffect(() => {
       .catch(() => setJobLoading(false));
   }, [jobSearch]);
 
-  useEffect(() => { getCategories().then(setCategories).catch(() => setCategories([])); }, []);
-  useEffect(() => { getStates().then(setAllStates).catch(() => setAllStates([])); }, []);
+  useEffect(() => {
+    getPaginatedEntity<Category>("type=categories&page=1", CATEGORY_API, { entityName: "categories" })
+      .then((res) => setCategories(res.data))
+      .catch(() => setCategories([]));
+  }, []);
+  useEffect(() => {
+    getPaginatedEntity<State>("type=states&page=1", STATE_API, { entityName: "states" })
+    .then((res) => setAllStates(res.data))
+    .catch(() => setAllStates([])); }, []);
 
   const resultStatusOptions = [
     { value: ResultStatus.RELEASED, label: 'Released' },

@@ -2,10 +2,10 @@
 "use client";
 
 import Link from 'next/link';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/components/shadcn/ui/button';
 import { LogOut } from 'lucide-react';
-import AuthGuard from '../contexts/AuthGuard';
-import { CookieUtils } from '../utils/CookieUtils/CookieUtils';
+import AuthGuard from '@/context/AuthGuard';
+import { CookieUtils } from '@/lib/utils/CookieUtils/CookieUtils';
 
 export default function AdminLayout({ children, }: { children: React.ReactNode; }) {
 

@@ -4,9 +4,9 @@ import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 
-import { Form } from "@/components/ui/form"
-import { Card, CardContent, CardHeader } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
+import { Form } from "@/components/shadcn/ui/form"
+import { Card, CardContent, CardHeader } from "@/components/shadcn/ui/card"
+import { Button } from "@/components/shadcn/ui/button"
 
 import { NewsAndNotificationSchema } from "@/app/lib/schemas/NewsAndNtfnSchema"
 import { StepContent } from "./StepContent"

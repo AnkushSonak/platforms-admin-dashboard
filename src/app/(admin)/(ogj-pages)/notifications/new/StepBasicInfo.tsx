@@ -1,23 +1,20 @@
 import { useFormContext } from "react-hook-form"
-import { FormField, FormItem, FormLabel, FormControl, FormMessage, } from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
+import { FormField, FormItem, FormLabel, FormControl, FormMessage, } from "@/components/shadcn/ui/form"
+import { Input } from "@/components/shadcn/ui/input"
 import { NewsAndNntfnStatusType } from "@/app/helper/constants/NewsAndNntfnStatusType"
 import { FormSelect } from "../../jobs/sections/FormSelect";
 import { NewsAndNtfnPriorityType } from "@/app/helper/constants/NewsAndNtfnPriorityType";
 import { NewsAndNtfnRelatedEntityType } from "@/app/helper/constants/NewsAndNtfnRelatedEntityType";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Checkbox } from "@/components/shadcn/ui/checkbox";
 import { FormSelectId } from "../../jobs/sections/FormSelectId";
 import React, { useEffect } from "react";
 import { Category } from "@/app/helper/interfaces/Category";
-import { getCategories } from "@/app/lib/api/categories";
-import { getStates } from "@/app/lib/api/states";
 import { State } from "@/app/helper/interfaces/State";
 import { FormMultiSelectIds } from "../../jobs/sections/FormMultiSelectIds";
-import { MultiSelect } from "@/components/ui/multi-select";
+import { MultiSelect } from "@/components/shadcn/ui/multi-select";
 import { Organization } from "@/app/helper/interfaces/Organization";
 import { getOrganizations } from "@/app/lib/api/Organizations";
 import { Job } from "@/app/helper/interfaces/Job";
-// import { getJobListings } from "@/app/lib/api/jobs";
 import { AdmitCard } from "@/app/helper/interfaces/AdmitCard";
 import { Result } from "@/app/helper/interfaces/Result";
 import { AnswerKey } from "@/app/helper/interfaces/AnswerKey";
@@ -25,7 +22,7 @@ import { getResults } from "@/app/lib/api/Results";
 // import { getAnswerKeys } from "@/app/lib/api/AnswerKeys";
 // import { getAdmitCards } from "@/app/lib/api/AdmitCards";
 import { getPaginatedEntity } from "@/lib/api/global/Generic";
-import { ADMIT_CARDS_API, ANSWER_KEYS_API, JOBS_API } from "@/app/envConfig";
+import { ADMIT_CARDS_API, ANSWER_KEYS_API, CATEGORY_API, JOBS_API, STATE_API } from "@/app/envConfig";
 
 export function StepBasicInfo() {
 
@@ -40,8 +37,8 @@ export function StepBasicInfo() {
   const [answerKeys, setAnswerKeys] = React.useState<AnswerKey[]>([]);
 
   useEffect(() => { getOrganizations().then(setOrganizations).catch(() => setOrganizations([])); }, []);
-  useEffect(() => { getCategories().then(setCategories).catch(() => setCategories([])); }, []);
-  useEffect(() => { getStates().then(setAllStates).catch(() => setAllStates([])); }, []);
+  useEffect(() => { getPaginatedEntity<Category>("type=categories&page=1", CATEGORY_API, { entityName: "categories" }).then((res) => setCategories(res.data)).catch(() => setCategories([])); }, []);
+  useEffect(() => { getPaginatedEntity<State>("type=states&page=1", STATE_API, { entityName: "states" }).then((res) => setAllStates(res.data)).catch(() => setAllStates([])); }, []);
   useEffect(() => { getPaginatedEntity<Job>("type=jobs&page=1", JOBS_API,  { entityName: "jobs" }).then((response) => setJobs(response.data)).catch(() => setJobs([])); }, []);
   useEffect(() => { getPaginatedEntity<AdmitCard>("type=admitCards&page=1", ADMIT_CARDS_API,  { entityName: "admitCards" }).then((response) => setAdmitCards(response.data)).catch(() => setAdmitCards([])); }, []);
   useEffect(() => { getResults().then((response) => setResults(response.data)).catch(() => setResults([])); }, []);

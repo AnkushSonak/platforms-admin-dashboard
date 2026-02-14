@@ -7,15 +7,15 @@ import Link from 'next/link';
 import { format } from 'date-fns';
 import { PlusCircle, Edit, Trash2, Search, ChevronLeft, ChevronRight } from 'lucide-react';
 
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/shadcn/ui/button';
+import { Input } from '@/components/shadcn/ui/input';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/shadcn/ui/table';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/shadcn/ui/card';
 import type { Job } from '@/app/helper/interfaces/Job'; // Import your Job entity type
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter,
-  AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,} from '@/components/ui/alert-dialog';
+  AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,} from '@/components/shadcn/ui/alert-dialog';
 import { useSelector } from 'react-redux';
-import { RootState } from '@/app/state/store';
+import { RootState } from '@/state/store';
 
 export default function AdminJobsPage() {
   const { user, loading: authLoading, logout } = useSelector((state: RootState) => state.authentication);
@@ -183,7 +183,7 @@ export default function AdminJobsPage() {
                 {jobs.map((job) => (
                   <TableRow className='rounded-sm' key={job.id}>
                     <TableCell className="font-medium  rounded-l-sm">{job.title}</TableCell>
-                    <TableCell className="">{job.organization}</TableCell>
+                    <TableCell className="">{job.organization.fullName}</TableCell>
                     <TableCell className="">{job.category?.categoryName || 'N/A'}</TableCell>
                     <TableCell className="">{job.states && job.states.length > 0 ? job.states.map((state) => state.stateName).join(", ") : "N/A"}</TableCell>
                     <TableCell className="">{job.locationText || 'N/A'}</TableCell>

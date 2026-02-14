@@ -2,14 +2,14 @@
 // This is the main dashboard page for the admin panel.
 "use client";
 
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/shadcn/ui/card';
 import { Briefcase, BellRing, LayoutDashboard, ListFilter, MapPin, Calendar } from 'lucide-react';
-import { Separator } from '@/components/ui/separator';
+import { Separator } from '@/components/shadcn/ui/separator';
 import Link from 'next/link';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/components/shadcn/ui/button';
 import { useEffect, useState, useCallback } from 'react';
 import { useSelector } from 'react-redux';
-import { RootState } from '../state/store';
+import { RootState } from '@/state/store';
 import { redirect } from 'next/navigation';
 import statsHandler from '../lib/api/stats';
 

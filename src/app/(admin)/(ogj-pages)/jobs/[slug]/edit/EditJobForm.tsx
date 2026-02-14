@@ -5,7 +5,7 @@ import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { jobSchema, JobFormData } from "@/app/lib/schemas/JobSchema";
 import FullJobFieldsSection from "../../sections/FullJobFieldsSection";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/shadcn/ui/button";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_BACKEND_SERVER_BASE_URL;
 

@@ -2,13 +2,13 @@
 "use client";
 
 
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/shadcn/ui/card';
+import { Button } from '@/components/shadcn/ui/button';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import { useParams } from 'next/navigation';
 import { useSelector } from 'react-redux';
-import { RootState } from '@/app/state/store';
+import { RootState } from '@/state/store';
 import { useEffect, useState } from 'react';
 
 export default function EditNewsAndNotificationPage() {

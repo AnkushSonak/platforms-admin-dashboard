@@ -1,7 +1,7 @@
 // Add State Page
 "use client";
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/shadcn/ui/card';
+import { Button } from '@/components/shadcn/ui/button';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import { useState } from 'react';

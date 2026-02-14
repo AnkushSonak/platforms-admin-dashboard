@@ -1,19 +1,21 @@
 // app/admin/notifications/page.tsx
 "use client";
 
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/shadcn/ui/card';
+import { Button } from '@/components/shadcn/ui/button';
+import { Input } from '@/components/shadcn/ui/input';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/shadcn/ui/table';
 import { PlusCircle, BellRing } from 'lucide-react';
 import Link from 'next/link';
 // import { useAuth } from '@/app/contexts/AuthContext'; // Adjust path
 import { useEffect, useState, useCallback } from 'react';
 
 import { useSelector } from 'react-redux';
-import { RootState } from '@/app/state/store';
-import { getNotifications } from '@/app/lib/api/notifications';
+import { RootState } from '@/state/store';
+// import { getNotifications } from '@/app/lib/api/notifications';
 import { INewsAndNtfn } from '@/app/helper/interfaces/INewsAndNtfn';
+import { getPaginatedEntity } from '@/lib/api/global/Generic';
+import { NEWS_AND_NTFN_API } from '@/app/envConfig';
 
 export default function AdminNotificationsPage() {
   const { user, loading: authLoading } = useSelector((state: RootState) => state.authentication);
@@ -59,7 +61,7 @@ export default function AdminNotificationsPage() {
   useEffect(() => {
     if (!authLoading && user) {
       // fetchNotifications();
-      getNotifications().then(result => {
+      getPaginatedEntity<INewsAndNtfn>("type=news-and-notifications&page=1", NEWS_AND_NTFN_API,  { entityName: "news-and-notifications" }).then(result => {
         setNotifications(result.data);
         setLoading(false);
       });

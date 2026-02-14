@@ -8,7 +8,7 @@ import FullJobFieldsSection from "../sections/FullJobFieldsSection";
 import { convertLexicalToHtml } from "@/app/utils/LaxicalToHtml";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/shadcn/ui/button";
 import { ArrowLeft } from "lucide-react";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_BACKEND_SERVER_BASE_URL;

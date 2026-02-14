@@ -9,7 +9,7 @@ import { INewsAndNtfnForm } from "../../../form-interfaces/INewsAndNtfnForm";
 import { INewsAndNtfn } from "@/app/helper/interfaces/INewsAndNtfn";
 import { getNewsAndNtfnBySlugForForms } from "@/app/lib/api/notifications";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/shadcn/ui/button";
 import { ArrowLeft } from "lucide-react";
 
 export default function EditNewsAndNotificationPage() {

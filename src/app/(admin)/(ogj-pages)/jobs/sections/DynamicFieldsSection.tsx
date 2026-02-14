@@ -3,13 +3,13 @@
 
 import React, { useState, useRef } from "react";
 import { useFieldArray, useFormContext, Controller } from "react-hook-form";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
+import { Input } from "@/components/shadcn/ui/input";
+import { Label } from "@/components/shadcn/ui/label";
+import { Button } from "@/components/shadcn/ui/button";
 import { JsonField } from "@/app/components/JsonField";
 import RichTextEditor from "@/app/components/RichTextEditor";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Card } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/shadcn/ui/dialog";
+import { Card } from "@/components/shadcn/ui/card";
 
 function EditorIsolated({ keyId, children }: { keyId: string; children: React.ReactNode }) {
   // simple wrapper that forces React to unmount/mount when keyId changes

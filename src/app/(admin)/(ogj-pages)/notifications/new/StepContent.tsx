@@ -1,5 +1,5 @@
 import RichTextEditor from "@/app/components/RichTextEditor"
-import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/shadcn/ui/form"
 import { useFormContext } from "react-hook-form"
 import DynamicFieldsSection from "../../jobs/sections/DynamicFieldsSection"
 import { FormTagInput } from "../../jobs/sections/FormTagInput"

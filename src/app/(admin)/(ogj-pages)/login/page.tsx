@@ -3,14 +3,14 @@
 
 import { useState, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/shadcn/ui/card';
+import { Input } from '@/components/shadcn/ui/input';
+import { Button } from '@/components/shadcn/ui/button';
+import { Label } from '@/components/shadcn/ui/label';
 import { AlertCircle } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
-import { AppDispatch, RootState } from '@/app/state/store';
-import { loginUserAsync } from '@/app/state/authentication/AuthenticationSlice';
+import { AppDispatch, RootState } from '@/state/store';
+import { loginUserAsync } from '@/state/authentication/AuthenticationSlice';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');

@@ -5,7 +5,7 @@ import {
   SelectValue,
   SelectContent,
   SelectItem,
-} from '@/components/ui/select';
+} from '@/components/shadcn/ui/select';
 
 export interface SelectOption {
   label: string;

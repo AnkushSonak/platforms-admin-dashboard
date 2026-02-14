@@ -3,13 +3,13 @@
 import { useEffect, useState, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
-import { RootState } from "@/app/state/store";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { RootState } from "@/state/store";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/shadcn/ui/card";
+import { Button } from "@/components/shadcn/ui/button";
 import EditJobForm from "./EditJobForm";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
-import { Job } from "@/helper/interfaces/Job";
+import { Job } from "@/app/helper/interfaces/Job";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_BACKEND_SERVER_BASE_URL;
 

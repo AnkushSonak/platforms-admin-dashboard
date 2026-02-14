@@ -5,8 +5,8 @@ import {
   FormLabel,
   FormControl,
   FormMessage,
-} from "@/components/ui/form"
-import { Textarea } from "@/components/ui/textarea"
+} from "@/components/shadcn/ui/form"
+import { Textarea } from "@/components/shadcn/ui/textarea"
 import { SEOFields } from "../../jobs/sections/SEOFields"
 
 export function StepSEOAndAI() {

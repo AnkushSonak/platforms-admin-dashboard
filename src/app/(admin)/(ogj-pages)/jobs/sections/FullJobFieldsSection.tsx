@@ -4,22 +4,20 @@ import { useFormContext, Controller } from "react-hook-form";
 import { Job } from "@/app/helper/interfaces/Job";
 import { Category } from "@/app/helper/interfaces/Category";
 import { State } from "@/app/helper/interfaces/State";
-import { getCategories } from "@/app/lib/api/categories";
-import { getStates } from "@/app/lib/api/states";
 
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
-import { MultiSelect } from "@/components/ui/multi-select";
-import RichTextEditor from "@/app/components/RichTextEditor";
-import LogoSelector from "@/app/components/LogoSelector";
-import { JsonFieldDialog } from "@/app/components/JsonFieldDialog";
+import { Input } from "@/components/shadcn/ui/input";
+import { Textarea } from "@/components/shadcn/ui/textarea";
+import { Label } from "@/components/shadcn/ui/label";
+import { Checkbox } from "@/components/shadcn/ui/checkbox";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/shadcn/ui/select";
+import { MultiSelect } from "@/components/shadcn/ui/multi-select";
+import RichTextEditor from "@/components/form/existing/RichTextEditor";
+import LogoSelector from "@/components/form/existing/LogoSelector";
+import { JsonFieldDialog } from "@/components/form/existing/JsonFieldDialog";
 import DynamicFieldsSection from "./DynamicFieldsSection";
 import debounce from "lodash/debounce";
 import { JobFormData } from "@/app/lib/schemas/JobSchema"; // type only import (adjust path)
-import { DateTimePicker } from "@/components/ui/date-time-picker";
+import { DateTimePicker } from "@/components/shadcn/ui/date-time-picker";
 import { SelectOrTypeInput } from "./SelectOrTypeInput";
 import { organizations } from "@/app/helper/constants/Organizations";
 import { FormTagInput } from "./FormTagInput";
@@ -31,7 +29,7 @@ import { INewsAndNtfn } from "@/app/helper/interfaces/INewsAndNtfn";
 import { SEOFields } from "./SEOFields";
 import { DynamicLinksEditor } from "./DynamicLinksEditor";
 import { getPaginatedEntity } from "@/lib/api/global/Generic";
-import { JOBS_API } from "@/app/envConfig";
+import { CATEGORY_API, JOBS_API, STATE_API } from "@/app/envConfig";
 
 interface Props {
   onValidChange?: (payload: JobFormData) => void;
@@ -49,11 +47,17 @@ const FullJobFieldsSection: React.FC<Props & { onHtmlChange?: (html: string) => 
   const [jobSearch, setJobSearch] = useState('');
   const [relatedNotifications, setRelatedNotifications] = useState<INewsAndNtfn[]>([]);
   const [loading, setLoading] = useState(false);
+
   // fetch categories & states
   const [categories, setCategories] = React.useState<Category[]>([]);
-  useEffect(() => { getCategories().then(setCategories).catch(() => setCategories([])); }, []);
+    useEffect(() => {
+      getPaginatedEntity<Category>("type=categories&page=1", CATEGORY_API, { entityName: "categories" })
+        .then((res) => setCategories(res.data))
+        .catch(() => setCategories([]));
+    }, []);
+
   const [allStates, setAllStates] = React.useState<State[]>([]);
-  useEffect(() => { if (!propStatesOptions?.length) getStates().then(setAllStates).catch(() => setAllStates([])); }, [propStatesOptions?.length]);
+  useEffect(() => { if (!propStatesOptions?.length) getPaginatedEntity<State>("type=states&page=1", STATE_API, { entityName: "states" }).then((res) => setAllStates(res.data)).catch(() => setAllStates([])); }, [propStatesOptions?.length]);
 
   const computedStatesOptions = useMemo(() => {
     return propStatesOptions && propStatesOptions.length ? propStatesOptions : allStates.map(s => ({ label: s.stateName, value: String(s.id) }));

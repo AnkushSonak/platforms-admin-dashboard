@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Controller, Control, FieldValues, Path } from 'react-hook-form';
-import { Input } from '@/components/ui/input';
+import { Input } from '@/components/shadcn/ui/input';
 
 interface FormTagInputProps<T extends FieldValues> {
   name: Path<T>;

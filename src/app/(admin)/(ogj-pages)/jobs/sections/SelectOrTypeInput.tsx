@@ -1,12 +1,12 @@
 import { Controller, Control, FieldValues, Path } from 'react-hook-form';
-import { Input } from '@/components/ui/input';
+import { Input } from '@/components/shadcn/ui/input';
 import {
   Select,
   SelectTrigger,
   SelectValue,
   SelectContent,
   SelectItem,
-} from '@/components/ui/select';
+} from '@/components/shadcn/ui/select';
 
 interface SelectOrTypeInputProps<T extends FieldValues> {
   name: Path<T>;
