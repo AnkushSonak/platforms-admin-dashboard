@@ -1,0 +1,6 @@
+  export const ALL_QUALIFICATIONS = "all"
+  export const QUAL_10TH = "10th"
+  export const QUAL_12TH = "12th"
+  export const QUAL_GRADUATE = "graduate"
+  export const QUAL_POST_GRADUATE = "post-graduate"
+  export const QUAL_DIPLOMA = "diploma"

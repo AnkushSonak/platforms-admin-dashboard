@@ -1,0 +1,6 @@
+export const ALL_SECTORS = "all"
+export const CENTRAL_GOVERNMENT = "central"
+export const STATE_GOVERNMENT = "state"
+export const PSU = "psu"
+export const BANKING = "bank"
+export const RAILWAY = "railway"
