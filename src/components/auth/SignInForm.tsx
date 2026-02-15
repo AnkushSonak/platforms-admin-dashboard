@@ -1,15 +1,100 @@
 "use client";
 import Checkbox from "@/components/form/input/Checkbox";
-import Input from "@/components/form/input/InputField";
+// import Input from "@/components/form/input/InputField";
 import Label from "@/components/form/Label";
-import Button from "@/components/ui/button/Button";
+// import Button from "@/components/ui/button/Button";
 import { ChevronLeftIcon, EyeCloseIcon, EyeIcon } from "@/icons";
 import Link from "next/link";
-import React, { useState } from "react";
+import React, { FormEvent, useEffect, useState } from "react";
+import { Button } from "../shadcn/ui/button";
+import { loginUserAsync } from "@/state/authentication/AuthenticationSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/state/store";
+import { Input } from "../shadcn/ui/input";
+import { useRouter } from "next/navigation";
 
 export default function SignInForm() {
+  // const [showPassword, setShowPassword] = useState(false);
+  // const [isChecked, setIsChecked] = useState(false);
+  // const [email, setEmail] = useState('');
+  // const [password, setPassword] = useState('');
+  // const [error, setError] = useState<string | null>(null);
+  // const [loading, setLoading] = useState(false);
+  // const { user, loading: isLoading } = useSelector((state: RootState) => state.authentication);
+  // const dispatch = useDispatch<AppDispatch>();
+  // const router = useRouter();
+
+    const router = useRouter();
+  const dispatch = useDispatch<AppDispatch>();
+
+  const { user, loading: authLoading } = useSelector(
+    (state: RootState) => state.authentication
+  );
+
   const [showPassword, setShowPassword] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+
+/**
+   * ✅ Redirect AFTER render (safe)
+   */
+  useEffect(() => {
+    if (!authLoading && user) {
+      router.replace("/");
+    }
+  }, [authLoading, user, router]);
+
+  /**
+   * ✅ Handle submit properly (await async thunk)
+   */
+  const handleSubmit = async (event: FormEvent) => {
+    event.preventDefault();
+
+    if (submitting) return;
+
+    setError(null);
+    setSubmitting(true);
+
+    try {
+      const resultAction = await dispatch(
+        loginUserAsync({ email, password })
+      );
+
+      if (loginUserAsync.fulfilled.match(resultAction)) {
+        // success → redirect handled by useEffect
+      } else {
+        setError(
+          resultAction.payload as string ||
+            "Login failed. Please check your credentials."
+        );
+      }
+    } catch (err) {
+      setError("Something went wrong. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  /**
+   * ✅ Show auth loading state only while checking token
+   */
+  if (authLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <p>Checking authentication...</p>
+      </div>
+    );
+  }
+
+  /**
+   * ✅ Prevent flash while redirecting
+   */
+  if (user) return null;
+
+
   return (
     <div className="flex flex-col flex-1 lg:w-1/2 w-full">
       <div className="w-full max-w-md sm:pt-10 mx-auto mb-5">
@@ -32,7 +117,7 @@ export default function SignInForm() {
             </p>
           </div>
           <div>
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-5">
+            {/* <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-5">
               <button className="inline-flex items-center justify-center gap-3 py-3 text-sm font-normal text-gray-700 transition-colors bg-gray-100 rounded-lg px-7 hover:bg-gray-200 hover:text-gray-800 dark:bg-white/5 dark:text-white/90 dark:hover:bg-white/10">
                 <svg
                   width="20"
@@ -74,7 +159,7 @@ export default function SignInForm() {
                 Sign in with X
               </button>
             </div>
-            <div className="relative py-3 sm:py-5">
+             <div className="relative py-3 sm:py-5">
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-gray-200 dark:border-gray-800"></div>
               </div>
@@ -83,23 +168,27 @@ export default function SignInForm() {
                   Or
                 </span>
               </div>
-            </div>
-            <form>
+            </div> */}
+            <form onSubmit={handleSubmit}>
               <div className="space-y-6">
                 <div>
                   <Label>
                     Email <span className="text-error-500">*</span>{" "}
                   </Label>
-                  <Input placeholder="info@gmail.com" type="email" />
+                  {/* <Input placeholder="info@gmail.com" type="email" /> */}
+                  <Input id="email" type="text" placeholder="info@gmail.com" value={email} onChange={(e) => setEmail(e.target.value)} required  />
                 </div>
                 <div>
                   <Label>
                     Password <span className="text-error-500">*</span>{" "}
                   </Label>
                   <div className="relative">
-                    <Input
+                    {/* <Input
                       type={showPassword ? "text" : "password"}
                       placeholder="Enter your password"
+                    /> */}
+                    <Input id="password" type={showPassword ? "text" : "password"} placeholder="********" value={password} onChange={(e) => setPassword(e.target.value)} required
+                      // className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                     <span
                       onClick={() => setShowPassword(!showPassword)}
@@ -128,14 +217,14 @@ export default function SignInForm() {
                   </Link>
                 </div>
                 <div>
-                  <Button className="w-full" size="sm">
+                  <Button className="w-full" type="submit" size="sm">
                     Sign in
                   </Button>
                 </div>
               </div>
             </form>
 
-            <div className="mt-5">
+            {/* <div className="mt-5">
               <p className="text-sm font-normal text-center text-gray-700 dark:text-gray-400 sm:text-start">
                 Don&apos;t have an account? {""}
                 <Link
@@ -145,7 +234,7 @@ export default function SignInForm() {
                   Sign Up
                 </Link>
               </p>
-            </div>
+            </div> */}
           </div>
         </div>
       </div>

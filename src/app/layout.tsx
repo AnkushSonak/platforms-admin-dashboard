@@ -10,21 +10,17 @@ const outfit = Outfit({
   subsets: ["latin"],
 });
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children, }: Readonly<{ children: React.ReactNode; }>) {
   return (
     <html lang="en">
       <body className={`${outfit.className} dark:bg-gray-900`}>
-        {/* <AuthGuard> */}
         <ThemeProvider>
           <ReduxProvider>
-          <SidebarProvider>{children}</SidebarProvider>
+            <AuthGuard>
+              <SidebarProvider>{children}</SidebarProvider>
+            </AuthGuard>
           </ReduxProvider>
         </ThemeProvider>
-        {/* </AuthGuard> */}
       </body>
     </html>
   );
