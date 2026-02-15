@@ -1,5 +1,8 @@
 "use client";
+import { RootState } from "@/state/store";
+import { redirect } from "next/navigation";
 import React, { createContext, useContext, useState, useEffect } from "react";
+import { useSelector } from "react-redux";
 
 type SidebarContextType = {
   isExpanded: boolean;
@@ -24,9 +27,7 @@ export const useSidebar = () => {
   return context;
 };
 
-export const SidebarProvider: React.FC<{ children: React.ReactNode }> = ({
-  children,
-}) => {
+export const SidebarProvider: React.FC<{ children: React.ReactNode }> = ({ children,}) => {
   const [isExpanded, setIsExpanded] = useState(true);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
