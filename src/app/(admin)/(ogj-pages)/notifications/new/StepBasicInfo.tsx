@@ -13,16 +13,16 @@ import { State } from "@/app/helper/interfaces/State";
 import { FormMultiSelectIds } from "../../jobs/sections/FormMultiSelectIds";
 import { MultiSelect } from "@/components/shadcn/ui/multi-select";
 import { Organization } from "@/app/helper/interfaces/Organization";
-import { getOrganizations } from "@/app/lib/api/Organizations";
+// import { getOrganizations } from "@/app/lib/api/Organizations";
 import { Job } from "@/app/helper/interfaces/Job";
 import { AdmitCard } from "@/app/helper/interfaces/AdmitCard";
 import { Result } from "@/app/helper/interfaces/Result";
 import { AnswerKey } from "@/app/helper/interfaces/AnswerKey";
-import { getResults } from "@/app/lib/api/Results";
+// import { getResults } from "@/app/lib/api/Results";
 // import { getAnswerKeys } from "@/app/lib/api/AnswerKeys";
 // import { getAdmitCards } from "@/app/lib/api/AdmitCards";
 import { getPaginatedEntity } from "@/lib/api/global/Generic";
-import { ADMIT_CARDS_API, ANSWER_KEYS_API, CATEGORY_API, JOBS_API, STATE_API } from "@/app/envConfig";
+import { ADMIT_CARDS_API, ANSWER_KEYS_API, CATEGORY_API, JOBS_API, RESULTS_API, STATE_API } from "@/app/envConfig";
 
 export function StepBasicInfo() {
 
@@ -36,12 +36,12 @@ export function StepBasicInfo() {
   const [results, setResults] = React.useState<Result[]>([]);
   const [answerKeys, setAnswerKeys] = React.useState<AnswerKey[]>([]);
 
-  useEffect(() => { getOrganizations().then(setOrganizations).catch(() => setOrganizations([])); }, []);
+  useEffect(() => { getPaginatedEntity<Organization>("type=organizations&page=1", ANSWER_KEYS_API,  { entityName: "organizations" }).then(res => setOrganizations(res.data)).catch(() => setOrganizations([])); }, []);
   useEffect(() => { getPaginatedEntity<Category>("type=categories&page=1", CATEGORY_API, { entityName: "categories" }).then((res) => setCategories(res.data)).catch(() => setCategories([])); }, []);
   useEffect(() => { getPaginatedEntity<State>("type=states&page=1", STATE_API, { entityName: "states" }).then((res) => setAllStates(res.data)).catch(() => setAllStates([])); }, []);
   useEffect(() => { getPaginatedEntity<Job>("type=jobs&page=1", JOBS_API,  { entityName: "jobs" }).then((response) => setJobs(response.data)).catch(() => setJobs([])); }, []);
   useEffect(() => { getPaginatedEntity<AdmitCard>("type=admitCards&page=1", ADMIT_CARDS_API,  { entityName: "admitCards" }).then((response) => setAdmitCards(response.data)).catch(() => setAdmitCards([])); }, []);
-  useEffect(() => { getResults().then((response) => setResults(response.data)).catch(() => setResults([])); }, []);
+  useEffect(() => { getPaginatedEntity<Result>("type=results&page=1", RESULTS_API,  { entityName: "results" }).then((response) => setResults(response.data)).catch(() => setResults([])); }, []);
   useEffect(() => { getPaginatedEntity<AnswerKey>("type=answer-keys&page=1", ANSWER_KEYS_API,  { entityName: "answerKeys" }).then((response) => setAnswerKeys(response.data)).catch(() => setAnswerKeys([])); }, []);
 
   const newsAndNtfnStatusOptions = [

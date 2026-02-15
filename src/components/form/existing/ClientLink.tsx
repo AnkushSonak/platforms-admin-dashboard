@@ -1,7 +1,7 @@
 "use client";
 import Link, { LinkProps } from "next/link";
 import React, { ReactNode } from "react";
-import { useLoading } from "../contexts/LoadingContext";
+import { useLoading } from "@/context/LoadingContext";
 
 type ClientLinkProps = LinkProps & {
   onClick?: React.MouseEventHandler;

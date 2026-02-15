@@ -10,8 +10,10 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/shadcn/ui/card';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/shadcn/ui/alert-dialog';
 import { Result } from '@/app/helper/interfaces/Result';
-import { getResults } from '@/app/lib/api/Results';
+// import { getResults } from '@/app/lib/api/Results';
 import ClientLink from '@/components/form/existing/ClientLink';
+import { getPaginatedEntity } from '@/lib/api/global/Generic';
+import { RESULTS_API } from '@/app/envConfig';
 
 export default function AdminAdmitCardsPage() {
   const router = useRouter();
@@ -32,11 +34,12 @@ export default function AdminAdmitCardsPage() {
     setLoading(true);
     setError(null);
     try {
-      const result = await getResults(searchQuery, currentPage, RESULTS_PER_PAGE);
+      // const result = await getResults(searchQuery, currentPage, RESULTS_PER_PAGE);
+      const result = await getPaginatedEntity<Result>(`type=results&search=${searchQuery}&page=${currentPage}&limit=${RESULTS_PER_PAGE}`, RESULTS_API,  { entityName: "results" });
       setResults(result.data);
       setTotalPages(result.totalPages);
     } catch (err: any) {
-      setError(err.message || 'Failed to fetch admit cards.');
+      setError(err.message || 'Failed to fetch results.');
     } finally {
       setLoading(false);
     }
