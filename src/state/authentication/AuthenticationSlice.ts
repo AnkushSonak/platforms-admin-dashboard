@@ -102,7 +102,7 @@ const authenticationSlice = createSlice({
             console.log("app/state/authentication/authenticationSlice.ts : loginUserAsync.pending : state = ", state);
             state.loading = true;
             state.error = null;
-            state.user = null;
+            // state.user = null;
         });
         builder.addCase(loginUserAsync.fulfilled, (state, action) => {
             console.log("app/state/authentication/authenticationSlice.ts : loginUserAsync.fulfilled : state = ", state);
@@ -131,7 +131,7 @@ const authenticationSlice = createSlice({
             console.log("app/state/authentication/authenticationSlice.ts : restoreSessionAsync.pending : state = ", state);
             state.loading = true;
             state.error = null;
-            state.user = null;
+            // state.user = null;
             state.sessionChecked = false;
         });
         builder.addCase(restoreSessionAsync.fulfilled, (state, action) => {

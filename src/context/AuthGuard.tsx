@@ -1,30 +1,53 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { AppDispatch, RootState } from '../state/store';
-import { restoreSessionAsync } from '../state/authentication/AuthenticationSlice';
-import { CookieUtils } from '@/lib/utils/CookieUtils/CookieUtils';
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useRouter } from "next/navigation";
+import { AppDispatch, RootState } from "../state/store";
+import { restoreSessionAsync } from "../state/authentication/AuthenticationSlice";
+import { CookieUtils } from "@/lib/utils/CookieUtils/CookieUtils";
 
 export default function AuthGuard({ children }: { children: React.ReactNode }) {
   const dispatch = useDispatch<AppDispatch>();
-  const { loading, user, sessionChecked } = useSelector((state: RootState) => state.authentication);
-  const [token, setToken] = useState<string | null>(null);
+  const router = useRouter();
 
+  const { user, sessionChecked } = useSelector(
+    (state: RootState) => state.authentication
+  );
+
+  /** 1️⃣ Restore session once on mount */
   useEffect(() => {
-    // Only run this on the client
-    const tokenFromCookie = CookieUtils.getCookie("tokenid");
-    setToken(tokenFromCookie);
+    if (!sessionChecked) {
+      const token = CookieUtils.getCookie("tokenid");
 
-    if (!user && tokenFromCookie && !loading && !sessionChecked) {
-      console.debug("AuthGuard: Restoring session with token:", tokenFromCookie);
-      dispatch(restoreSessionAsync());
+      if (token) {
+        dispatch(restoreSessionAsync());
+      } else {
+        // No token → mark session as checked manually
+        // You should ideally have an action for this
+        dispatch({ type: "authentication/sessionCheckedManually" });
+      }
     }
-  }, [user, loading, dispatch, sessionChecked]);
+  }, [dispatch, sessionChecked]);
 
-  console.debug("AuthGuard: user:", user);
-  console.debug("AuthGuard: token from cookie:", token);
-  console.debug("AuthGuard: loading:", loading);
+  /** 2️⃣ Redirect only AFTER session check finishes */
+  useEffect(() => {
+    if (sessionChecked && !user) {
+      router.replace("/signin");
+    }
+  }, [sessionChecked, user, router]);
+
+  /** 3️⃣ Block rendering until session check completes */
+  if (!sessionChecked) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <p>Checking authentication...</p>
+      </div>
+    );
+  }
+
+  /** 4️⃣ Prevent flicker during redirect */
+  if (!user) return null;
 
   return <>{children}</>;
 }
