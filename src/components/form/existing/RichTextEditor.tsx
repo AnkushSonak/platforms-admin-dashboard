@@ -4,7 +4,7 @@
 import React, { useRef, useState, useCallback, useEffect } from "react";
 import dynamic from "next/dynamic";
 import { SerializedEditorState, LexicalEditor } from "lexical";
-import { convertLexicalToHtml } from "../utils/LaxicalToHtml";
+import { convertLexicalToHtml } from "@/lib/utils/LaxicalToHtml";
 
 interface RichTextEditorProps {
   id: string;
