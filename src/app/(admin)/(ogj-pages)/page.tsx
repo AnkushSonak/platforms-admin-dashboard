@@ -11,7 +11,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/state/store';
 import { redirect } from 'next/navigation';
-import statsHandler from '../lib/api/stats';
+// import statsHandler from '../lib/api/stats';
 
 interface Stats {
   jobs: number;
@@ -27,18 +27,18 @@ export default function AdminDashboardPage() {
   const [loadingStats, setLoadingStats] = useState(false);
   const [errorStats, setErrorStats] = useState<string | null>(null);
 
-  useEffect(() => {
-    // Fetch stats only if user is logged in and not already loading auth
-    if (!authLoading && user) {
-      statsHandler().then(data => {
-        setStats(data);
-      }).catch(err => {
-        setErrorStats(err.message || 'Failed to fetch dashboard statistics.');
-      }).finally(() => {
-        setLoadingStats(false);
-      });
-    }
-  }, [user, authLoading, statsHandler]);
+  // useEffect(() => {
+  //   // Fetch stats only if user is logged in and not already loading auth
+  //   if (!authLoading && user) {
+  //     statsHandler().then(data => {
+  //       setStats(data);
+  //     }).catch(err => {
+  //       setErrorStats(err.message || 'Failed to fetch dashboard statistics.');
+  //     }).finally(() => {
+  //       setLoadingStats(false);
+  //     });
+  //   }
+  // }, [user, authLoading, statsHandler]);
 
 
   if (authLoading) {
@@ -55,7 +55,7 @@ export default function AdminDashboardPage() {
     return (
       <div className="flex items-center justify-center h-full min-h-[calc(100vh-100px)]">
         <p className="">Access Denied. Please log in.</p>
-        {redirect("/admin/login")};
+        {redirect("/login")};
       </div>
     );
   }

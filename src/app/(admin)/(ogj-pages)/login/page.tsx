@@ -11,6 +11,7 @@ import { AlertCircle } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/state/store';
 import { loginUserAsync } from '@/state/authentication/AuthenticationSlice';
+import SignInForm from '@/components/auth/SignInForm';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -23,7 +24,7 @@ export default function LoginPage() {
 
   // Redirect if already logged in and not loading
   if (!isLoading && user) {
-    router.replace('/admin'); // Redirect to admin dashboard
+    router.replace('/'); // Redirect to admin dashboard
     return null; // Don't render login form if already logged in
   }
 
@@ -52,54 +53,56 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <Card className="w-full max-w-md p-6 shadow-lg rounded-lg">
-        <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold text-gray-800">Admin Login</CardTitle>
-          <p className="text-sm text-gray-600 mt-1">Access the content management system</p>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-5">
-            {error && (
-              <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative flex items-center gap-2" role="alert">
-                <AlertCircle className="w-5 h-5 flex-shrink-0" />
-                <span className="block sm:inline">{error}</span>
-              </div>
-            )}
-            <div>
-              <Label htmlFor="email" className="text-sm font-medium text-gray-700 mb-1 block">email</Label>
-              <Input
-                id="email"
-                type="text"
-                placeholder="adminuser"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-            <div>
-              <Label htmlFor="password" className="text-sm font-medium text-gray-700 mb-1 block">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="********"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-            <Button
-              type="submit"
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-md transition-colors duration-200"
-              disabled={loading}
-            >
-              {loading ? 'Logging In...' : 'Login'}
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
-    </div>
+    // <div className="flex items-center justify-center min-h-screen bg-gray-100">
+    //   <Card className="w-full max-w-md p-6 shadow-lg rounded-lg">
+    //     <CardHeader className="text-center">
+    //       <CardTitle className="text-2xl font-bold text-gray-800">Admin Login</CardTitle>
+    //       <p className="text-sm text-gray-600 mt-1">Access the content management system</p>
+    //     </CardHeader>
+    //     <CardContent>
+    //       <form onSubmit={handleSubmit} className="space-y-5">
+    //         {error && (
+    //           <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative flex items-center gap-2" role="alert">
+    //             <AlertCircle className="w-5 h-5 flex-shrink-0" />
+    //             <span className="block sm:inline">{error}</span>
+    //           </div>
+    //         )}
+    //         <div>
+    //           <Label htmlFor="email" className="text-sm font-medium text-gray-700 mb-1 block">email</Label>
+    //           <Input
+    //             id="email"
+    //             type="text"
+    //             placeholder="adminuser"
+    //             value={email}
+    //             onChange={(e) => setEmail(e.target.value)}
+    //             required
+    //             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+    //           />
+    //         </div>
+    //         <div>
+    //           <Label htmlFor="password" className="text-sm font-medium text-gray-700 mb-1 block">Password</Label>
+    //           <Input
+    //             id="password"
+    //             type="password"
+    //             placeholder="********"
+    //             value={password}
+    //             onChange={(e) => setPassword(e.target.value)}
+    //             required
+    //             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+    //           />
+    //         </div>
+    //         <Button
+    //           type="submit"
+    //           className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-md transition-colors duration-200"
+    //           disabled={loading}
+    //         >
+    //           {loading ? 'Logging In...' : 'Login'}
+    //         </Button>
+    //       </form>
+    //     </CardContent>
+    //   </Card>
+    // </div>
+
+    <SignInForm />
   );
 }

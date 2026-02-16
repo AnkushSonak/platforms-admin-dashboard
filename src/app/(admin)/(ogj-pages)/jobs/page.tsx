@@ -13,7 +13,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/shadcn/ui/card';
 import type { Job } from '@/app/helper/interfaces/Job'; // Import your Job entity type
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter,
-  AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,} from '@/components/shadcn/ui/alert-dialog';
+  AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/shadcn/ui/alert-dialog';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/state/store';
 
@@ -42,7 +42,8 @@ export default function AdminJobsPage() {
 
       if (response.ok) {
         const result = await response.json();
-        setJobs(result.data.jobs);
+        console.log("Fetched jobs:", result.data);
+        setJobs(result.data.items || []);
         setTotalPages(result.data.meta?.totalPages || 0);
       } else if (response.status === 401 || response.status === 403) {
         setError("Authentication failed. Please log in again.");
@@ -60,12 +61,12 @@ export default function AdminJobsPage() {
   }, [currentPage, searchQuery, API_BASE_URL /*, checkAuth */]);
 
   useEffect(() => {
-    if ( user) {
+    if (user) {
       fetchJobs();
     }
   }, [fetchJobs, user, authLoading]);
 
-  
+
 
   const handleDeleteJob = async (jobId: string) => {
     setDeletingJobId(jobId);
@@ -113,13 +114,20 @@ export default function AdminJobsPage() {
     }
   };
 
-  if (authLoading || !user) {
-    return (
-      <div className="flex items-center justify-center h-full min-h-[calc(100vh-100px)]">
-        <p className="">Loading...</p>
-      </div>
-    );
+  useEffect(() => {
+    if (!authLoading && !user) {
+      router.replace("/signin");
+    }
+  }, [authLoading, user, router]);
+
+  if (authLoading) {
+    return <div>Loading...</div>;
   }
+
+  if (!user) {
+    return null;
+  }
+
 
   return (
     <div className="space-y-6">
@@ -164,7 +172,7 @@ export default function AdminJobsPage() {
             </div>
           ) : error ? (
             <div className="text-center py-10 text-red-600">{error}</div>
-          ) : jobs.length === 0 ? (
+          ) : jobs?.length === 0 ? (
             <div className="text-center py-10">No jobs found.</div>
           ) : (
             <Table>
@@ -180,16 +188,16 @@ export default function AdminJobsPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {jobs.map((job) => (
+                {jobs?.map((job) => (
                   <TableRow className='rounded-sm' key={job.id}>
                     <TableCell className="font-medium  rounded-l-sm">{job.title}</TableCell>
-                    <TableCell className="">{job.organization.fullName}</TableCell>
+                    <TableCell className="">{job.organization?.fullName}</TableCell>
                     <TableCell className="">{job.category?.categoryName || 'N/A'}</TableCell>
                     <TableCell className="">{job.states && job.states.length > 0 ? job.states.map((state) => state.stateName).join(", ") : "N/A"}</TableCell>
                     <TableCell className="">{job.locationText || 'N/A'}</TableCell>
                     <TableCell className="">{job.expiryDate && !isNaN(Date.parse(job?.expiryDate.toString())) ? format(new Date(job.expiryDate), "PPP") : 'N/A'}</TableCell>
                     <TableCell className="text-right flex gap-4 justify-end rounded-r-sm">
-                      <Link href={`/admin/jobs/${job.slug}/edit`} passHref>
+                      <Link href={`/jobs/${job.slug}/edit`} passHref>
                         <Button variant="outline" size="icon" className="h-8 w-8">
                           <Edit className="h-4 w-4" />
                         </Button>

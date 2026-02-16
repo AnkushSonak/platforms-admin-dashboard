@@ -16,7 +16,7 @@ import LogoSelector from "@/components/form/existing/LogoSelector";
 import { JsonFieldDialog } from "@/components/form/existing/JsonFieldDialog";
 import DynamicFieldsSection from "./DynamicFieldsSection";
 import debounce from "lodash/debounce";
-import { JobFormData } from "@/app/lib/schemas/JobSchema"; // type only import (adjust path)
+import { JobFormData } from "@/lib/schemas/JobSchema"; // type only import (adjust path)
 import { DateTimePicker } from "@/components/shadcn/ui/date-time-picker";
 import { SelectOrTypeInput } from "./SelectOrTypeInput";
 import { organizations } from "@/app/helper/constants/Organizations";

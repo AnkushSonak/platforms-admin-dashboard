@@ -3,7 +3,7 @@
 import { useState, useRef } from "react";
 import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { jobSchema, JobFormData } from "@/app/lib/schemas/JobSchema";
+import { jobSchema, JobFormData } from "@/lib/schemas/JobSchema";
 import FullJobFieldsSection from "../../sections/FullJobFieldsSection";
 import { Button } from "@/components/shadcn/ui/button";
 

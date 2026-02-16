@@ -9,20 +9,14 @@ import * as React from "react";
 import { Check, ChevronDown } from "lucide-react";
 
 import { cn } from "@/lib/utils"; // Assuming you have a utility for class merging
-import { Button } from "@/components/ui/button";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-} from "@/components/ui/command";
+import { Button } from "./button";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, } from "@/components/shadcn/ui/command";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover";
-import { Badge } from "@/components/ui/badge";
+} from "@/components/shadcn/ui/popover";
+import { Badge } from "@/components/shadcn/ui/badge";
 
 interface Option {
   label: string;

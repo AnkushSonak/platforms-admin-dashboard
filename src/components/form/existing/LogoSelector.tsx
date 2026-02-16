@@ -1,7 +1,7 @@
 // components/common/LogoSelector.tsx
 "use client";
 import React, { useState, useEffect } from "react";
-import { Label } from "@/components/ui/label"; // adjust import path as per your setup
+import { Label } from "@/components/shadcn/ui/label"; // adjust import path as per your setup
 import Image from "next/image";
 import { unknown } from "zod";
 

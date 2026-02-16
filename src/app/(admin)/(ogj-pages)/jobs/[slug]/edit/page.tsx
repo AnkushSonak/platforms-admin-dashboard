@@ -51,13 +51,27 @@ export default function EditJobPage() {
   }, [slug]);
 
   useEffect(() => {
-    if (user && !authLoading) fetchJob();
+    if (!authLoading && !user) {
+      router.replace("/signin");
+    }
+  }, [authLoading, user, router]);
+
+  useEffect(() => {
+    if (user && !authLoading) {
+      fetchJob();
+    }
   }, [user, authLoading, fetchJob]);
 
-  if (authLoading || loading) return <div>Loading...</div>;
+  if (authLoading || loading) {
+    return <div>Loading...</div>;
+  }
 
-  if (!user?.role || user.role !== "admin")
+  if (!user) return null; // prevent flicker
+
+  if (user.role !== "admin") {
     return <div className="text-red-500">Access Denied</div>;
+  }
+
 
   if (error)
     return (
