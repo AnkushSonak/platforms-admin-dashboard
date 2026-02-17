@@ -36,10 +36,11 @@ import { SEOFields } from '../../jobs/sections/SEOFields';
 import { ResultFormInterface } from '../../form-interfaces/ResultFormInterface';
 import { DynamicLinksEditor } from '../../jobs/sections/DynamicLinksEditor';
 import { ResultStatus } from '@/app/helper/interfaces/Result';
-import { createResult } from '@/app/lib/api/Results';
+// import { createResult } from '@/app/lib/api/Results';
 import { REVIEW_STATUS } from '../../form-interfaces/global';
-import { getPaginatedEntity } from '@/lib/api/global/Generic';
-import { CATEGORY_API, JOBS_API, NEWS_AND_NTFN_API, STATE_API } from '@/app/envConfig';
+import { createEntity, getPaginatedEntity } from '@/lib/api/global/Generic';
+import { CATEGORY_API, JOBS_API, NEWS_AND_NTFN_API, RESULTS_API, STATE_API } from '@/app/envConfig';
+import { AdmitCardFormInterface } from '../../form-interfaces/AdmitCardFormInterface';
 
 const JOB_TO_RESULT_MAP: Record<string, keyof ResultFormInterface> = {
   // Core
@@ -299,7 +300,9 @@ const handleJobSelect = (jobId: string) => {
     setLoading(true);
     try {
       // If you have logo upload logic, handle it here and update values.logoImageUrl if needed
-      const res = await createResult(values);
+      // const res = await createEntity(values);
+      const res = await createEntity<ResultFormInterface>(RESULTS_API, values, { entityName: "Result" });
+
       if (res.success) {
         setSuccess('Result created successfully!');
         methods.reset();

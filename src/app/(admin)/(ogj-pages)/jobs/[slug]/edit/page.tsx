@@ -84,7 +84,7 @@ export default function EditJobPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
-        <Link href="/admin/jobs">
+        <Link href="/jobs">
           <Button variant="outline" size="icon">
             <ArrowLeft className="h-4 w-4" />
           </Button>

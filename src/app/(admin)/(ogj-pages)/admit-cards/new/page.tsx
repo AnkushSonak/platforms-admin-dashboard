@@ -7,7 +7,7 @@ import { ArrowLeft, ExternalLink, X } from 'lucide-react';
 import React, { useState, useEffect, useMemo } from 'react';
 import { useForm, FormProvider, Controller } from 'react-hook-form';
 import { AdmitCardStatus } from '@/app/helper/interfaces/AdmitCard';
-import { createAdmitCard } from '@/app/lib/api/AdmitCards';
+// import { createAdmitCard } from '@/app/lib/api/AdmitCards';
 import { Input } from '@/components/shadcn/ui/input';
 import RichTextEditor from '@/components/form/existing/RichTextEditor';
 import { ApplicationMode, Job } from '@/app/helper/interfaces/Job';
@@ -35,8 +35,8 @@ import { FormVideoLinksInput } from '../../jobs/sections/FormVideoLinksInput';
 import { SEOFields } from '../../jobs/sections/SEOFields';
 import { AdmitCardFormInterface } from '../../form-interfaces/AdmitCardFormInterface';
 import { DynamicLinksEditor } from '../../jobs/sections/DynamicLinksEditor';
-import { getPaginatedEntity } from '@/lib/api/global/Generic';
-import { CATEGORY_API, JOBS_API, NEWS_AND_NTFN_API, STATE_API } from '@/app/envConfig';
+import { createEntity, getPaginatedEntity } from '@/lib/api/global/Generic';
+import { ADMIT_CARDS_API, CATEGORY_API, JOBS_API, NEWS_AND_NTFN_API, STATE_API } from '@/app/envConfig';
 
 const JOB_TO_ADMITCARD_MAP: Record<string, keyof AdmitCardFormInterface> = {
   // Core
@@ -278,7 +278,7 @@ const handleJobSelect = (jobId: string) => {
     setLoading(true);
     try {
       // If you have logo upload logic, handle it here and update values.logoImageUrl if needed
-      const res = await createAdmitCard(values);
+      const res = await createEntity<AdmitCardFormInterface>(ADMIT_CARDS_API, values, { entityName: "Admit Card" });
       if (res.success) {
         setSuccess('Admit Card created successfully!');
         methods.reset();

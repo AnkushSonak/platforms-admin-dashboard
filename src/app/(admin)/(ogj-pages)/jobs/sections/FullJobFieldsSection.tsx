@@ -202,7 +202,8 @@ const FullJobFieldsSection: React.FC<Props & { onHtmlChange?: (html: string) => 
           control={control}
           defaultValue={{ json: null, html: "" }}
           render={({ field }) => (
-            <div key={`desc-${field.name}`}>
+            <div className="overflow-x-hidden" key={`desc-${field.name}`}>
+              
               <RichTextEditor
                 id="descriptionJson"
                 namespace="description-editor"

@@ -148,7 +148,7 @@ export default function AdminJobsPage() {
             <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4" />
           </div>
           <div className=''>
-            <Link href="/admin/jobs/new" passHref>
+            <Link href="/jobs/new" passHref>
               <Button className="flex items-center gap-2">
                 <PlusCircle className="w-4 h-4" /> Add New Job
               </Button>

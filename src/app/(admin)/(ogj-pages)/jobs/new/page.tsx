@@ -3,9 +3,9 @@
 import { useEffect, useRef, useState } from "react";
 import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { JobFormData, jobSchema } from "@/app/lib/schemas/JobSchema";
+import { JobFormData, jobSchema } from "@/lib/schemas/JobSchema";
 import FullJobFieldsSection from "../sections/FullJobFieldsSection";
-import { convertLexicalToHtml } from "@/app/utils/LaxicalToHtml";
+import { convertLexicalToHtml } from "@/lib/utils/LaxicalToHtml";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/shadcn/ui/button";
@@ -21,18 +21,11 @@ export default function AddJobPage() {
   // -----------------------------
   const initialJob: JobFormData = {
     title: "",
-    organization: "",
     descriptionJson: null,
     descriptionHtml: "",
-    category: null,
     states: [],
-    viewCount: 0,
-    clickCount: 0,
-    saveCount: 0,
-    isNew: false,
-    isExpired: false,
-    featuredJob: false,
-    reviewStatus: "pending_review",
+    isFeatured: false,
+    status: "pending_review",
   };
 
   // -----------------------------
@@ -127,7 +120,7 @@ export default function AddJobPage() {
       }
 
       setSuccess(true);
-      router.push("/admin/jobs");
+      router.push("/jobs");
     } catch (err: any) {
       setApiError(err?.message || "Something went wrong");
     } finally {
@@ -141,7 +134,7 @@ export default function AddJobPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
-        <Link href="/admin/jobs">
+        <Link href="/jobs">
           <Button variant="outline" size="icon">
             <ArrowLeft className="h-4 w-4" />
           </Button>
