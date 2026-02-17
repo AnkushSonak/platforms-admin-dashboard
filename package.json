@@ -33,7 +33,7 @@
     "flatpickr": "^4.6.13",
     "lodash": "^4.17.21",
     "lodash.debounce": "^4.0.8",
-    "lexical": "^0.40.0",
+    "lexical": "^0.38.2",
     "@lexical/code": "^0.38.2",
     "@lexical/file": "^0.38.2",
     "@lexical/hashtag": "^0.38.2",
