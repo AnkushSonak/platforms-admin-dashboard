@@ -16,7 +16,7 @@ import LogoSelector from "@/components/form/existing/LogoSelector";
 import { JsonFieldDialog } from "@/components/form/existing/JsonFieldDialog";
 import DynamicFieldsSection from "./DynamicFieldsSection";
 import debounce from "lodash/debounce";
-import { JobFormData } from "@/lib/schemas/JobSchema"; // type only import (adjust path)
+import { JobFormData } from "@/lib/schemas/JobSchema";
 import { DateTimePicker } from "@/components/shadcn/ui/date-time-picker";
 import { SelectOrTypeInput } from "./SelectOrTypeInput";
 import { organizations } from "@/app/helper/constants/Organizations";
@@ -24,7 +24,6 @@ import { FormTagInput } from "./FormTagInput";
 import { FormVideoLinksInput } from "./FormVideoLinksInput";
 import { FormColorPicker } from "./FormColorPicker";
 import { FormMultiSelectIds } from "./FormMultiSelectIds";
-// import { getJobListings } from "@/app/lib/api/jobs";
 import { INewsAndNtfn } from "@/app/helper/interfaces/INewsAndNtfn";
 import { SEOFields } from "./SEOFields";
 import { DynamicLinksEditor } from "./DynamicLinksEditor";
@@ -399,38 +398,6 @@ const FullJobFieldsSection: React.FC<Props & { onHtmlChange?: (html: string) => 
         )} />
       </div>
 
-      {/* List fields */}
-      {/* <div>
-        <Label>Selection Process</Label>
-        <Controller name="selectionProcess" control={control} render={({ field }) => <Textarea {...field} className="mt-1 w-full" rows={3} placeholder="e.g., Written Exam, Interview" />} />
-      </div>
-
-      <div>
-        <Label>How To Apply</Label>
-        <Controller name="howToApply" control={control} render={({ field }) => <Textarea {...field} className="mt-1 w-full" rows={3} />} />
-      </div>
-
-      <div>
-        <Label>Syllabus</Label>
-        <Controller name="syllabus" control={control} render={({ field }) => <Textarea {...field} className="mt-1 w-full" rows={3} />} />
-      </div> */}
-
-      {/* Counts */}
-      <div className="flex gap-4">
-        <div className="w-full">
-          <Label>View Count</Label>
-          <Controller name="viewCount" control={control} render={({ field }) => <Input {...field} type="number" className="mt-1" />} />
-        </div>
-        <div className="w-full">
-          <Label>Click Count</Label>
-          <Controller name="clickCount" control={control} render={({ field }) => <Input {...field} type="number" className="mt-1" />} />
-        </div>
-        <div className="w-full">
-          <Label>Save Count</Label>
-          <Controller name="saveCount" control={control} render={({ field }) => <Input {...field} type="number" className="mt-1" />} />
-        </div>
-      </div>
-
       {/* Dates + expired flag */}
       <div className="flex gap-4">
         <div className="w-full">
@@ -514,11 +481,11 @@ const FullJobFieldsSection: React.FC<Props & { onHtmlChange?: (html: string) => 
         <Label>Last Updated By</Label>
         <Controller name="lastUpdatedBy" control={control} render={({ field }) => <Input {...field} className="mt-1 w-full" />} />
       </div>
-
+{/* 
       <div>
         <Label>Notes</Label>
         <Controller name="notes" control={control} render={({ field }) => <Textarea {...field} className="mt-1 w-full" rows={2} />} />
-      </div>
+      </div> */}
 
       {/* Save button is intentionally left to parent form; keep only a UI button for convenience */}
       {/* <div className="flex justify-end gap-2">
