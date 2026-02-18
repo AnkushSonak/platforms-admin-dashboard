@@ -154,11 +154,7 @@ export async function getEntityBySlug<T>(entityUrl: string, slug: string, option
   }
 }
 
-export async function createEntity<T, R = any>(
-  endpoint: string,
-  data: T,
-  options?: CrudOptions
-): Promise<CrudResult<R>> {
+export async function createEntity<T, R = any>( endpoint: string, data: T, options?: CrudOptions): Promise<CrudResult<R>> {
   const {
     timeoutMs = FETCH_TIMEOUT_MS,
     entityName = "entity",
@@ -205,12 +201,7 @@ export async function createEntity<T, R = any>(
   }
 }
 
-export async function updateEntity<T, R = any>(
-  endpoint: string,
-  id: string,
-  data: T,
-  options?: CrudOptions
-): Promise<CrudResult<R>> {
+export async function updateEntity<T, R = any>( endpoint: string, id: string, data: T, options?: CrudOptions ): Promise<CrudResult<R>> {
   const {
     timeoutMs = FETCH_TIMEOUT_MS,
     entityName = "entity",
