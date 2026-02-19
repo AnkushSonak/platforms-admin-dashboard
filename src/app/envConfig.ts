@@ -22,13 +22,16 @@ export const ANSWER_KEYS_API = `${BACKEND_BASE_URL}/answer-keys`;
 
 
 /* ------------------------ NEWS_AND_NTFN API Endpoints ------------------------ */
-export const NEWS_AND_NTFN_API = `${BACKEND_BASE_URL}/news`;
+export const NEWS_AND_NTFN_API = `${BACKEND_BASE_URL}/news-and-notifications`;
 
 /* ------------------------ CATEGORY API Endpoints ------------------------ */
 export const CATEGORY_API = `${BACKEND_BASE_URL}/categories`;
 
 /* ------------------------ STATE API Endpoints ------------------------ */
 export const STATE_API = `${BACKEND_BASE_URL}/states`;
+
+/* ------------------------ STATE API Endpoints ------------------------ */
+export const ORGANIZATION_API = `${BACKEND_BASE_URL}/organizations`;
 
 // export const LOGIN_API = `${BACKEND_BASE_URL}/auth/login`;
 // export const REGISTER_API = `${BACKEND_BASE_URL}/auth/register`;
