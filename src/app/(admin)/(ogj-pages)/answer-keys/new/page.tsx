@@ -7,7 +7,7 @@ import { ArrowLeft, ExternalLink, X } from 'lucide-react';
 import React, { useState, useEffect, useMemo } from 'react';
 import { useForm, FormProvider, Controller } from 'react-hook-form';
 import { AnswerKeyStatus } from '../../form-interfaces/AnswerKeyFormInterface';
-import { createAnswerKey } from '@/app/lib/api/AnswerKeys';
+// import { createAnswerKey } from '@/app/lib/api/AnswerKeys';
 import { Input } from '@/components/shadcn/ui/input';
 import RichTextEditor from '@/components/form/existing/RichTextEditor';
 import { ApplicationMode, Job } from '@/app/helper/interfaces/Job';
@@ -37,8 +37,8 @@ import { SEOFields } from '../../jobs/sections/SEOFields';
 import { AnswerKeyFormInterface } from '../../form-interfaces/AnswerKeyFormInterface';
 import { DynamicLinksEditor } from '../../jobs/sections/DynamicLinksEditor';
 import { REVIEW_STATUS } from '../../form-interfaces/global';
-import { CATEGORY_API, JOBS_API, NEWS_AND_NTFN_API, STATE_API } from '@/app/envConfig';
-import { getPaginatedEntity } from '@/lib/api/global/Generic';
+import { ANSWER_KEYS_API, CATEGORY_API, JOBS_API, NEWS_AND_NTFN_API, STATE_API } from '@/app/envConfig';
+import { createEntity, getPaginatedEntity } from '@/lib/api/global/Generic';
 
 const JOB_TO_ANSWER_KEY_MAP: Record<string, keyof AnswerKeyFormInterface> = {
   // Core
@@ -301,7 +301,7 @@ export default function AddAnswerKeyPage() {
     setLoading(true);
     try {
       // If you have logo upload logic, handle it here and update values.logoImageUrl if needed
-      const res = await createAnswerKey(values);
+      const res = await createEntity<AnswerKeyFormInterface>(ANSWER_KEYS_API, values, { entityName: "AnswerKey" });
       if (res.success) {
         setSuccess('Answer Key created successfully!');
         methods.reset();
@@ -319,7 +319,7 @@ export default function AddAnswerKeyPage() {
     <FormProvider {...methods}>
       <div className="space-y-6">
         <div className="flex items-center gap-4">
-          <Link href="/admin/answer-keys" passHref>
+          <Link href="/answer-keys" passHref>
             <Button variant="outline" size="icon" className="h-8 w-8"><ArrowLeft className="h-4 w-4" /></Button>
           </Link>
           <h1 className="text-2xl font-bold">Add Answer Key</h1>
@@ -439,7 +439,7 @@ export default function AddAnswerKeyPage() {
                   }))} MultiSelectComponent={MultiSelect} />
 
                   <FormSelectId name="categoryId" control={methods.control} label="Select Category" placeholder="Select category"
-                    options={categories.map((c) => ({ id: c.id, label: c.categoryName, }))} />
+                    options={categories.map((c) => ({ id: c.id, label: c.name, }))} />
 
                   <div><label className="block text-sm pb-2">Location Text</label><Input {...methods.register('locationText')} className="w-full border rounded p-2" /></div>
                   <div><label className="block text-sm pb-2">Qualification</label><Input {...methods.register('qualification')} className="w-full border rounded p-2" /></div>

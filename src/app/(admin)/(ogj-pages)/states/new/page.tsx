@@ -38,7 +38,7 @@ export default function AddStatePage() {
     return (
         <div className="space-y-6">
             <div className="flex items-center gap-4">
-                <Link href="/admin/states" passHref>
+                <Link href="/states" passHref>
                     <Button variant="outline" size="icon" className="h-8 w-8">
                         <ArrowLeft className="h-4 w-4" />
                     </Button>

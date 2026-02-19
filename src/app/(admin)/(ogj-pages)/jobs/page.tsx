@@ -192,7 +192,7 @@ export default function AdminJobsPage() {
                   <TableRow className='rounded-sm' key={job.id}>
                     <TableCell className="font-medium  rounded-l-sm">{job.title}</TableCell>
                     <TableCell className="">{job.organization?.fullName}</TableCell>
-                    <TableCell className="">{job.category?.categoryName || 'N/A'}</TableCell>
+                    <TableCell className="">{job.category?.name || 'N/A'}</TableCell>
                     <TableCell className="">{job.states && job.states.length > 0 ? job.states.map((state) => state.stateName).join(", ") : "N/A"}</TableCell>
                     <TableCell className="">{job.locationText || 'N/A'}</TableCell>
                     <TableCell className="">{job.expiryDate && !isNaN(Date.parse(job?.expiryDate.toString())) ? format(new Date(job.expiryDate), "PPP") : 'N/A'}</TableCell>

@@ -169,16 +169,16 @@ export default function AdminDashboardPage() {
           <CardTitle className="text-lg font-bold">Quick Actions</CardTitle>
         </CardHeader>
         <CardContent className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Link href="/admin/jobs/new" passHref>
+          <Link href="/jobs/new" passHref>
             <Button className="w-full py-2 rounded-md transition-colors">Add New Job</Button>
           </Link>
-          <Link href="/admin/notifications/new" passHref>
+          <Link href="/notifications/new" passHref>
             <Button className="w-full py-2 rounded-md">Add New Notification</Button>
           </Link>
-          <Link href="/admin/jobs" passHref>
+          <Link href="/jobs" passHref>
             <Button variant="outline" className="w-full py-2 rounded-md">View All Jobs</Button>
           </Link>
-          <Link href="/admin/notifications" passHref>
+          <Link href="/notifications" passHref>
             <Button variant="outline" className="w-full py-2 rounded-md">View All Notifications</Button>
           </Link>
         </CardContent>

@@ -280,7 +280,7 @@ export default function EditAnswerKeyPage() {
     <FormProvider {...methods}>
       <div className="space-y-6">
         <div className="flex items-center gap-4">
-          <Link href="/admin/answer-keys" passHref>
+          <Link href="/answer-keys" passHref>
             <Button variant="outline" size="icon" className="h-8 w-8"><ArrowLeft className="h-4 w-4" /></Button>
           </Link>
           <h1 className="text-2xl font-bold">Edit Answer Key</h1>
@@ -384,7 +384,7 @@ export default function EditAnswerKeyPage() {
                     label: s.stateName, value: String(s.id),
                   }))} MultiSelectComponent={MultiSelect} />
                   <FormSelectId name="categoryId" control={methods.control} label="Select Category" placeholder="Select category"
-                    options={categories.map((c) => ({ id: c.id, label: c.categoryName, }))} />
+                    options={categories.map((c) => ({ id: c.id, label: c.name, }))} />
                   <div><label className="block text-sm pb-2">Location Text</label><Input {...methods.register('locationText')} className="w-full border rounded p-2" /></div>
                   <div><label className="block text-sm pb-2">Qualification</label><Input {...methods.register('qualification')} className="w-full border rounded p-2" /></div>
                   <div><label className="block text-sm pb-2">Logo Text</label><Input {...methods.register('logo')} className="w-full border rounded p-2" /></div>

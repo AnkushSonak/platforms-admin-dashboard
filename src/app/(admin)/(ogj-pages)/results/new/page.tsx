@@ -320,7 +320,7 @@ const handleJobSelect = (jobId: string) => {
     <FormProvider {...methods}>
       <div className="space-y-6">
         <div className="flex items-center gap-4">
-          <Link href="/admin/results" passHref>
+          <Link href="/results" passHref>
             <Button variant="outline" size="icon" className="h-8 w-8"><ArrowLeft className="h-4 w-4" /></Button>
           </Link>
           <h1 className="text-2xl font-bold">Add Result</h1>
@@ -437,7 +437,7 @@ const handleJobSelect = (jobId: string) => {
                   }))} MultiSelectComponent={MultiSelect} />
 
                   <FormSelectId name="categoryId" control={methods.control} label="Select Category" placeholder="Select category"
-                    options={categories.map((c) => ({id: c.id, label: c.categoryName, }))}/>
+                    options={categories.map((c) => ({id: c.id, label: c.name, }))}/>
 
                   <div><label className="block text-sm pb-2">Location Text</label><Input {...methods.register('locationText')} className="w-full border rounded p-2" /></div>
                   <div><label className="block text-sm pb-2">Qualification</label><Input {...methods.register('qualification')} className="w-full border rounded p-2" /></div>

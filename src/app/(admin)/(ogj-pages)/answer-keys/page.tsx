@@ -87,7 +87,7 @@ export default function AdminAnswerKeysPage() {
     <div className="space-y-6">
       <div className="flex justify-between mt-4">
         <h1 className="text-2xl font-bold">Answer Keys</h1>
-        <Link href="/admin/answer-keys/new">
+        <Link href="/answer-keys/new">
           <Button className="ml-2" variant="default"><PlusCircle className="w-4 h-4 mr-1" />Add New</Button>
         </Link>
       </div>
@@ -133,7 +133,7 @@ export default function AdminAnswerKeysPage() {
                       <TableCell className="flex gap-2">
                         {/* <Link href={`/admin/answer-keys/${card.answerKeySlug || card.id}/edit`}><Button size="icon" variant="outline"><Edit className="w-4 h-4" /></Button></Link> */}
 
-                        <Link href={`/admin/answer-keys/${card.answerKeySlug}/edit`} passHref>
+                        <Link href={`/answer-keys/${card.answerKeySlug}/edit`} passHref>
                           <Button variant="outline" size="icon" className="h-8 w-8">
                             <Edit className="h-4 w-4" />
                           </Button>

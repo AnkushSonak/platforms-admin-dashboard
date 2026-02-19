@@ -29,7 +29,7 @@ export default function AddExamEventPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
-        <Link href="/admin/exam-events" passHref>
+        <Link href="/exam-events" passHref>
           <Button variant="outline" size="icon" className="h-8 w-8"><ArrowLeft className="h-4 w-4" /></Button>
         </Link>
         <h1 className="text-2xl font-bold text-gray-900">Add Exam Event</h1>

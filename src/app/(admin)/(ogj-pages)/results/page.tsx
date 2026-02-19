@@ -88,7 +88,7 @@ export default function AdminAdmitCardsPage() {
     <div className="space-y-6">
       <div className="flex justify-between mt-4">
         <h1 className="text-2xl font-bold">Results</h1>
-        <ClientLink href="/admin/results/new">
+        <ClientLink href="/results/new">
           <Button className="ml-2" variant="default"><PlusCircle className="w-4 h-4 mr-1" />Add New</Button>
         </ClientLink>
       </div>
@@ -133,7 +133,7 @@ export default function AdminAdmitCardsPage() {
                       <TableCell className="flex gap-2">
                         {/* <Link href={`/admin/admit-cards/${card.admitCardSlug || card.id}/edit`}><Button size="icon" variant="outline"><Edit className="w-4 h-4" /></Button></Link> */}
 
-                        <ClientLink href={`/admin/results/${card.resultSlug}/edit`} passHref>
+                        <ClientLink href={`/results/${card.resultSlug}/edit`} passHref>
                           <Button variant="outline" size="icon" className="h-8 w-8">
                             <Edit className="h-4 w-4" />
                           </Button>

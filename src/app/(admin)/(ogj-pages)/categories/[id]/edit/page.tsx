@@ -20,7 +20,7 @@ export default function EditCategoryPage() {
   useEffect(() => {
     setFetching(true);
     setTimeout(() => {
-      setForm({ categoryName: 'Sample Category', slug: 'sample-category', isActive: true });
+      setForm({ name: 'Sample Category', slug: 'sample-category', isActive: true });
       setFetching(false);
     }, 800);
   }, [categoryId]);
@@ -48,7 +48,7 @@ export default function EditCategoryPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
-        <Link href="/admin/categories" passHref>
+        <Link href="/categories" passHref>
           <Button variant="outline" size="icon" className="h-8 w-8">
             <ArrowLeft className="h-4 w-4" />
           </Button>
@@ -65,8 +65,8 @@ export default function EditCategoryPage() {
               <div>
                 <label className="block font-medium">Category Name *</label>
                 <input
-                  name="categoryName"
-                  value={form.categoryName}
+                  name="name"
+                  value={form.name}
                   onChange={handleChange}
                   className="w-full border rounded p-2"
                   required

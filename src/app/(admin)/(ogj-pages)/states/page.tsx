@@ -9,7 +9,7 @@ export default function AdminStatesPage() {
     <div className="space-y-6">
       <div className="flex items-center gap-4">
         <h1 className="text-2xl font-bold text-gray-900">States</h1>
-        <Link href="/admin/states/new">
+        <Link href="/states/new">
           <Button className="ml-2" variant="default"><PlusCircle className="w-4 h-4 mr-1" />Add New</Button>
         </Link>
       </div>

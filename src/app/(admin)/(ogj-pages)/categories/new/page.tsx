@@ -8,9 +8,16 @@ import { useState } from 'react';
 import type { Category } from '@/app/helper/interfaces/Category';
 
 const initialForm: Omit<Category, 'id' | 'deletedAt'> = {
-  categoryName: '',
+  name: '',
   slug: '',
+  parentId: null,
+  brandColor: "",
+  priorityOrder: 0,
+  isFeatured: false,
   isActive: true,
+  createdAt: new Date(),
+  updatedAt: new Date()
+  // deletedAt: null
 };
 
 export default function AddCategoryPage() {
@@ -38,7 +45,7 @@ export default function AddCategoryPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
-        <Link href="/admin/categories" passHref>
+        <Link href="/categories" passHref>
           <Button variant="outline" size="icon" className="h-8 w-8">
             <ArrowLeft className="h-4 w-4" />
           </Button>
@@ -55,8 +62,8 @@ export default function AddCategoryPage() {
               <div>
                 <label className="block font-medium">Category Name *</label>
                 <input
-                  name="categoryName"
-                  value={form.categoryName}
+                  name="name"
+                  value={form.name}
                   onChange={handleChange}
                   className="w-full border rounded p-2"
                   required

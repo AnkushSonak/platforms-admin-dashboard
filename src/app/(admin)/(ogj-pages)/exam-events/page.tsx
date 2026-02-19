@@ -9,7 +9,7 @@ export default function AdminExamEventsPage() {
     <div className="space-y-6">
       <div className="flex items-center gap-4">
         <h1 className="text-2xl font-bold text-gray-900">Exam Events</h1>
-        <Link href="/admin/exam-events/new">
+        <Link href="/exam-events/new">
           <Button className="ml-2" variant="default"><PlusCircle className="w-4 h-4 mr-1" />Add New</Button>
         </Link>
       </div>
