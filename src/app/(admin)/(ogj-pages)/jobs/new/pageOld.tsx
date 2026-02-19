@@ -331,7 +331,7 @@
 //                   <SelectContent>
 //                     {categories.map(cat => (
 //                       <SelectItem key={cat.id} value={cat.id?.toString()}>
-//                         {cat.categoryName}
+//                         {cat.name}
 //                       </SelectItem>
 //                     ))}
 //                   </SelectContent>

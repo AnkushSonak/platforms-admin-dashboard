@@ -22,7 +22,7 @@ import { AnswerKey } from "@/app/helper/interfaces/AnswerKey";
 // import { getAnswerKeys } from "@/app/lib/api/AnswerKeys";
 // import { getAdmitCards } from "@/app/lib/api/AdmitCards";
 import { getPaginatedEntity } from "@/lib/api/global/Generic";
-import { ADMIT_CARDS_API, ANSWER_KEYS_API, CATEGORY_API, JOBS_API, RESULTS_API, STATE_API } from "@/app/envConfig";
+import { ADMIT_CARDS_API, ANSWER_KEYS_API, CATEGORY_API, JOBS_API, ORGANIZATION_API, RESULTS_API, STATE_API } from "@/app/envConfig";
 
 export function StepBasicInfo() {
 
@@ -36,7 +36,7 @@ export function StepBasicInfo() {
   const [results, setResults] = React.useState<Result[]>([]);
   const [answerKeys, setAnswerKeys] = React.useState<AnswerKey[]>([]);
 
-  useEffect(() => { getPaginatedEntity<Organization>("type=organizations&page=1", ANSWER_KEYS_API,  { entityName: "organizations" }).then(res => setOrganizations(res.data)).catch(() => setOrganizations([])); }, []);
+  useEffect(() => { getPaginatedEntity<Organization>("type=organizations&page=1", ORGANIZATION_API,  { entityName: "organizations" }).then(res => setOrganizations(res.data)).catch(() => setOrganizations([])); }, []);
   useEffect(() => { getPaginatedEntity<Category>("type=categories&page=1", CATEGORY_API, { entityName: "categories" }).then((res) => setCategories(res.data)).catch(() => setCategories([])); }, []);
   useEffect(() => { getPaginatedEntity<State>("type=states&page=1", STATE_API, { entityName: "states" }).then((res) => setAllStates(res.data)).catch(() => setAllStates([])); }, []);
   useEffect(() => { getPaginatedEntity<Job>("type=jobs&page=1", JOBS_API,  { entityName: "jobs" }).then((response) => setJobs(response.data)).catch(() => setJobs([])); }, []);
@@ -179,7 +179,7 @@ export function StepBasicInfo() {
         <FormItem>
           <FormControl>
             <FormSelectId {...field} name="categoryId" control={control} label="Select Category" placeholder="Select category"
-              options={categories.map((c) => ({ id: String(c.id), label: c.categoryName, }))} />
+              options={categories.map((c) => ({ id: String(c.id), label: c.name, }))} />
           </FormControl>
           <FormMessage />
         </FormItem>

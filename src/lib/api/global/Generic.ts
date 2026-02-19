@@ -10,6 +10,7 @@ export type PaginatedResult<T> = {
 export type ApiMeta = {
   total: number;
   currentPage: number;
+  limit?: number ;
   totalPages: number;
 };
 

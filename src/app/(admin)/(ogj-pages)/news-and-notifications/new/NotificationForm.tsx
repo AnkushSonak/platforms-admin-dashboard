@@ -8,14 +8,17 @@ import { Form } from "@/components/shadcn/ui/form"
 import { Card, CardContent, CardHeader } from "@/components/shadcn/ui/card"
 import { Button } from "@/components/shadcn/ui/button"
 
-import { NewsAndNotificationSchema } from "@/app/lib/schemas/NewsAndNtfnSchema"
+import { NewsAndNotificationSchema } from "@/lib/schemas/NewsAndNtfnSchema"
 import { StepContent } from "./StepContent"
 import { StepSEOAndAI } from "./StepSEOAndAI"
 import { StepReviewAndSubmit } from "./StepReviewAndSubmit"
 import { StepBasicInfo } from "./StepBasicInfo"
 import { REVIEW_STATUS } from "../../form-interfaces/global"
-import { createNewsAndNtfn } from "@/app/lib/api/notifications"
-import { updateNewsAndNtfn } from "@/app/lib/api/notifications";
+// import { createNewsAndNtfn } from "@/app/lib/api/notifications"
+// import { updateNewsAndNtfn } from "@/app/lib/api/notifications";
+import { NEWS_AND_NTFN_API } from "@/app/envConfig"
+import { createEntity, updateEntity } from "@/lib/api/global/Generic"
+import { INewsAndNtfn } from "@/app/helper/interfaces/INewsAndNtfn"
 
 interface Props {
   isAdmin: boolean;
@@ -116,10 +119,10 @@ export function NotificationForm({ isAdmin, initialValues, onSubmit, isEditMode 
     try {
       let res;
       if (isEditMode && initialValues && initialValues.id) {
-        res = await updateNewsAndNtfn(initialValues.id, values);
+        res =  await updateEntity<INewsAndNtfn>(NEWS_AND_NTFN_API, initialValues?.id, values, { entityName: "NewsAndNtfn" });
         if (res.success) setSuccess("News And Notification updated successfully!");
       } else {
-        res = await createNewsAndNtfn(values);
+        res = await createEntity<INewsAndNtfn>(NEWS_AND_NTFN_API, values, { entityName: "NewsAndNtfn" });
         if (res.success) setSuccess("News And Notification created successfully!");
       }
       if (!res.success) setError(res.message || "Failed to submit");

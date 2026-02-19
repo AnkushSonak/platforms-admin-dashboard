@@ -253,7 +253,7 @@ const FullJobFieldsSection: React.FC<Props & { onHtmlChange?: (html: string) => 
               <Select value={field.value && (field.value as any).id ? String((field.value as any).id) : ""} onValueChange={handleCategoryChange}>
                 <SelectTrigger className="w-full mt-1"><SelectValue placeholder="Select category" /></SelectTrigger>
                 <SelectContent>
-                  {categories.map(c => <SelectItem key={c.id} value={String(c.id)}>{c.categoryName}</SelectItem>)}
+                  {categories.map(c => <SelectItem key={c.id} value={String(c.id)}>{c.name}</SelectItem>)}
                 </SelectContent>
               </Select>
             )}

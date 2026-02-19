@@ -1,4 +1,4 @@
-import RichTextEditor from "@/app/components/RichTextEditor"
+import RichTextEditor from "@/components/form/existing/RichTextEditor"
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/shadcn/ui/form"
 import { useFormContext } from "react-hook-form"
 import DynamicFieldsSection from "../../jobs/sections/DynamicFieldsSection"

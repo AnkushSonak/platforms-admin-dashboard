@@ -1,4 +1,3 @@
-// app/admin/notifications/page.tsx
 "use client";
 
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/shadcn/ui/card';
@@ -87,7 +86,7 @@ export default function AdminNotificationsPage() {
         <h1 className="text-2xl font-bold flex items-center gap-2">
           <BellRing className="w-6 h-6" /> Manage Notifications
         </h1>
-        <Link href="/admin/notifications/new" passHref>
+        <Link href="/news-and-notifications/new" passHref>
           <Button className="flex items-center gap-2">
             <PlusCircle className="w-4 h-4" /> Add New Notification
           </Button>
@@ -120,7 +119,7 @@ export default function AdminNotificationsPage() {
           ) : error ? (
             <div className="text-center py-10 text-red-600">{error}</div>
           ) : notifications.length === 0 ? (
-            <div className="text-center py-10 text-gray-600">No notifications found.</div>
+            <div className="text-center py-10 text-red-600">No notifications found.</div>
           ) : (
             <Table>
               <TableHeader>
@@ -140,7 +139,7 @@ export default function AdminNotificationsPage() {
                     <TableCell>{notification.slug}</TableCell>
                     <TableCell>{new Date(notification.createdAt).toLocaleDateString()}</TableCell>
                     <TableCell className="text-right flex justify-end space-x-2">
-                      <Link href={`/admin/notifications/${notification.slug}/edit`} passHref>
+                      <Link href={`/news-and-notifications/${notification.slug}/edit`} passHref>
                         <Button variant="outline" size="icon" className="h-8 w-8">
                           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-edit"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4Z"/></svg>
                         </Button>
