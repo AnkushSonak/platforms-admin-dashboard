@@ -101,7 +101,7 @@ export const NewsAndNotificationSchema = z.object({
 
   officialOrderNumber: z.string().optional(),
 
-  version: z.number().int().positive(),
+  version: z.float64().positive(),
 
   status: z.enum(Object.values(NewsAndNntfnStatusType) as [string, ...string[]]),
   priority: z.enum(Object.values(NewsAndNtfnPriorityType) as [string, ...string[]]),
@@ -120,9 +120,10 @@ export const NewsAndNotificationSchema = z.object({
   officialLink: z.string().url().optional(),
   downloadLink: z.string().url().optional(),
 
-  isFeatured: z.boolean(),
-  isVerified: z.boolean(),
-  tags: z.array(z.string()).optional(),
+  isFeatured: z.boolean().default(false),
+  isVerified: z.boolean().default(false),
+  cardTags: z.array(z.string()).default([]).optional(),
+  tagIds: z.array(z.string()).default([]).optional(),
   importantLinks: z.any().optional(),
 
   // sourceLinks: z.array(SourceLinkSchema).optional(),
@@ -150,7 +151,8 @@ export const NewsAndNotificationSchema = z.object({
 
   minAge: z.number().int().nonnegative().optional(),
   maxAge: z.number().int().nonnegative().optional(),
-  qualifications:z.string(), //z.array(z.string().min(1)).optional(),
+  qualificationSummary: z.string().nullable().optional(),
+  qualificationIds: z.array(z.string()).default([]), //z.array(z.string().min(1)).optional(),
 
   engagement: EngagementSchema.optional(),
 

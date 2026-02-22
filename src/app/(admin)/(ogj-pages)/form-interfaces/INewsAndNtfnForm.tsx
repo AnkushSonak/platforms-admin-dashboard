@@ -57,7 +57,8 @@ export interface INewsAndNtfnForm {
   relatedAnswerKeyIds: string[];
 
   // ---- Tags ----
-  tags: string[] | null;
+  cardTags: string[] | null;
+  tagIds: string[] | null;
 
   // --- Dynamic Content ---
   dynamicFields?: any;
@@ -90,7 +91,8 @@ export interface INewsAndNtfnForm {
   // --- Eligibility / Filters ---
   minAge?: number;
   maxAge?: number;
-  qualifications?: string[];
+  qualificationSummary?: string;
+  qualificationIds?: string[];
 
   // --- Engagement ---
   engagement?: {

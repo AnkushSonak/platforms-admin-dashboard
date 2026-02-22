@@ -13,16 +13,13 @@ import { State } from "@/app/helper/interfaces/State";
 import { FormMultiSelectIds } from "../../jobs/sections/FormMultiSelectIds";
 import { MultiSelect } from "@/components/shadcn/ui/multi-select";
 import { Organization } from "@/app/helper/interfaces/Organization";
-// import { getOrganizations } from "@/app/lib/api/Organizations";
 import { Job } from "@/app/helper/interfaces/Job";
 import { AdmitCard } from "@/app/helper/interfaces/AdmitCard";
 import { Result } from "@/app/helper/interfaces/Result";
 import { AnswerKey } from "@/app/helper/interfaces/AnswerKey";
-// import { getResults } from "@/app/lib/api/Results";
-// import { getAnswerKeys } from "@/app/lib/api/AnswerKeys";
-// import { getAdmitCards } from "@/app/lib/api/AdmitCards";
 import { getPaginatedEntity } from "@/lib/api/global/Generic";
-import { ADMIT_CARDS_API, ANSWER_KEYS_API, CATEGORY_API, JOBS_API, ORGANIZATION_API, RESULTS_API, STATE_API } from "@/app/envConfig";
+import { ADMIT_CARDS_API, ANSWER_KEYS_API, CATEGORY_API, JOBS_API, ORGANIZATION_API, QUALIFICATIONS_API, RESULTS_API, STATE_API } from "@/app/envConfig";
+import { Qualification } from "@/app/helper/interfaces/Qualification";
 
 export function StepBasicInfo() {
 
@@ -31,6 +28,7 @@ export function StepBasicInfo() {
   const [organizations, setOrganizations] = React.useState<Organization[]>([]);
   const [categories, setCategories] = React.useState<Category[]>([]);
   const [allStates, setAllStates] = React.useState<State[]>([]);
+  const [allQualifications, setAllQualifications] = React.useState<any[]>([]);
   const [jobs, setJobs] = React.useState<Job[]>([]);
   const [admitCards, setAdmitCards] = React.useState<AdmitCard[]>([]);
   const [results, setResults] = React.useState<Result[]>([]);
@@ -43,6 +41,7 @@ export function StepBasicInfo() {
   useEffect(() => { getPaginatedEntity<AdmitCard>("type=admitCards&page=1", ADMIT_CARDS_API,  { entityName: "admitCards" }).then((response) => setAdmitCards(response.data)).catch(() => setAdmitCards([])); }, []);
   useEffect(() => { getPaginatedEntity<Result>("type=results&page=1", RESULTS_API,  { entityName: "results" }).then((response) => setResults(response.data)).catch(() => setResults([])); }, []);
   useEffect(() => { getPaginatedEntity<AnswerKey>("type=answer-keys&page=1", ANSWER_KEYS_API,  { entityName: "answerKeys" }).then((response) => setAnswerKeys(response.data)).catch(() => setAnswerKeys([])); }, []);
+  useEffect(() => { getPaginatedEntity<Qualification>("type=qualifications&page=1", QUALIFICATIONS_API,  { entityName: "qualifications" }).then((response) => setAllQualifications(response.data)).catch(() => setAllQualifications([])); }, []);
 
   const newsAndNtfnStatusOptions = [
     { value: NewsAndNntfnStatusType.PENDING, label: 'Pending' },
@@ -98,7 +97,7 @@ export function StepBasicInfo() {
       <FormField name="version" control={control} render={({ field }) => (
         <FormItem>
           <FormLabel>Version</FormLabel>
-          <FormControl><Input {...field} /></FormControl>
+          <FormControl><Input type="number" {...field} onChange={(e) => field.onChange(e.target.valueAsNumber)} /></FormControl>
           <FormMessage />
         </FormItem>
       )} />
@@ -264,10 +263,35 @@ export function StepBasicInfo() {
       )}
       />
 
-      <FormField name="qualifications" control={control} render={({ field }) => (
+      <FormField name="qualificationSummary" control={control} render={({ field }) => (
         <FormItem>
-          <FormLabel>Qualifications</FormLabel>
+          <FormLabel>Qualification Summary</FormLabel>
+          <FormControl>
+            <Input type="text" value={field.value ?? ""} onChange={(e) =>
+              field.onChange(e.target.value === "" ? undefined : e.target.value)
+            }
+            />
+          </FormControl>
+          <FormMessage />
+        </FormItem>
+      )}
+      />
+
+      {/* <FormField name="qualificationSummary" control={control} render={({ field }) => (
+        <FormItem>
+          <FormLabel>Qualification Summary</FormLabel>
           <FormControl><Input {...field} /></FormControl>
+          <FormMessage />
+        </FormItem>
+      )} /> */}
+
+      <FormField name="qualificationIds" control={control} render={({ field }) => (
+        <FormItem>
+          <FormControl>
+            <FormMultiSelectIds {...field} name="qualificationIds" control={control} label="Select Qualifications" placeholder="Select qualifications" options={allQualifications.map((s) => ({
+              label: s.qualificationName, value: String(s.id),
+            }))} MultiSelectComponent={MultiSelect} />
+          </FormControl>
           <FormMessage />
         </FormItem>
       )} />

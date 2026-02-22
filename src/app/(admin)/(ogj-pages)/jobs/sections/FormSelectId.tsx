@@ -41,7 +41,7 @@ export function FormSelectId<T extends FieldValues>({
               <SelectValue placeholder={placeholder} />
             </SelectTrigger>
 
-            <SelectContent>
+            <SelectContent className='bg-gray-25'>
               {options.map((opt) => (
                 <SelectItem key={opt.id} value={String(opt.id)}>
                   {opt.label}

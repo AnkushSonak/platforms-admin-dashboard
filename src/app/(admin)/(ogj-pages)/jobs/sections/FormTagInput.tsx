@@ -11,18 +11,11 @@ interface FormTagInputProps<T extends FieldValues> {
   transform?: (value: string) => string;
 }
 
-export function FormTagInput<T extends FieldValues>({
-  name,
-  control,
-  label,
-  placeholder = 'Type and press Enter',
-  maxTags,
-  transform = (v) => v.trim(),
-}: FormTagInputProps<T>) {
+export function FormTagInput<T extends FieldValues>({ name, control, label, placeholder = 'Type and press Enter', maxTags,
+  transform = (v) => v.trim(), }: FormTagInputProps<T>) {
+
   return (
-    <Controller
-      name={name}
-      control={control}
+    <Controller name={name} control={control}
       render={({ field }) => {
         const tags: string[] = Array.isArray(field.value) ? field.value : [];
         const [inputValue, setInputValue] = useState('');
@@ -46,11 +39,11 @@ export function FormTagInput<T extends FieldValues>({
           <div>
             <label className="block text-sm pb-2">{label}</label>
 
-            <div className="flex flex-wrap gap-2 border rounded p-2">
+            <div className="flex flex-wrap gap-2 text-green-500 rounded">
               {tags.map((tag) => (
                 <span
                   key={tag}
-                  className="flex items-center gap-1 bg-muted px-2 py-1 rounded text-sm"
+                  className="flex items-center gap-1 bg-gray-50 px-2 py-1 rounded text-sm"
                 >
                   {tag}
                   <button
@@ -73,7 +66,7 @@ export function FormTagInput<T extends FieldValues>({
                   }
                 }}
                 placeholder={placeholder}
-                className="flex-1 border-none focus-visible:ring-0"
+                className="flex-1 focus-visible:ring-0"
               />
             </div>
 

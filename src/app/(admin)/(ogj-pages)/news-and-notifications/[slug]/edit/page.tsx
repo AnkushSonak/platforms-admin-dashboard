@@ -7,10 +7,12 @@ import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { INewsAndNtfnForm } from "../../../form-interfaces/INewsAndNtfnForm";
 import { INewsAndNtfn } from "@/app/helper/interfaces/INewsAndNtfn";
-import { getNewsAndNtfnBySlugForForms } from "@/app/lib/api/notifications";
+// import { getNewsAndNtfnBySlugForForms } from "@/app/lib/api/notifications";
 import Link from "next/link";
 import { Button } from "@/components/shadcn/ui/button";
 import { ArrowLeft } from "lucide-react";
+import { GET_NEWS_AND_NTFN_FOR_FORMS_API } from "@/app/envConfig";
+import { getEntityBySlug, getPaginatedEntity } from "@/lib/api/global/Generic";
 
 export default function EditNewsAndNotificationPage() {
   const params = useParams();
@@ -24,12 +26,16 @@ export default function EditNewsAndNotificationPage() {
       setLoading(true);
       setError(null);
       try {
-        const data = await getNewsAndNtfnBySlugForForms(slug);
+
+        const data = await getEntityBySlug<INewsAndNtfnForm>(GET_NEWS_AND_NTFN_FOR_FORMS_API, slug, { entityName: "news-and-notifications",});
         console.log("Fetched notification data:", data);
-        if (!data) {
+        if (!data ) {
           setError("Notification not found");
+          setInitialData(null);
+        } else {
+          setInitialData(data);
         }
-        setInitialData(data);
+        
       } catch (e: any) {
         console.error("Error fetching notification by slug:", e);
         setError(e.message || "Failed to fetch notification");
@@ -47,7 +53,7 @@ export default function EditNewsAndNotificationPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
-        <Link href="/notifications" passHref>
+        <Link href="/news-and-notifications" passHref>
           <Button variant="outline" size="icon" className="h-8 w-8"><ArrowLeft className="h-4 w-4" /></Button>
         </Link>
         <h1 className="text-2xl font-bold">Edit News And Notification</h1>

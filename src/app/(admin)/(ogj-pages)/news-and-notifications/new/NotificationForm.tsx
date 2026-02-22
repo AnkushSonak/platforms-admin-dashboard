@@ -30,9 +30,9 @@ interface Props {
 export const stepValidationMap: Record<number, any[]> = {
   0: ["title", "shortTitle", "officialOrderNumber", "version", "status", "priority", "relatedEntityType", "officialLink",
     "downloadLink", "organizationId", "categoryId", "stateIds", "relatedJobIds", "relatedAdmitCardIds",
-    "relatedResultIds", "relatedAnswerKeyIds", "isFeatured", "isVerified", "minAge", "maxAge", "qualifications"],
+    "relatedResultIds", "relatedAnswerKeyIds", "isFeatured", "isVerified", "minAge", "maxAge","qualificationSummary", "qualificationIds"],
 
-  1: ["descriptionJson", "headlineImage.url", "dynamicFields", "tags", "importantLinks"],
+  1: ["descriptionJson", "headlineImage.url", "dynamicFields", "cardTags", "tags", "importantLinks"],
 
   2: ["metaTitle", "metaDescription", "seoKeywords", "seoCanonicalUrl", "schemaMarkupJson"],
 
@@ -75,7 +75,8 @@ const newsAndNotificationDefaultValues = {
   schemaMarkupJson: {},
   minAge: 0,
   maxAge: 0,
-  qualifications: "",
+  qualificationSummary: "",
+  qualificationIds: [],
   engagement: { view_count: 0, save_count: 0, share_count: 0, heat_index: 0, live_viewers: 0 },
   reviewStatus: REVIEW_STATUS.DRAFT,
   publishedAt: undefined,
@@ -86,6 +87,8 @@ export function NotificationForm({ isAdmin, initialValues, onSubmit, isEditMode 
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  // console.log("NotificationForm : Initial values for form:", initialValues);
 
   const form = useForm({
     resolver: zodResolver(NewsAndNotificationSchema),
@@ -144,7 +147,7 @@ export function NotificationForm({ isAdmin, initialValues, onSubmit, isEditMode 
             console.log("FORM STATE ERRORS:", form.formState.errors);
           })}
         >
-          <Card>
+          <Card className="bg-white">
             <CardHeader></CardHeader>
             <CardContent className="space-y-6">
               {steps[step]}

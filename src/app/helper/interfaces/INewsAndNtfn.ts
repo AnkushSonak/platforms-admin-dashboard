@@ -8,6 +8,8 @@ import { NewsAndNtfnPriorityType } from "../constants/NewsAndNtfnPriorityType";
 import { NewsAndNtfnRelatedEntityType } from "../constants/NewsAndNtfnRelatedEntityType";
 import { Organization } from "./Organization";
 import { NewsAndNntfnStatusType } from "../constants/NewsAndNntfnStatusType";
+import { Qualification } from "./Qualification";
+import { Tag } from "./Tag";
 
 export interface INewsAndNtfn {
   id: string;
@@ -64,7 +66,8 @@ export interface INewsAndNtfn {
   answerKey?: AnswerKey | null;
 
   // tags
-   tags: string[] | null;
+  cardTags: string[] | null;
+  tags: Tag[] | null;
 
   // --- Dynamic Content ---
   dynamicFields?: Array<{
@@ -103,7 +106,7 @@ export interface INewsAndNtfn {
   // --- Eligibility / Filters ---
   minAge?: number;
   maxAge?: number;
-  qualifications?: string[];
+  qualifications?: Qualification[];
 
   // --- Engagement ---
   engagement?: {

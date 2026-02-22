@@ -141,10 +141,10 @@ export async function getEntityBySlug<T>(entityUrl: string, slug: string, option
       console.error(`[getEntityBySlug] Invalid response payload`, { entityName, slug, json, });
       return null;
     }
-
+    const data = (json as any).data;
     console.info(`[getEntityBySlug] Success`, { entityName, slug, });
 
-    return json as T;
+    return data as T;
   } catch (error) {
     if (error instanceof DOMException && error.name === "AbortError") {
       console.error(`[getEntityBySlug] Request timed out`, { entityName, slug, });

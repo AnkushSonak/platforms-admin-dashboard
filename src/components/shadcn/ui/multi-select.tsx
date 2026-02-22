@@ -88,7 +88,8 @@ export function MultiSelect({ options, selected, onSelect, placeholder, classNam
           <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0">
+      {/* bg-gray--25 is added by Ankush can be removed if not needed */}
+      <PopoverContent className="bg-gray-25 w-[var(--radix-popover-trigger-width)] p-0">
         <Command>
           <CommandInput placeholder="Search..." />
           <CommandEmpty>No results found.</CommandEmpty>
