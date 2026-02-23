@@ -25,7 +25,7 @@ export default function AddJobPage() {
     descriptionHtml: "",
     states: [],
     isFeatured: false,
-    status: "pending_review",
+    status: "draft",
   };
 
   // -----------------------------

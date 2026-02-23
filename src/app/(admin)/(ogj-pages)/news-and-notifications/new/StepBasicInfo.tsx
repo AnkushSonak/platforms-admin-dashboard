@@ -8,40 +8,40 @@ import { NewsAndNtfnRelatedEntityType } from "@/app/helper/constants/NewsAndNtfn
 import { Checkbox } from "@/components/shadcn/ui/checkbox";
 import { FormSelectId } from "../../jobs/sections/FormSelectId";
 import React, { useEffect } from "react";
-import { Category } from "@/app/helper/interfaces/Category";
-import { State } from "@/app/helper/interfaces/State";
+import { ICategory } from "@/app/helper/interfaces/ICategory";
+import { IState } from "@/app/helper/interfaces/IState";
 import { FormMultiSelectIds } from "../../jobs/sections/FormMultiSelectIds";
 import { MultiSelect } from "@/components/shadcn/ui/multi-select";
-import { Organization } from "@/app/helper/interfaces/Organization";
-import { Job } from "@/app/helper/interfaces/Job";
-import { AdmitCard } from "@/app/helper/interfaces/AdmitCard";
-import { Result } from "@/app/helper/interfaces/Result";
-import { AnswerKey } from "@/app/helper/interfaces/AnswerKey";
+import { IOrganization } from "@/app/helper/interfaces/IOrganization";
+import { IJob } from "@/app/helper/interfaces/IJob";
+import { IAdmitCard } from "@/app/helper/interfaces/IAdmitCard";
+import { IResult } from "@/app/helper/interfaces/IResult";
+import { IAnswerKey } from "@/app/helper/interfaces/IAnswerKey";
 import { getPaginatedEntity } from "@/lib/api/global/Generic";
 import { ADMIT_CARDS_API, ANSWER_KEYS_API, CATEGORY_API, JOBS_API, ORGANIZATION_API, QUALIFICATIONS_API, RESULTS_API, STATE_API } from "@/app/envConfig";
-import { Qualification } from "@/app/helper/interfaces/Qualification";
+import { IQualification } from "@/app/helper/interfaces/IQualification";
 
 export function StepBasicInfo() {
 
   const { control } = useFormContext();
 
-  const [organizations, setOrganizations] = React.useState<Organization[]>([]);
-  const [categories, setCategories] = React.useState<Category[]>([]);
-  const [allStates, setAllStates] = React.useState<State[]>([]);
+  const [organizations, setOrganizations] = React.useState<IOrganization[]>([]);
+  const [categories, setCategories] = React.useState<ICategory[]>([]);
+  const [allStates, setAllStates] = React.useState<IState[]>([]);
   const [allQualifications, setAllQualifications] = React.useState<any[]>([]);
-  const [jobs, setJobs] = React.useState<Job[]>([]);
-  const [admitCards, setAdmitCards] = React.useState<AdmitCard[]>([]);
-  const [results, setResults] = React.useState<Result[]>([]);
-  const [answerKeys, setAnswerKeys] = React.useState<AnswerKey[]>([]);
+  const [jobs, setJobs] = React.useState<IJob[]>([]);
+  const [admitCards, setAdmitCards] = React.useState<IAdmitCard[]>([]);
+  const [results, setResults] = React.useState<IResult[]>([]);
+  const [answerKeys, setAnswerKeys] = React.useState<IAnswerKey[]>([]);
 
-  useEffect(() => { getPaginatedEntity<Organization>("type=organizations&page=1", ORGANIZATION_API,  { entityName: "organizations" }).then(res => setOrganizations(res.data)).catch(() => setOrganizations([])); }, []);
-  useEffect(() => { getPaginatedEntity<Category>("type=categories&page=1", CATEGORY_API, { entityName: "categories" }).then((res) => setCategories(res.data)).catch(() => setCategories([])); }, []);
-  useEffect(() => { getPaginatedEntity<State>("type=states&page=1", STATE_API, { entityName: "states" }).then((res) => setAllStates(res.data)).catch(() => setAllStates([])); }, []);
-  useEffect(() => { getPaginatedEntity<Job>("type=jobs&page=1", JOBS_API,  { entityName: "jobs" }).then((response) => setJobs(response.data)).catch(() => setJobs([])); }, []);
-  useEffect(() => { getPaginatedEntity<AdmitCard>("type=admitCards&page=1", ADMIT_CARDS_API,  { entityName: "admitCards" }).then((response) => setAdmitCards(response.data)).catch(() => setAdmitCards([])); }, []);
-  useEffect(() => { getPaginatedEntity<Result>("type=results&page=1", RESULTS_API,  { entityName: "results" }).then((response) => setResults(response.data)).catch(() => setResults([])); }, []);
-  useEffect(() => { getPaginatedEntity<AnswerKey>("type=answer-keys&page=1", ANSWER_KEYS_API,  { entityName: "answerKeys" }).then((response) => setAnswerKeys(response.data)).catch(() => setAnswerKeys([])); }, []);
-  useEffect(() => { getPaginatedEntity<Qualification>("type=qualifications&page=1", QUALIFICATIONS_API,  { entityName: "qualifications" }).then((response) => setAllQualifications(response.data)).catch(() => setAllQualifications([])); }, []);
+  useEffect(() => { getPaginatedEntity<IOrganization>("type=organizations&page=1", ORGANIZATION_API,  { entityName: "organizations" }).then(res => setOrganizations(res.data)).catch(() => setOrganizations([])); }, []);
+  useEffect(() => { getPaginatedEntity<ICategory>("type=categories&page=1", CATEGORY_API, { entityName: "categories" }).then((res) => setCategories(res.data)).catch(() => setCategories([])); }, []);
+  useEffect(() => { getPaginatedEntity<IState>("type=states&page=1", STATE_API, { entityName: "states" }).then((res) => setAllStates(res.data)).catch(() => setAllStates([])); }, []);
+  useEffect(() => { getPaginatedEntity<IJob>("type=jobs&page=1", JOBS_API,  { entityName: "jobs" }).then((response) => setJobs(response.data)).catch(() => setJobs([])); }, []);
+  useEffect(() => { getPaginatedEntity<IAdmitCard>("type=admitCards&page=1", ADMIT_CARDS_API,  { entityName: "admitCards" }).then((response) => setAdmitCards(response.data)).catch(() => setAdmitCards([])); }, []);
+  useEffect(() => { getPaginatedEntity<IResult>("type=results&page=1", RESULTS_API,  { entityName: "results" }).then((response) => setResults(response.data)).catch(() => setResults([])); }, []);
+  useEffect(() => { getPaginatedEntity<IAnswerKey>("type=answer-keys&page=1", ANSWER_KEYS_API,  { entityName: "answerKeys" }).then((response) => setAnswerKeys(response.data)).catch(() => setAnswerKeys([])); }, []);
+  useEffect(() => { getPaginatedEntity<IQualification>("type=qualifications&page=1", QUALIFICATIONS_API,  { entityName: "qualifications" }).then((response) => setAllQualifications(response.data)).catch(() => setAllQualifications([])); }, []);
 
   const newsAndNtfnStatusOptions = [
     { value: NewsAndNntfnStatusType.PENDING, label: 'Pending' },
@@ -209,7 +209,7 @@ export function StepBasicInfo() {
         <FormItem>
           <FormControl>
             <FormMultiSelectIds {...field} name="relatedAdmitCardIds" control={control} label="Related Admit Cards"
-              options={admitCards.map(a => ({ label: a.admitCardTitle, value: a.id }))} MultiSelectComponent={MultiSelect} />
+              options={admitCards.map(a => ({ label: a.title, value: a.id }))} MultiSelectComponent={MultiSelect} />
           </FormControl>
           <FormMessage />
         </FormItem>
@@ -219,7 +219,7 @@ export function StepBasicInfo() {
         <FormItem>
           <FormControl>
             <FormMultiSelectIds {...field} name="relatedResultIds" control={control} label="Related Results"
-              options={results.map(r => ({ label: r.resultTitle, value: r.id }))} MultiSelectComponent={MultiSelect} />
+              options={results.map(r => ({ label: r.title, value: r.id }))} MultiSelectComponent={MultiSelect} />
           </FormControl>
           <FormMessage />
         </FormItem>
@@ -229,7 +229,7 @@ export function StepBasicInfo() {
         <FormItem>
           <FormControl>
             <FormMultiSelectIds {...field} name="relatedAnswerKeyIds" control={control} label="Related Answer Keys"
-              options={answerKeys.map(a => ({ label: a.answerKeyTitle, value: a.id }))} MultiSelectComponent={MultiSelect} />
+              options={answerKeys.map(a => ({ label: a.title, value: a.id }))} MultiSelectComponent={MultiSelect} />
           </FormControl>
           <FormMessage />
         </FormItem>

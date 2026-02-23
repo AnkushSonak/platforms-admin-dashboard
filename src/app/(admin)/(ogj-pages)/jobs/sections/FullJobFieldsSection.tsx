@@ -1,9 +1,9 @@
 // FullJobFieldsSection.tsx
 import React, { useEffect, useMemo, useCallback, useRef, useState } from "react";
 import { useFormContext, Controller } from "react-hook-form";
-import { Job } from "@/app/helper/interfaces/Job";
-import { Category } from "@/app/helper/interfaces/Category";
-import { State } from "@/app/helper/interfaces/State";
+import { IJob } from "@/app/helper/interfaces/IJob";
+import { ICategory } from "@/app/helper/interfaces/ICategory";
+import { IState } from "@/app/helper/interfaces/IState";
 
 import { Input } from "@/components/shadcn/ui/input";
 import { Textarea } from "@/components/shadcn/ui/textarea";
@@ -32,8 +32,8 @@ import { CATEGORY_API, JOBS_API, STATE_API } from "@/app/envConfig";
 
 interface Props {
   onValidChange?: (payload: JobFormData) => void;
-  onChange?: <K extends keyof Job>(field: K, value: Job[K]) => void;
-  errors?: Partial<Record<keyof Job, string>>; // legacy
+  onChange?: <K extends keyof IJob>(field: K, value: IJob[K]) => void;
+  errors?: Partial<Record<keyof IJob, string>>; // legacy
   statesOptions?: { label: string; value: string }[];
   onLogoFileChange?: (file: File | null) => void;
 }
@@ -42,21 +42,21 @@ const jobTypeOptions = ["Full-time", "Part-time", "Contract", "Internship", "Tem
 
 const FullJobFieldsSection: React.FC<Props & { onHtmlChange?: (html: string) => void }> = ({ onValidChange, onChange, errors: legacyErrors = {}, statesOptions: propStatesOptions = [], onLogoFileChange, onHtmlChange }) => {
 
-  const [jobs, setJobs] = useState<Job[]>([]);
+  const [jobs, setJobs] = useState<IJob[]>([]);
   const [jobSearch, setJobSearch] = useState('');
   const [relatedNotifications, setRelatedNotifications] = useState<INewsAndNtfn[]>([]);
   const [loading, setLoading] = useState(false);
 
   // fetch categories & states
-  const [categories, setCategories] = React.useState<Category[]>([]);
+  const [categories, setCategories] = React.useState<ICategory[]>([]);
     useEffect(() => {
-      getPaginatedEntity<Category>("type=categories&page=1", CATEGORY_API, { entityName: "categories" })
+      getPaginatedEntity<ICategory>("type=categories&page=1", CATEGORY_API, { entityName: "categories" })
         .then((res) => setCategories(res.data))
         .catch(() => setCategories([]));
     }, []);
 
-  const [allStates, setAllStates] = React.useState<State[]>([]);
-  useEffect(() => { if (!propStatesOptions?.length) getPaginatedEntity<State>("type=states&page=1", STATE_API, { entityName: "states" }).then((res) => setAllStates(res.data)).catch(() => setAllStates([])); }, [propStatesOptions?.length]);
+  const [allStates, setAllStates] = React.useState<IState[]>([]);
+  useEffect(() => { if (!propStatesOptions?.length) getPaginatedEntity<IState>("type=states&page=1", STATE_API, { entityName: "states" }).then((res) => setAllStates(res.data)).catch(() => setAllStates([])); }, [propStatesOptions?.length]);
 
   const computedStatesOptions = useMemo(() => {
     return propStatesOptions && propStatesOptions.length ? propStatesOptions : allStates.map(s => ({ label: s.stateName, value: String(s.id) }));
@@ -69,7 +69,7 @@ const FullJobFieldsSection: React.FC<Props & { onHtmlChange?: (html: string) => 
   useEffect(() => {
     setLoading(true);
     // getJobListings(jobSearch, undefined, undefined, 1, 20)
-    getPaginatedEntity<Job>("type=jobs&page=1", JOBS_API,  { entityName: "jobs" })
+    getPaginatedEntity<IJob>("type=jobs&page=1", JOBS_API,  { entityName: "jobs" })
       .then((res) => {
         setJobs(res.data);
         setLoading(false);

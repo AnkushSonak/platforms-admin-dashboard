@@ -9,7 +9,7 @@ import { Button } from "@/components/shadcn/ui/button";
 import EditJobForm from "./EditJobForm";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
-import { Job } from "@/app/helper/interfaces/Job";
+import { IJob } from "@/app/helper/interfaces/IJob";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_BACKEND_SERVER_BASE_URL;
 
@@ -21,7 +21,7 @@ export default function EditJobPage() {
   const router = useRouter();
   const slug = params?.slug as string;
 
-  const [job, setJob] = useState<Job>();
+  const [job, setJob] = useState<IJob>();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 

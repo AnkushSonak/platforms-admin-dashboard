@@ -5,9 +5,9 @@ import { Button } from '@/components/shadcn/ui/button';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import { useState } from 'react';
-import type { Category } from '@/app/helper/interfaces/Category';
+import type { ICategory } from '@/app/helper/interfaces/ICategory';
 
-const initialForm: Omit<Category, 'id' | 'deletedAt'> = {
+const initialForm: Omit<ICategory, 'id' | 'deletedAt'> = {
   name: '',
   slug: '',
   parentId: null,
@@ -21,7 +21,7 @@ const initialForm: Omit<Category, 'id' | 'deletedAt'> = {
 };
 
 export default function AddCategoryPage() {
-  const [form, setForm] = useState<Omit<Category, 'id' | 'deletedAt'>>(initialForm);
+  const [form, setForm] = useState<Omit<ICategory, 'id' | 'deletedAt'>>(initialForm);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);

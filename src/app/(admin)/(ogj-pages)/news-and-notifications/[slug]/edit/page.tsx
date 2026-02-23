@@ -5,19 +5,19 @@
 import { NotificationForm } from "../../new/NotificationForm";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { INewsAndNtfnForm } from "../../../form-interfaces/INewsAndNtfnForm";
+import { NewsAndNtfnFormDTO } from "../../../../../helper/dto/NewsAndNtfnFormDTO";
 import { INewsAndNtfn } from "@/app/helper/interfaces/INewsAndNtfn";
 // import { getNewsAndNtfnBySlugForForms } from "@/app/lib/api/notifications";
 import Link from "next/link";
 import { Button } from "@/components/shadcn/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { GET_NEWS_AND_NTFN_FOR_FORMS_API } from "@/app/envConfig";
-import { getEntityBySlug, getPaginatedEntity } from "@/lib/api/global/Generic";
+import { getEntityBySlug } from "@/lib/api/global/Generic";
 
 export default function EditNewsAndNotificationPage() {
   const params = useParams();
   const slug = params?.slug as string;
-  const [initialData, setInitialData] = useState<INewsAndNtfnForm | null>(null);
+  const [initialData, setInitialData] = useState<NewsAndNtfnFormDTO | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -27,7 +27,7 @@ export default function EditNewsAndNotificationPage() {
       setError(null);
       try {
 
-        const data = await getEntityBySlug<INewsAndNtfnForm>(GET_NEWS_AND_NTFN_FOR_FORMS_API, slug, { entityName: "news-and-notifications",});
+        const data = await getEntityBySlug<NewsAndNtfnFormDTO>(GET_NEWS_AND_NTFN_FOR_FORMS_API, slug, { entityName: "news-and-notifications",});
         console.log("Fetched notification data:", data);
         if (!data ) {
           setError("Notification not found");

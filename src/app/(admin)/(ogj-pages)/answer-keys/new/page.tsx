@@ -6,13 +6,13 @@ import Link from 'next/link';
 import { ArrowLeft, ExternalLink, X } from 'lucide-react';
 import React, { useState, useEffect, useMemo } from 'react';
 import { useForm, FormProvider, Controller } from 'react-hook-form';
-import { AnswerKeyStatus } from '../../form-interfaces/AnswerKeyFormInterface';
+import { AnswerKeyStatus } from '../../../../helper/dto/AnswerKeyFormDTO';
 // import { createAnswerKey } from '@/app/lib/api/AnswerKeys';
 import { Input } from '@/components/shadcn/ui/input';
 import RichTextEditor from '@/components/form/existing/RichTextEditor';
-import { ApplicationMode, Job } from '@/app/helper/interfaces/Job';
-import { Category } from '@/app/helper/interfaces/Category';
-import { State } from '@/app/helper/interfaces/State';
+import { ApplicationMode, IJob } from '@/app/helper/interfaces/IJob';
+import { ICategory } from '@/app/helper/interfaces/ICategory';
+import { IState } from '@/app/helper/interfaces/IState';
 import { DateTimePicker } from '@/components/shadcn/ui/date-time-picker';
 import { JsonFieldDialog } from '@/components/form/existing/JsonFieldDialog';
 import DynamicFieldsSection from '../../jobs/sections/DynamicFieldsSection';
@@ -34,13 +34,13 @@ import { FormColorPicker } from '../../jobs/sections/FormColorPicker';
 import { FormTagInput } from '../../jobs/sections/FormTagInput';
 import { FormVideoLinksInput } from '../../jobs/sections/FormVideoLinksInput';
 import { SEOFields } from '../../jobs/sections/SEOFields';
-import { AnswerKeyFormInterface } from '../../form-interfaces/AnswerKeyFormInterface';
+import { AnswerKeyFormDTO } from '../../../../helper/dto/AnswerKeyFormDTO';
 import { DynamicLinksEditor } from '../../jobs/sections/DynamicLinksEditor';
-import { REVIEW_STATUS } from '../../form-interfaces/global';
+import { REVIEW_STATUS } from '../../../../helper/dto/global';
 import { ANSWER_KEYS_API, CATEGORY_API, JOBS_API, NEWS_AND_NTFN_API, STATE_API } from '@/app/envConfig';
 import { createEntity, getPaginatedEntity } from '@/lib/api/global/Generic';
 
-const JOB_TO_ANSWER_KEY_MAP: Record<string, keyof AnswerKeyFormInterface> = {
+const JOB_TO_ANSWER_KEY_MAP: Record<string, keyof AnswerKeyFormDTO> = {
   // Core
   advtNumber: 'answerKeyAdvtNumber',
   organization: 'answerKeyOrganization',
@@ -97,7 +97,7 @@ const JOB_TO_ANSWER_KEY_MAP: Record<string, keyof AnswerKeyFormInterface> = {
 export default function AddAnswerKeyPage() {
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [logoError, setLogoError] = useState("");
-  const [jobs, setJobs] = useState<Job[]>([]);
+  const [jobs, setJobs] = useState<IJob[]>([]);
   const [newsAndNotifications, setNewsAndNotifications] = useState<INewsAndNtfn[]>([]);
   const [jobSearch, setJobSearch] = useState('');
   const [jobLoading, setJobLoading] = useState(false);
@@ -105,13 +105,13 @@ export default function AddAnswerKeyPage() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [categories, setCategories] = React.useState<Category[]>([]);
-  const [allStates, setAllStates] = React.useState<State[]>([]);
+  const [categories, setCategories] = React.useState<ICategory[]>([]);
+  const [allStates, setAllStates] = React.useState<IState[]>([]);
   const { user } = useSelector((state: RootState) => state.authentication);
 
   useEffect(() => {
     setJobLoading(true);
-    getPaginatedEntity<Job>("type=jobs&page=1", JOBS_API,  { entityName: "jobs" })
+    getPaginatedEntity<IJob>("type=jobs&page=1", JOBS_API,  { entityName: "jobs" })
       .then((res) => {
         setJobs(res.data);
         setJobLoading(false);
@@ -130,12 +130,12 @@ export default function AddAnswerKeyPage() {
   }, []);
 
   useEffect(() => {
-    getPaginatedEntity<Category>("type=categories&page=1", CATEGORY_API, { entityName: "categories" })
+    getPaginatedEntity<ICategory>("type=categories&page=1", CATEGORY_API, { entityName: "categories" })
       .then((res) => setCategories(res.data))
       .catch(() => setCategories([]));
   }, []);
   useEffect(() => {
-    getPaginatedEntity<State>("type=states&page=1", STATE_API, { entityName: "states" })
+    getPaginatedEntity<IState>("type=states&page=1", STATE_API, { entityName: "states" })
     .then((res) => setAllStates(res.data))
     .catch(() => setAllStates([])); }, []);
 
@@ -152,7 +152,7 @@ export default function AddAnswerKeyPage() {
   ];
 
 
-  const methods = useForm<AnswerKeyFormInterface>({
+  const methods = useForm<AnswerKeyFormDTO>({
     defaultValues: {
       // Basic Title Info
       answerKeyTitle: "",
@@ -267,7 +267,7 @@ export default function AddAnswerKeyPage() {
 
     // 1️⃣ Map simple fields
     Object.entries(JOB_TO_ANSWER_KEY_MAP).forEach(([jobKey, answerKey]) => {
-      const value = selectedJob[jobKey as keyof Job];
+      const value = selectedJob[jobKey as keyof IJob];
       if (value !== undefined && value !== null) {
         methods.setValue(answerKey, value as any, { shouldDirty: true });
       }
@@ -295,13 +295,13 @@ export default function AddAnswerKeyPage() {
     methods.setValue('jobId', selectedJob.id);
   };
 
-  const onValidSubmit = async (values: AnswerKeyFormInterface) => {
+  const onValidSubmit = async (values: AnswerKeyFormDTO) => {
     setError(null);
     setSuccess(null);
     setLoading(true);
     try {
       // If you have logo upload logic, handle it here and update values.logoImageUrl if needed
-      const res = await createEntity<AnswerKeyFormInterface>(ANSWER_KEYS_API, values, { entityName: "AnswerKey" });
+      const res = await createEntity<AnswerKeyFormDTO>(ANSWER_KEYS_API, values, { entityName: "AnswerKey" });
       if (res.success) {
         setSuccess('Answer Key created successfully!');
         methods.reset();

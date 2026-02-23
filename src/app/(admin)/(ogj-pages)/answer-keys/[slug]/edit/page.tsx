@@ -9,12 +9,11 @@ import { ArrowLeft } from 'lucide-react';
 import { useParams } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { useForm, FormProvider, Controller } from 'react-hook-form';
-import { getAnswerKeyBySlugForForms, updateAnswerKey } from '@/app/lib/api/AnswerKeys';
 import { Input } from '@/components/shadcn/ui/input';
 import RichTextEditor from '@/components/form/existing/RichTextEditor';
-import { ApplicationMode, Job } from '@/app/helper/interfaces/Job';
-import { Category } from '@/app/helper/interfaces/Category';
-import { State } from '@/app/helper/interfaces/State';
+import { ApplicationMode, IJob } from '@/app/helper/interfaces/IJob';
+import { ICategory } from '@/app/helper/interfaces/ICategory';
+import { IState } from '@/app/helper/interfaces/IState';
 import { JsonFieldDialog } from '@/components/form/existing/JsonFieldDialog';
 import DynamicFieldsSection from '../../../jobs/sections/DynamicFieldsSection';
 import { MultiSelect } from '@/components/shadcn/ui/multi-select';
@@ -32,14 +31,14 @@ import { FormColorPicker } from '../../../jobs/sections/FormColorPicker';
 import { FormTagInput } from '../../../jobs/sections/FormTagInput';
 import { FormVideoLinksInput } from '../../../jobs/sections/FormVideoLinksInput';
 import { SEOFields } from '../../../jobs/sections/SEOFields';
-import { AnswerKeyFormInterface } from '../../../form-interfaces/AnswerKeyFormInterface';
-import { AnswerKeyStatus } from '@/app/helper/interfaces/AnswerKey';
+import { AnswerKeyFormDTO } from '../../../../../helper/dto/AnswerKeyFormDTO';
+import { AnswerKeyStatus } from '@/app/helper/interfaces/IAnswerKey';
 import { DateTimePicker } from '@/components/shadcn/ui/date-time-picker';
 import { DynamicLinksEditor } from '../../../jobs/sections/DynamicLinksEditor';
-import { CATEGORY_API, JOBS_API, STATE_API } from '@/app/envConfig';
-import { getPaginatedEntity } from '@/lib/api/global/Generic';
+import { ANSWER_KEYS_API, CATEGORY_API, GET_ANSWER_KEYS_FOR_FORMS_API, JOBS_API, STATE_API } from '@/app/envConfig';
+import { getEntityBySlug, getPaginatedEntity, updateEntity } from '@/lib/api/global/Generic';
 
-const JOB_TO_ANSWERKEY_MAP: Record<string, keyof AnswerKeyFormInterface> = {
+const JOB_TO_ANSWERKEY_MAP: Record<string, keyof AnswerKeyFormDTO> = {
   advtNumber: 'answerKeyAdvtNumber',
   organization: 'answerKeyOrganization',
 
@@ -96,11 +95,11 @@ export default function EditAnswerKeyPage() {
   const answerKeySlug = params?.slug as string;
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [logoError, setLogoError] = useState("");
-  const [jobs, setJobs] = useState<Job[]>([]);
+  const [jobs, setJobs] = useState<IJob[]>([]);
   const [jobSearch, setJobSearch] = useState('');
   const [jobLoading, setJobLoading] = useState(false);
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [allStates, setAllStates] = useState<State[]>([]);
+  const [categories, setCategories] = useState<ICategory[]>([]);
+  const [allStates, setAllStates] = useState<IState[]>([]);
   const [newsAndNotifications, setNewsAndNotifications] = useState<INewsAndNtfn[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -108,12 +107,12 @@ export default function EditAnswerKeyPage() {
   const [fetching, setFetching] = useState(true);
   const { user } = useSelector((state: RootState) => state.authentication);
 
-  const methods = useForm<AnswerKeyFormInterface>();
+  const methods = useForm<AnswerKeyFormDTO>();
 
   useEffect(() => {
     setFetching(true);
 
-    const normalizeAnswerKeyToForm = (data: AnswerKeyFormInterface): AnswerKeyFormInterface => ({
+    const normalizeAnswerKeyToForm = (data: AnswerKeyFormDTO): AnswerKeyFormDTO => ({
       ...data,
       // Convert nested objects to IDs
       categoryId: data.categoryId ? String(data.categoryId) : null,
@@ -149,7 +148,7 @@ export default function EditAnswerKeyPage() {
       newsAndNotifications: data.newsAndNotifications
     });
 
-    getAnswerKeyBySlugForForms(answerKeySlug)
+    getEntityBySlug<AnswerKeyFormDTO>(GET_ANSWER_KEYS_FOR_FORMS_API, answerKeySlug, { entityName: "answer-keys",})
       .then((data) => {
         if (data) {
           const normalized = normalizeAnswerKeyToForm(data);
@@ -177,7 +176,7 @@ export default function EditAnswerKeyPage() {
 
   useEffect(() => {
     setJobLoading(true);
-    getPaginatedEntity<Job>("type=jobs&page=1", JOBS_API,  { entityName: "jobs" })
+    getPaginatedEntity<IJob>("type=jobs&page=1", JOBS_API,  { entityName: "jobs" })
       .then((res) => {
         setJobs(res.data);
         setJobLoading(false);
@@ -186,12 +185,12 @@ export default function EditAnswerKeyPage() {
   }, [jobSearch]);
 
   useEffect(() => {
-    getPaginatedEntity<Category>("type=categories&page=1", CATEGORY_API, { entityName: "categories" })
+    getPaginatedEntity<ICategory>("type=categories&page=1", CATEGORY_API, { entityName: "categories" })
       .then((res) => setCategories(res.data))
       .catch(() => setCategories([]));
   }, []);
   useEffect(() => {
-    getPaginatedEntity<State>("type=states&page=1", STATE_API, { entityName: "states" })
+    getPaginatedEntity<IState>("type=states&page=1", STATE_API, { entityName: "states" })
     .then((res) => setAllStates(res.data))
     .catch(() => setAllStates([])); }, []);
 
@@ -225,7 +224,7 @@ export default function EditAnswerKeyPage() {
 
     // 1️⃣ Simple fields
     Object.entries(JOB_TO_ANSWERKEY_MAP).forEach(([jobKey, answerKey]) => {
-      const value = selectedJob[jobKey as keyof Job];
+      const value = selectedJob[jobKey as keyof IJob];
       if (value !== undefined && value !== null) {
         methods.setValue(answerKey, value as any, { shouldDirty: true });
       }
@@ -254,12 +253,12 @@ export default function EditAnswerKeyPage() {
   };
 
 
-  const onValidSubmit = async (values: AnswerKeyFormInterface) => {
+  const onValidSubmit = async (values: AnswerKeyFormDTO) => {
     setError(null);
     setSuccess(null);
     setLoading(true);
     try {
-      const res = await updateAnswerKey(values.id!, values);
+      const res = await updateEntity<AnswerKeyFormDTO>(ANSWER_KEYS_API, values.id!, values, { entityName: "answer-keys" });
       if (res.success) {
         setSuccess('Answer Key updated successfully!');
       } else {

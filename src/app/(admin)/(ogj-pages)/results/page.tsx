@@ -9,7 +9,7 @@ import { Input } from '@/components/shadcn/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/shadcn/ui/table';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/shadcn/ui/card';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/shadcn/ui/alert-dialog';
-import { Result } from '@/app/helper/interfaces/Result';
+import { IResult } from '@/app/helper/interfaces/IResult';
 // import { getResults } from '@/app/lib/api/Results';
 import ClientLink from '@/components/form/existing/ClientLink';
 import { getPaginatedEntity } from '@/lib/api/global/Generic';
@@ -17,7 +17,7 @@ import { RESULTS_API } from '@/app/envConfig';
 
 export default function AdminAdmitCardsPage() {
   const router = useRouter();
-  const [results, setResults] = useState<Result[]>([]);
+  const [results, setResults] = useState<IResult[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -35,7 +35,7 @@ export default function AdminAdmitCardsPage() {
     setError(null);
     try {
       // const result = await getResults(searchQuery, currentPage, RESULTS_PER_PAGE);
-      const result = await getPaginatedEntity<Result>(`type=results&search=${searchQuery}&page=${currentPage}&limit=${RESULTS_PER_PAGE}`, RESULTS_API,  { entityName: "results" });
+      const result = await getPaginatedEntity<IResult>(`type=results&search=${searchQuery}&page=${currentPage}&limit=${RESULTS_PER_PAGE}`, RESULTS_API,  { entityName: "results" });
       setResults(result.data);
       setTotalPages(result.totalPages);
     } catch (err: any) {
@@ -126,14 +126,14 @@ export default function AdminAdmitCardsPage() {
                     <TableRow><TableCell colSpan={6} className="text-center">No Result found.</TableCell></TableRow>
                   ) : results.map(card => (
                     <TableRow key={card.id}>
-                      <TableCell>{card.resultTitle}</TableCell>
-                      <TableCell>{card.resultExamName}</TableCell>
-                      <TableCell>{card.resultStatus}</TableCell>
-                      <TableCell>{card.resultReleaseDate ? format(new Date(card.resultReleaseDate), 'yyyy-MM-dd') : '-'}</TableCell>
+                      <TableCell>{card.title}</TableCell>
+                      <TableCell>{card.examName}</TableCell>
+                      <TableCell>{card.status}</TableCell>
+                      <TableCell>{card.releaseDate ? format(new Date(card.releaseDate), 'yyyy-MM-dd') : '-'}</TableCell>
                       <TableCell className="flex gap-2">
                         {/* <Link href={`/admin/admit-cards/${card.admitCardSlug || card.id}/edit`}><Button size="icon" variant="outline"><Edit className="w-4 h-4" /></Button></Link> */}
 
-                        <ClientLink href={`/results/${card.resultSlug}/edit`} passHref>
+                        <ClientLink href={`/results/${card.slug}/edit`} passHref>
                           <Button variant="outline" size="icon" className="h-8 w-8">
                             <Edit className="h-4 w-4" />
                           </Button>
@@ -152,7 +152,7 @@ export default function AdminAdmitCardsPage() {
                             <AlertDialogHeader>
                               <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                               <AlertDialogDescription>
-                                This action cannot be undone. This will permanently delete the Result posting &quot;{card.resultTitle}&quot;.
+                                This action cannot be undone. This will permanently delete the Result posting &quot;{card.title}&quot;.
                               </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>

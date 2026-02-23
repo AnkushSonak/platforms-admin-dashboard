@@ -8,14 +8,14 @@ import { FormMultiSelectIds } from "../../jobs/sections/FormMultiSelectIds"
 import { MultiSelect } from "@/components/shadcn/ui/multi-select"
 import React, { useEffect } from "react"
 import { getPaginatedEntity } from "@/lib/api/global/Generic"
-import { Tag } from "@/app/helper/interfaces/Tag"
+import { ITag } from "@/app/helper/interfaces/ITag"
 import { TAGS_API } from "@/app/envConfig"
 
 export function StepContent() {
   const { control, setValue } = useFormContext()
-  const [allTags, setAllTags] = React.useState<Tag[]>([]);
+  const [allTags, setAllTags] = React.useState<ITag[]>([]);
 
-  useEffect(() => { getPaginatedEntity<Tag>("type=tags&page=1", TAGS_API,  { entityName: "tags" }).then((response) => setAllTags(response.data)).catch(() => setAllTags([])); }, []);
+  useEffect(() => { getPaginatedEntity<ITag>("type=tags&page=1", TAGS_API,  { entityName: "tags" }).then((response) => setAllTags(response.data)).catch(() => setAllTags([])); }, []);
   
 
   return (

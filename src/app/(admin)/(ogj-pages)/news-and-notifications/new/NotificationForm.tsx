@@ -13,9 +13,7 @@ import { StepContent } from "./StepContent"
 import { StepSEOAndAI } from "./StepSEOAndAI"
 import { StepReviewAndSubmit } from "./StepReviewAndSubmit"
 import { StepBasicInfo } from "./StepBasicInfo"
-import { REVIEW_STATUS } from "../../form-interfaces/global"
-// import { createNewsAndNtfn } from "@/app/lib/api/notifications"
-// import { updateNewsAndNtfn } from "@/app/lib/api/notifications";
+import { REVIEW_STATUS } from "../../../../helper/dto/global"
 import { NEWS_AND_NTFN_API } from "@/app/envConfig"
 import { createEntity, updateEntity } from "@/lib/api/global/Generic"
 import { INewsAndNtfn } from "@/app/helper/interfaces/INewsAndNtfn"
@@ -143,7 +141,7 @@ export function NotificationForm({ isAdmin, initialValues, onSubmit, isEditMode 
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(handleSubmit, (errors) => {
-            console.log("FORM SUBMIT ERRORS:", errors);
+            // console.log("FORM SUBMIT ERRORS:", errors);
             console.log("FORM STATE ERRORS:", form.formState.errors);
           })}
         >

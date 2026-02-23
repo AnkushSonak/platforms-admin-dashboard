@@ -11,7 +11,7 @@ import { Button } from '@/components/shadcn/ui/button';
 import { Input } from '@/components/shadcn/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/shadcn/ui/table';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/shadcn/ui/card';
-import type { Job } from '@/app/helper/interfaces/Job'; // Import your Job entity type
+import type { IJob } from '@/app/helper/interfaces/IJob'; // Import your Job entity type
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter,
   AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/shadcn/ui/alert-dialog';
 import { useSelector } from 'react-redux';
@@ -21,7 +21,7 @@ export default function AdminJobsPage() {
   const { user, loading: authLoading, logout } = useSelector((state: RootState) => state.authentication);
   // const { user, isLoading: authLoading, checkAuth } = useAuth();
   const router = useRouter();
-  const [jobs, setJobs] = useState<Job[]>([]);
+  const [jobs, setJobs] = useState<IJob[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);

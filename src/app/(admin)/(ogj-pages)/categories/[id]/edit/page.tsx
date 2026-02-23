@@ -6,12 +6,12 @@ import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import { useParams } from 'next/navigation';
 import { useState, useEffect } from 'react';
-import type { Category } from '@/app/helper/interfaces/Category';
+import type { ICategory } from '@/app/helper/interfaces/ICategory';
 
 export default function EditCategoryPage() {
   const params = useParams();
   const categoryId = params?.id as string;
-  const [form, setForm] = useState<Omit<Category, 'id' | 'deletedAt'> | null>(null);
+  const [form, setForm] = useState<Omit<ICategory, 'id' | 'deletedAt'> | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
