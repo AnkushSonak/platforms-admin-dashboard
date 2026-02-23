@@ -1,15 +1,16 @@
-import { Job } from "./Job";
-import { AdmitCard } from "./AdmitCard";
-import { Result } from "./Result";
-import { AnswerKey } from "./AnswerKey";
-import { Category } from "./Category";
-import { State } from "./State";
+
+import { IState } from "./IState";
 import { NewsAndNtfnPriorityType } from "../constants/NewsAndNtfnPriorityType";
 import { NewsAndNtfnRelatedEntityType } from "../constants/NewsAndNtfnRelatedEntityType";
-import { Organization } from "./Organization";
 import { NewsAndNntfnStatusType } from "../constants/NewsAndNntfnStatusType";
-import { Qualification } from "./Qualification";
-import { Tag } from "./Tag";
+import { IQualification } from "./IQualification";
+import { IOrganization } from "./IOrganization";
+import { ICategory } from "./ICategory";
+import { IJob } from "./IJob";
+import { IAdmitCard } from "./IAdmitCard";
+import { IAnswerKey } from "./IAnswerKey";
+import { ITag } from "./ITag";
+import { IResult } from "./IResult";
 
 export interface INewsAndNtfn {
   id: string;
@@ -56,18 +57,18 @@ export interface INewsAndNtfn {
 
 
   // --- Relations ---
-  organization: Organization;
-  category?: Category | null;
-  states: State[];
+  organization: IOrganization;
+  category?: ICategory | null;
+  states: IState[];
 
-  job?: Job | null;
-  admitCard?: AdmitCard | null;
-  result?: Result | null;
-  answerKey?: AnswerKey | null;
+  job?: IJob | null;
+  admitCard?: IAdmitCard | null;
+  result?: IResult | null;
+  answerKey?: IAnswerKey | null;
 
   // tags
   cardTags: string[] | null;
-  tags: Tag[] | null;
+  tags: ITag[] | null;
 
   // --- Dynamic Content ---
   dynamicFields?: Array<{
@@ -106,7 +107,7 @@ export interface INewsAndNtfn {
   // --- Eligibility / Filters ---
   minAge?: number;
   maxAge?: number;
-  qualifications?: Qualification[];
+  qualifications?: IQualification[];
 
   // --- Engagement ---
   engagement?: {

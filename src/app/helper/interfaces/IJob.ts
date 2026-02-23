@@ -1,7 +1,7 @@
 import { UUID } from "crypto";
-import { Category } from "./Category";
-import { State } from "./State";
-import { Organization } from "./Organization";
+import { IState } from "./IState";
+import { ICategory } from "./ICategory";
+import { IOrganization } from "./IOrganization";
 
 export enum JobStatus {
   ACTIVE = "active",
@@ -18,7 +18,7 @@ export enum ApplicationMode {
   BOTH = 'Both',
 }
 
-export interface Job {
+export interface IJob {
   readonly id: string;
   title: string;
   slug: string;
@@ -28,9 +28,9 @@ export interface Job {
   status: JobStatus;
   isFeatured: boolean;
 
-  organization: Organization; //eg. SSC, IBPS, Railways etc.
+  organization: IOrganization; //eg. SSC, IBPS, Railways etc.
   organizationId: string;
-  category: Category | null; //eg. Banking, SSC, Railways etc.
+  category: ICategory | null; //eg. Banking, SSC, Railways etc.
   categoryId: string | null;
 
   sector: string | null; //eg. Central Govt, State Govt, PSU etc.
@@ -42,7 +42,7 @@ export interface Job {
   applyLink: string | null;
 
   locationText: string | null;
-  states: State[];
+  states: IState[];
   stateIds: string[];
 
   minAge?: number;
@@ -61,6 +61,7 @@ export interface Job {
   expiryDate?: Date | null;
   mainExamDate?: Date;
 
+  cardTags: string[] | null;
   tags: string[];
   helpfulVideoLinks?: string[];
 

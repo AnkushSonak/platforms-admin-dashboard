@@ -1,9 +1,10 @@
-import { Job } from "./Job";
-import { AdmitCard } from "./AdmitCard";
-import { Result } from "./Result";
-import { AnswerKey } from "./AnswerKey";
-import { State } from "./State";
+
+import { IState } from "./IState";
 import { INewsAndNtfn } from "./INewsAndNtfn";
+import { IJob } from "./IJob";
+import { IAdmitCard } from "./IAdmitCard";
+import { IResult } from "./IResult";
+import { IAnswerKey } from "./IAnswerKey";
 
 export type OrganizationType =
   | "central"
@@ -12,7 +13,7 @@ export type OrganizationType =
   | "banking"
   | "other";
 
-export interface Organization {
+export interface IOrganization {
   id: string;
 
   fullName: string;       // e.g., Staff Selection Commission
@@ -41,12 +42,12 @@ export interface Organization {
   headquarters?: string;  // e.g., New Delhi
 
   // Relations
-  states: State[];
+  states: IState[];
 
-  jobs: Job[];
-  admitCards: AdmitCard[];
-  results: Result[];
-  answerKeys: AnswerKey[];
+  jobs: IJob[];
+  admitCards: IAdmitCard[];
+  results: IResult[];
+  answerKeys: IAnswerKey[];
   newsAndNotifications: INewsAndNtfn[];
 
   isActive: boolean;

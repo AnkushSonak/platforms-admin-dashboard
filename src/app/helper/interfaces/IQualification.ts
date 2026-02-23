@@ -4,7 +4,7 @@ export type QualificationCategory =
   | "medical"
   | "diploma";
 
-export interface Qualification {
+export interface IQualification {
   id: string;
 
   name: string;

@@ -1,5 +1,5 @@
 // State interface updated
-export interface State {
+export interface IState {
   id: number;
   stateName: string;
   slug: string;

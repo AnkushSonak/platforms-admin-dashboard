@@ -1,8 +1,8 @@
-import { AdmitCard } from "./AdmitCard";
-import { AnswerKey } from "./AnswerKey";
+import { IAdmitCard } from "./IAdmitCard";
+import { IAnswerKey } from "./IAnswerKey";
+import { IJob } from "./IJob";
 import { INewsAndNtfn } from "./INewsAndNtfn";
-import { Job } from "./Job";
-import { Result } from "./Result";
+import { IResult } from "./IResult";
 
 // Optional: Extract enum as a proper TypeScript union type
 export type TagGroup =
@@ -20,7 +20,7 @@ export interface SeoSettings {
   isNoIndex?: boolean;
 }
 
-export interface Tag {
+export interface ITag {
   id: string;
 
   name: string;
@@ -35,17 +35,17 @@ export interface Tag {
   color?: string | null;
 
   // Hierarchy (Self Reference)
-  parent?: Tag | null;
-  children?: Tag[];
+  parent?: ITag | null;
+  children?: ITag[];
 
   // SEO
   seoSettings?: SeoSettings | null;
 
   // Relations
-  jobs?: Job[];
-  admitCards?: AdmitCard[];
-  results?: Result[];
-  answerKeys?: AnswerKey[];
+  jobs?: IJob[];
+  admitCards?: IAdmitCard[];
+  results?: IResult[];
+  answerKeys?: IAnswerKey[];
   notifications?: INewsAndNtfn[];
 
   // Analytics
