@@ -14,11 +14,11 @@ export const RESULTS_API = `${BACKEND_BASE_URL}/results`;
 
 /* ------------------------ ADMIT_CARD API Endpoints ------------------------ */
 export const ADMIT_CARDS_API = `${BACKEND_BASE_URL}/admit-cards`;
-
+export const GET_ADMIT_CARDS_FOR_FORMS_API = `${BACKEND_BASE_URL}/admit-cards/forFormBySlug`;
 
 /* ------------------------ ANSWER_KEYS API Endpoints ------------------------ */
 export const ANSWER_KEYS_API = `${BACKEND_BASE_URL}/answer-keys`;
-
+export const GET_ANSWER_KEYS_FOR_FORMS_API = `${BACKEND_BASE_URL}/answer-keys/forFormBySlug`;
 
 /* ------------------------ NEWS_AND_NTFN API Endpoints ------------------------ */
 export const NEWS_AND_NTFN_API = `${BACKEND_BASE_URL}/news-and-notifications`;
