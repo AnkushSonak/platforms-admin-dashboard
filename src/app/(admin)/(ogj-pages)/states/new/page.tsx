@@ -5,16 +5,16 @@ import { Button } from '@/components/shadcn/ui/button';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import { useState } from 'react';
-import type { State } from '@/app/helper/interfaces/State';
+import type { IState } from '@/app/helper/interfaces/IState';
 
-const initialForm: Omit<State, 'id' | 'deletedAt'> = {
+const initialForm: Omit<IState, 'id' | 'deletedAt'> = {
     stateName: '',
     slug: '',
     isActive: true,
 };
 
 export default function AddStatePage() {
-    const [form, setForm] = useState<Omit<State, 'id' | 'deletedAt'>>(initialForm);
+    const [form, setForm] = useState<Omit<IState, 'id' | 'deletedAt'>>(initialForm);
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);

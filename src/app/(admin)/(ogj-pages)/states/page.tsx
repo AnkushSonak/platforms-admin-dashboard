@@ -4,6 +4,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/shadcn/ui
 import { Button } from '@/components/shadcn/ui/button';
 import Link from 'next/link';
 import { PlusCircle } from 'lucide-react';
+
 export default function AdminStatesPage() {
   return (
     <div className="space-y-6">

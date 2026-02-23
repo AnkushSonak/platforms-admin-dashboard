@@ -1,12 +1,12 @@
 import { CookieUtils } from '@/lib/utils/CookieUtils/CookieUtils';
-import { User } from "@/app/helper/interfaces/User";
+import { IUser } from "@/app/helper/interfaces/IUser";
 import {createAsyncThunk, createSlice} from '@reduxjs/toolkit';
 
 const backendBaseUrl = process.env.NEXT_PUBLIC_BACKEND_SERVER_BASE_URL; 
 
 interface AuthenticationState {
     loading: boolean;
-    user: User | null;
+    user: IUser | null;
     error: any;
     sessionChecked?: boolean;
 };

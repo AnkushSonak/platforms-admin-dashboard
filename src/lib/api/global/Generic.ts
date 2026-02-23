@@ -263,13 +263,13 @@ export async function updateEntity<T, R = any>( endpoint: string, id: string, da
 //   entityName: "job",
 // });
 
-// const createResult = await createEntity<AdmitCardFormInterface>(
+// const createResult = await createEntity<AdmitCardFormDTO>(
 //   "/admitCard",
 //   admitCardFormData,
 //   { entityName: "Admit Card" }
 // );
 
-// const updateResult = await updateEntity<AdmitCardFormInterface>(
+// const updateResult = await updateEntity<AdmitCardFormDTO>(
 //   "/admitCard",
 //   admitCardId,
 //   admitCardFormData,

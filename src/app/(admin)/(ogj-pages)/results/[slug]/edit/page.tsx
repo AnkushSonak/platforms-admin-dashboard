@@ -11,9 +11,9 @@ import { useState, useEffect } from 'react';
 import { useForm, FormProvider, Controller } from 'react-hook-form';
 import { Input } from '@/components/shadcn/ui/input';
 import RichTextEditor from '@/components/form/existing/RichTextEditor';
-import { ApplicationMode, Job } from '@/app/helper/interfaces/Job';
-import { Category } from '@/app/helper/interfaces/Category';
-import { State } from '@/app/helper/interfaces/State';
+import { ApplicationMode, IJob } from '@/app/helper/interfaces/IJob';
+import { ICategory } from '@/app/helper/interfaces/ICategory';
+import { IState } from '@/app/helper/interfaces/IState';
 import { JsonFieldDialog } from '@/components/form/existing/JsonFieldDialog';
 import DynamicFieldsSection from '../../../jobs/sections/DynamicFieldsSection';
 import { MultiSelect } from '@/components/shadcn/ui/multi-select';
@@ -33,13 +33,13 @@ import { FormVideoLinksInput } from '../../../jobs/sections/FormVideoLinksInput'
 import { SEOFields } from '../../../jobs/sections/SEOFields';
 import { DateTimePicker } from '@/components/shadcn/ui/date-time-picker';
 import { DynamicLinksEditor } from '../../../jobs/sections/DynamicLinksEditor';
-import { ResultFormInterface } from '../../../form-interfaces/ResultFormInterface';
-import { ResultStatus } from '@/app/helper/interfaces/Result';
+import { ResultFormDTO } from '../../../../../helper/dto/ResultFormDTO';
+import { ResultStatus } from '@/app/helper/interfaces/IResult';
 import { getResultBySlugForForms, updateResult } from '@/app/lib/api/Results';
 import { CATEGORY_API, JOBS_API, STATE_API } from '@/app/envConfig';
 import { getPaginatedEntity } from '@/lib/api/global/Generic';
 
-const JOB_TO_RESULT_MAP: Record<string, keyof ResultFormInterface> = {
+const JOB_TO_RESULT_MAP: Record<string, keyof ResultFormDTO> = {
   // Core
   advtNumber: 'resultAdvtNumber',
   organization: 'resultOrganization',
@@ -98,11 +98,11 @@ export default function EditResultPage() {
   const resultSlug = params?.slug as string;
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [logoError, setLogoError] = useState("");
-  const [jobs, setJobs] = useState<Job[]>([]);
+  const [jobs, setJobs] = useState<IJob[]>([]);
   const [jobSearch, setJobSearch] = useState('');
   const [jobLoading, setJobLoading] = useState(false);
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [allStates, setAllStates] = useState<State[]>([]);
+  const [categories, setCategories] = useState<ICategory[]>([]);
+  const [allStates, setAllStates] = useState<IState[]>([]);
   const [newsAndNotifications, setNewsAndNotifications] = useState<INewsAndNtfn[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -110,12 +110,12 @@ export default function EditResultPage() {
   const [fetching, setFetching] = useState(true);
   const { user } = useSelector((state: RootState) => state.authentication);
 
-  const methods = useForm<ResultFormInterface>();
+  const methods = useForm<ResultFormDTO>();
 
 useEffect(() => {
   setFetching(true);
 
-  const normalizeResultToForm = (data: ResultFormInterface): ResultFormInterface => ({
+  const normalizeResultToForm = (data: ResultFormDTO): ResultFormDTO => ({
     ...data,
     // Convert nested objects to IDs
     categoryId: data.categoryId ? String(data.categoryId) : null,
@@ -179,7 +179,7 @@ useEffect(() => {
 
   useEffect(() => {
     setJobLoading(true);
-    getPaginatedEntity<Job>(`search=${jobSearch}&page=1&limit=20`, JOBS_API, { entityName: "jobs" })
+    getPaginatedEntity<IJob>(`search=${jobSearch}&page=1&limit=20`, JOBS_API, { entityName: "jobs" })
       .then((res) => {
         setJobs(res.data);
         setJobLoading(false);
@@ -188,12 +188,12 @@ useEffect(() => {
   }, [jobSearch]);
 
   useEffect(() => {
-    getPaginatedEntity<Category>("type=categories&page=1", CATEGORY_API, { entityName: "categories" })
+    getPaginatedEntity<ICategory>("type=categories&page=1", CATEGORY_API, { entityName: "categories" })
       .then((res) => setCategories(res.data))
       .catch(() => setCategories([]));
   }, []);
   useEffect(() => {
-    getPaginatedEntity<State>("type=states&page=1", STATE_API, { entityName: "states" })
+    getPaginatedEntity<IState>("type=states&page=1", STATE_API, { entityName: "states" })
     .then((res) => setAllStates(res.data))
     .catch(() => setAllStates([])); }, []);
 
@@ -227,7 +227,7 @@ useEffect(() => {
 
     // 1️⃣ Simple fields
     Object.entries(JOB_TO_RESULT_MAP).forEach(([jobKey, resultKey]) => {
-      const value = selectedJob[jobKey as keyof Job];
+      const value = selectedJob[jobKey as keyof IJob];
       if (value !== undefined && value !== null) {
         methods.setValue(resultKey, value as any, { shouldDirty: true });
       }
@@ -256,7 +256,7 @@ useEffect(() => {
   };
 
 
-  const onValidSubmit = async (values: ResultFormInterface) => {
+  const onValidSubmit = async (values: ResultFormDTO) => {
     setError(null);
     setSuccess(null);
     setLoading(true);

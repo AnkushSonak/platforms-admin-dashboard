@@ -6,12 +6,12 @@ import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import { useParams } from 'next/navigation';
 import { useState, useEffect } from 'react';
-import type { State } from '@/app/helper/interfaces/State';
+import type { IState } from '@/app/helper/interfaces/IState';
 
 export default function EditStatePage() {
   const params = useParams();
   const stateId = params?.id as string;
-  const [form, setForm] = useState<Omit<State, 'id' | 'deletedAt'> | null>(null);
+  const [form, setForm] = useState<Omit<IState, 'id' | 'deletedAt'> | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
