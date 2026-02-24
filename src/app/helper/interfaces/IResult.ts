@@ -11,17 +11,24 @@ import { IJobSnapshot } from "./IJobSnapshot";
 import { IDynamicField } from "./IDynamicField";
 import { ISeoSettings } from "./ISeoSettings";
 
-export type ResultStatus =
-  | "active"
-  | "postponed"
-  | "link_inactive"
-  | "upcoming";
+export enum ResultStatus {
+  ACTIVE = 'active',
+  POSTPONED = 'postponed',
+  LINK_INACTIVE = 'link_inactive',
+  RELEASED = 'released',
+  UPCOMING = 'upcoming',
+  CLOSED = 'closed',
+  DELETED = 'deleted',
+  DRAFT = 'draft',
+  ARCHIVED = 'archived',
+}
 
-export type ResultType =
-  | "pdf_list"
-  | "login_portal"
-  | "scorecard"
-  | "other";
+export enum ResultType {
+  PDF_LINK = "pdf_list",
+  LOGIN_PORTAL = "login_portal",
+  SCORECARD = "scorecard",
+  OTHER = "other",
+}
 
 export interface ICutOffMark {
   category: string; // UR, OBC, SC, ST, EWS
