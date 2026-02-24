@@ -224,66 +224,66 @@ export default function AddAdmitCardPage() {
       // jobLevel: '',
       // dynamicFields: {},
 
-  id: '',
+      id: '',
 
-  title: '',
-  slug: '',
-  examName: '',
+      title: '',
+      slug: '',
+      examName: '',
 
-  descriptionJson: null,
-  descriptionHtml: null,
+      descriptionJson: null,
+      descriptionHtml: null,
 
-  organization: {} as IOrganization,
-  category: null,
+      organization: {} as IOrganization,
+      category: null,
 
-  status: AdmitCardStatus.DRAFT,
+      status: AdmitCardStatus.DRAFT,
 
-  // Key Dates
-  releaseDate: null,
-  examStartDate: null,
-  examEndDate: null,
+      // Key Dates
+      releaseDate: null,
+      examStartDate: null,
+      examEndDate: null,
 
-  modeOfExam: null,
-  examShifts: [],
+      modeOfExam: null,
+      examShifts: [],
 
-  examLocation: null,
+      examLocation: null,
 
-  importantInstructions: [],
+      importantInstructions: [],
 
-  cardTags: [],
-  tags: [],
+      cardTags: [],
+      tags: [],
 
-  helpfullVideoLinks: [],
+      helpfullVideoLinks: [],
 
-  importantDates: null,
-  importantLinks: [],
+      importantDates: null,
+      importantLinks: [],
 
-  job: null,
+      job: null,
 
-  states: [],
+      states: [],
 
-  locationText: "",
+      locationText: "",
 
-  newsAndNotifications: [],
+      newsAndNotifications: [],
 
-  jobSnapshot: null,
+      jobSnapshot: null,
 
-  publishDate: null,
+      publishDate: null,
 
-  reviewStatus: 'draft',
+      reviewStatus: 'draft',
 
-  dynamicFields: [],
+      dynamicFields: [],
 
-  seoSettings: null,
+      seoSettings: null,
 
-  isFeatured: false,
+      isFeatured: false,
 
-  createdAt: new Date(),
-  updatedAt: new Date(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
 
-  lastUpdatedBy: null,
+      lastUpdatedBy: null,
 
-  deletedAt: null,
+      deletedAt: null,
 
     }
   });
@@ -415,32 +415,32 @@ const handleJobSelect = (jobId: string) => {
               <fieldset className="border rounded p-4 mb-4">
                 <legend className="font-bold text-lg mb-2">Core Details</legend>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div><label className="block text-sm pb-2">Title *</label><Input {...methods.register('admitCardTitle', { required: true })} className="w-full border rounded p-2" required /></div>
-                  <div><label className="block text-sm pb-2">Advertise Number</label><Input {...methods.register('admitCardAdvtNumber')} className="w-full border rounded p-2" /></div>
+                  <div><label className="block text-sm pb-2">Title *</label><Input {...methods.register('title', { required: true })} className="w-full border rounded p-2" required /></div>
+                  <div><label className="block text-sm pb-2">Advertise Number</label><Input {...methods.register('advtNumber')} className="w-full border rounded p-2" /></div>
                   {/* <div><label className="block text-sm pb-2">Slug</label><Input {...methods.register('admitCardSlug')} className="w-full border rounded p-2" /></div> */}
                   <div className="md:col-span-2"><label className="block text-sm pb-2">Description</label>
-                    <Controller name="admitCardDescriptionJson" control={methods.control}
+                    <Controller name="descriptionJson" control={methods.control}
                       render={({ field }) => (<RichTextEditor id="descriptionJson" namespace="description-admitCard" value={field.value || ''}
-                        onChange={(data) => { field.onChange(JSON.stringify(data.json)); methods.setValue('admitCardDescriptionHtml', data.html); }}
+                        onChange={(data) => { field.onChange(JSON.stringify(data.json)); methods.setValue('descriptionHtml', data.html); }}
                       />
                       )}
                     />
                   </div>
-                  <div><label className="block text-sm pb-2">Exam Name</label><Input {...methods.register('admitCardExamName')} className="w-full border rounded p-2" /></div>
+                  <div><label className="block text-sm pb-2">Exam Name</label><Input {...methods.register('examName')} className="w-full border rounded p-2" /></div>
 
-                  <SelectOrTypeInput name="admitCardOrganization" control={methods.control} label="Organization" options={organizations} />
+                  <SelectOrTypeInput name="organizationId" control={methods.control} label="Organization" options={organizations} />
                   
                     <div><label className="block text-sm pb-2">Release Date</label>
-                      <Controller name="admitCardReleaseDate" control={methods.control}
+                      <Controller name="releaseDate" control={methods.control}
                         render={({ field }) => (<DateTimePicker value={field.value ? new Date(field.value) : null} onChange={field.onChange} />)}
                       />
                     </div>
                     <div><label className="block text-sm pb-2">Exam Date</label>
-                      <Controller name="admitCardExamDate" control={methods.control}
+                      <Controller name="examDate" control={methods.control}
                         render={({ field }) => (<DateTimePicker value={field.value ? new Date(field.value) : null} onChange={field.onChange} />)}
                       />
                     </div>
-                   <div><FormSelect name="admitCardStatus" control={methods.control} label="Select Status" placeholder="Select Status" options={admitCardStatusOptions} /></div>
+                   <div><FormSelect name="status" control={methods.control} label="Select Status" placeholder="Select Status" options={admitCardStatusOptions} /></div>
 
                 </div>
               </fieldset>
@@ -453,12 +453,12 @@ const handleJobSelect = (jobId: string) => {
 
                   <FormSelect name="applicationMode" control={methods.control} label="Mode of Exam" placeholder="Select Application Mode" options={applicationModes}/>
 
-                  <div><label className="block text-sm pb-2">Exam Shift</label><Input {...methods.register('admitCardExamShift')} className="w-full border rounded p-2" /></div>
-                  <div><label className="block text-sm pb-2">Reporting Time</label><Input {...methods.register('admitCardReportingTime')} className="w-full border rounded p-2" /></div>
-                  <div><label className="block text-sm pb-2">Gate Close Time</label><Input {...methods.register('admitCardGateCloseTime')} className="w-full border rounded p-2" /></div>
-                  <div className="md:col-span-2"><label className="block text-sm pb-2">Exam Location</label><Input {...methods.register('admitCardExamLocation')} className="w-full border rounded p-2" /></div>
-                  <div><label className="block text-sm pb-2">Credentials Required</label><Input {...methods.register('admitCardCredentialsRequired')} className="w-full border rounded p-2" /></div>
-                  <div><label className="block text-sm pb-2">Helpdesk Contact</label><Input {...methods.register('admitCardHelpdeskContact')} className="w-full border rounded p-2" /></div>
+                  <div><label className="block text-sm pb-2">Exam Shift</label><Input {...methods.register('examShift')} className="w-full border rounded p-2" /></div>
+                  <div><label className="block text-sm pb-2">Reporting Time</label><Input {...methods.register('reportingTime')} className="w-full border rounded p-2" /></div>
+                  <div><label className="block text-sm pb-2">Gate Close Time</label><Input {...methods.register('gateCloseTime')} className="w-full border rounded p-2" /></div>
+                  <div className="md:col-span-2"><label className="block text-sm pb-2">Exam Location</label><Input {...methods.register('examLocation')} className="w-full border rounded p-2" /></div>
+                  <div><label className="block text-sm pb-2">Credentials Required</label><Input {...methods.register('credentialsRequired')} className="w-full border rounded p-2" /></div>
+                  <div><label className="block text-sm pb-2">Helpdesk Contact</label><Input {...methods.register('helpdeskContact')} className="w-full border rounded p-2" /></div>
                 </div>
               </fieldset>
 
