@@ -1,140 +1,228 @@
-import { UUID } from "crypto";
+// import { UUID } from "crypto";
+// import { AdmitCardStatus } from "@/app/helper/interfaces/IAdmitCard";
+// import { ApplicationMode } from "@/app/helper/interfaces/IJob";
+// import { ReviewStatus } from "./global";
+
+// export interface AdmitCardFormDTO {
+//   /* ================= Core Fields ================= */
+
+//   id?: string;
+
+//   admitCardTitle: string;
+//   admitCardSlug?: string;
+
+//   admitCardDescriptionJson: string;
+//   admitCardDescriptionHtml: string;
+
+//   admitCardAdvtNumber: string;
+//   admitCardExamName: string;
+//   admitCardOrganization: string;
+
+//   categoryId: string | null;
+
+//   admitCardStatus: AdmitCardStatus;
+
+//   admitCardReleaseDate: Date | null;
+//   admitCardExamDate: Date | null;
+
+//   admitCardDownloadLink?: string | null;
+//   admitCardOfficialWebsite: string | null;
+
+//   isAdmitCardNew?: boolean;
+
+//   /* ================= Exam Details ================= */
+
+//   admitCardModeOfExam?: string;
+//   admitCardExamShift?: string;
+//   admitCardReportingTime?: string;
+//   admitCardGateCloseTime?: string;
+//   admitCardExamLocation?: string;
+//   admitCardCredentialsRequired?: string;
+//   admitCardHelpdeskContact?: string;
+
+//   /* ================= Resource Links ================= */
+
+//   mockTestLink?: string;
+//   syllabusLink?: string;
+//   notificationPdfLink?: string;
+//   examPatternLink?: string;
+//   previousYearPapersLink?: string;
+
+//   /* ================= JSON / Array Fields ================= */
+
+//   regionWiseLinks?: Record<string, string>;
+// //   admitCardImportantInstructions?: string[];
+
+//   /* ================= Relations (IDS ONLY) ================= */
+
+//   jobId?: string | null;              // ✅ instead of Job object
+//   stateIds: string[];                 // ✅ instead of State[]
+//   newsAndNotifications: string[];     // ✅ instead of objects
+//   relatedJobs: string[];              // ✅ job ids
+
+//   /* ================= Picked From Job ================= */
+
+//   sector: string | null;
+
+//   locationText: string;
+//   qualification: string;
+
+//   logo: string;
+//   logoImageUrl: string | null;
+//   logoBgColor: string;
+
+//   totalVacancies: string;
+
+//   tags: string[] | null;
+//   helpfullVideoLinks: string[] | null;
+
+//   importantDates: any;
+//   vacancyDetails: any;
+//   eligibility: any;
+//   applicationFee: any;
+//   contactDetails: any;
+//   examPattern: any;
+//   importantLinks: {
+//     label: string;
+//     links: string[];
+//   }[] | null;
+
+//   jobType: string;
+//   jobLevel: string;
+
+//   ageLimitText: string;
+//   applyLink: string;
+
+// //   selectionProcess: string[] | null;
+//   salary: string[] | null;
+// //   howToApply: string[] | null;
+// //   syllabus: string[] | null;
+
+//   /* ================= Salary / Application ================= */
+
+//   estimatedSalaryRange: {
+//     min: string | number;
+//     max: string | number;
+//   };
+
+//   applicationMode: ApplicationMode | null;
+
+//   /* ================= Dynamic ================= */
+
+//   dynamicFields: any;
+
+//   /* ================= SEO ================= */
+
+//   metaTitle: string;
+//   metaDescription: string;
+//   seoKeywords: string[] | null;
+//   seoCanonicalUrl: string;
+//   schemaMarkupJson: any;
+
+//   /* ================= Admin / Lifecycle ================= */
+//   publishDate: Date | null;
+//   expiryDate: Date | null;
+//   autoPublishAt: Date | null;
+//   isExpired: boolean;
+
+//   notes: string;
+//   reviewStatus: ReviewStatus;
+
+//   /* ================= Analytics (read-only but kept) ================= */
+
+//   viewCount?: number;
+//   clickCount?: number;
+//   saveCount?: number;
+
+//   /* ================= Metadata ================= */
+
+//   lastUpdatedBy?: UUID | null;
+// }
+
+
 import { AdmitCardStatus } from "@/app/helper/interfaces/IAdmitCard";
-import { ApplicationMode } from "@/app/helper/interfaces/IJob";
-import { ReviewStatus } from "./global";
 
 export interface AdmitCardFormDTO {
-  /* ================= Core Fields ================= */
+  /* ================= Core ================= */
 
   id?: string;
 
-  admitCardTitle: string;
-  admitCardSlug?: string;
+  title: string;
+  slug: string;
+  examName: string;
 
-  admitCardDescriptionJson: string;
-  admitCardDescriptionHtml: string;
+  descriptionJson?: string | null;
+  descriptionHtml?: string | null;
 
-  admitCardAdvtNumber: string;
-  admitCardExamName: string;
-  admitCardOrganization: string;
+  organizationId: string;
+  categoryId?: string | null;
 
-  categoryId: string | null;
+  status: AdmitCardStatus;
+  reviewStatus: string;
 
-  admitCardStatus: AdmitCardStatus;
+  /* ================= Dates ================= */
 
-  admitCardReleaseDate: Date | null;
-  admitCardExamDate: Date | null;
-
-  admitCardDownloadLink?: string | null;
-  admitCardOfficialWebsite: string | null;
-
-  isAdmitCardNew?: boolean;
+  releaseDate?: Date | null;
+  examStartDate?: Date | null;
+  examEndDate?: Date | null;
+  publishDate?: Date | null;
 
   /* ================= Exam Details ================= */
 
-  admitCardModeOfExam?: string;
-  admitCardExamShift?: string;
-  admitCardReportingTime?: string;
-  admitCardGateCloseTime?: string;
-  admitCardExamLocation?: string;
-  admitCardCredentialsRequired?: string;
-  admitCardHelpdeskContact?: string;
-
-  /* ================= Resource Links ================= */
-
-  mockTestLink?: string;
-  syllabusLink?: string;
-  notificationPdfLink?: string;
-  examPatternLink?: string;
-  previousYearPapersLink?: string;
-
-  /* ================= JSON / Array Fields ================= */
-
-  regionWiseLinks?: Record<string, string>;
-//   admitCardImportantInstructions?: string[];
-
-  /* ================= Relations (IDS ONLY) ================= */
-
-  jobId?: string | null;              // ✅ instead of Job object
-  stateIds: string[];                 // ✅ instead of State[]
-  newsAndNotifications: string[];     // ✅ instead of objects
-  relatedJobs: string[];              // ✅ job ids
-
-  /* ================= Picked From Job ================= */
-
-  sector: string | null;
-
-  locationText: string;
-  qualification: string;
-
-  logo: string;
-  logoImageUrl: string | null;
-  logoBgColor: string;
-
-  totalVacancies: string;
-
-  tags: string[] | null;
-  helpfullVideoLinks: string[] | null;
-
-  importantDates: any;
-  vacancyDetails: any;
-  eligibility: any;
-  applicationFee: any;
-  contactDetails: any;
-  examPattern: any;
-  importantLinks: {
-    label: string;
-    links: string[];
+  modeOfExam?: string | null;
+  examShifts?: {
+    shiftName: string;
+    reportingTime: string;
+    gateClosingTime: string;
+    examTime: string;
+    otherDetails?: string;
   }[] | null;
 
-  jobType: string;
-  jobLevel: string;
+  examLocation?: string | null;
 
-  ageLimitText: string;
-  applyLink: string;
+  importantInstructions?: string[] | null;
 
-//   selectionProcess: string[] | null;
-  salary: string[] | null;
-//   howToApply: string[] | null;
-//   syllabus: string[] | null;
+  /* ================= Relations (IDs only) ================= */
 
-  /* ================= Salary / Application ================= */
+  jobId?: string | null;
+  stateIds: string[];
+  tagIds: string[];
+  newsAndNotificationIds: string[];
 
-  estimatedSalaryRange: {
-    min: string | number;
-    max: string | number;
-  };
+  /* ================= Content Blocks ================= */
 
-  applicationMode: ApplicationMode | null;
+  cardTags?: string[] | null;
+  helpfullVideoLinks?: string[] | null;
+
+  importantDates?: Record<string, any> | null;
+
+  importantLinks?: {
+    label: string;
+    url: string;
+  }[] | null;
 
   /* ================= Dynamic ================= */
 
-  dynamicFields: any;
+  dynamicFields?: {
+    key: string;
+    value: string | number | boolean | null;
+  }[] | null;
 
   /* ================= SEO ================= */
 
-  metaTitle: string;
-  metaDescription: string;
-  seoKeywords: string[] | null;
-  seoCanonicalUrl: string;
-  schemaMarkupJson: any;
+  seo?: {
+    metaTitle?: string;
+    metaDescription?: string;
+    keywords?: string[] | null;
+    canonicalUrl?: string | null;
+    schemaMarkupJson?: any;
+  } | null;
 
-  /* ================= Admin / Lifecycle ================= */
-  publishDate: Date | null;
-  expiryDate: Date | null;
-  autoPublishAt: Date | null;
-  isExpired: boolean;
+  /* ================= Flags ================= */
 
-  notes: string;
-  reviewStatus: ReviewStatus;
+  isFeatured?: boolean;
 
-  /* ================= Analytics (read-only but kept) ================= */
+  /* ================= Admin ================= */
 
-  viewCount?: number;
-  clickCount?: number;
-  saveCount?: number;
-
-  /* ================= Metadata ================= */
-
-  lastUpdatedBy?: UUID | null;
+  lastUpdatedBy?: string | null;
 }
