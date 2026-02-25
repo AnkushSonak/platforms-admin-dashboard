@@ -85,7 +85,7 @@ export interface IAnswerKey {
 
   isFeatured?: boolean;
 
-  publishDate?: Date | null;
+  publishedAt?: Date | null;
 
   createdAt: Date;
   updatedAt: Date;

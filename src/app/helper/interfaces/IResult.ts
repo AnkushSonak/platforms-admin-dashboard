@@ -85,7 +85,7 @@ export interface IResult {
 
   jobSnapshot?: IJobSnapshot | null;
 
-  publishDate?: Date | null;
+  publishedAt?: Date | null;
 
   reviewStatus: string;
 

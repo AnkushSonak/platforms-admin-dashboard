@@ -87,6 +87,7 @@ export interface IJob {
   metaTitle: string | null;
   metaDescription: string | null;
 
+  publishedAt?: Date;
   readonly createdAt: Date;
   readonly updatedAt: Date;
   lastUpdatedBy?: string;

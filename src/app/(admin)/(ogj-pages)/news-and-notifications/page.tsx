@@ -11,7 +11,6 @@ import { useEffect, useState, useCallback } from 'react';
 
 import { useSelector } from 'react-redux';
 import { RootState } from '@/state/store';
-// import { getNotifications } from '@/app/lib/api/notifications';
 import { INewsAndNtfn } from '@/app/helper/interfaces/INewsAndNtfn';
 import { getPaginatedEntity } from '@/lib/api/global/Generic';
 import { NEWS_AND_NTFN_API } from '@/app/envConfig';

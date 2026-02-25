@@ -74,7 +74,7 @@ export interface IAdmitCard {
 
   jobSnapshot?: IJobSnapshot | null;
 
-  publishDate?: Date | null;
+  publishedAt?: Date | null;
 
   reviewStatus: string;
 

@@ -141,6 +141,7 @@
 
 
 import { AdmitCardStatus } from "@/app/helper/interfaces/IAdmitCard";
+import { IJobSnapshot } from "../interfaces/IJobSnapshot";
 
 export interface AdmitCardFormDTO {
   /* ================= Core ================= */
@@ -158,7 +159,6 @@ export interface AdmitCardFormDTO {
   categoryId?: string | null;
 
   status: AdmitCardStatus;
-  reviewStatus: string;
 
   /* ================= Dates ================= */
 
@@ -188,6 +188,8 @@ export interface AdmitCardFormDTO {
   stateIds: string[];
   tagIds: string[];
   newsAndNotificationIds: string[];
+
+  jobSnapshot?: IJobSnapshot | null;
 
   /* ================= Content Blocks ================= */
 
@@ -223,6 +225,6 @@ export interface AdmitCardFormDTO {
   isFeatured?: boolean;
 
   /* ================= Admin ================= */
-
+  reviewStatus: string;
   lastUpdatedBy?: string | null;
 }
