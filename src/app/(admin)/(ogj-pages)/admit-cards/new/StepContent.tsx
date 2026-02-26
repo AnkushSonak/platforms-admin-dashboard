@@ -29,23 +29,9 @@ export function StepContent() {
               onChange={(data) => { field.onChange(JSON.stringify(data.json)); setValue('descriptionHtml', data.html); }}
             />
           </FormControl>
-          {/* <Controller name="descriptionJson" control={control}
-            render={({ field }) => (<RichTextEditor id="descriptionJson" namespace="form-news-and-ntfn-description" value={field.value || ''}
-              onChange={(data) => { field.onChange(JSON.stringify(data.json)); setValue('descriptionHtml', data.html); }}
-            />
-            )}
-          /> */}
           <FormMessage />
         </FormItem>
       )} />
-
-      {/* <FormField name="headlineImage.url" control={control} render={({ field }) => (
-        <FormItem>
-          <FormLabel>Headline Image URL</FormLabel>
-          <FormControl><Input {...field} /></FormControl>
-          <FormMessage />
-        </FormItem>
-      )} /> */}
 
         <div className="grid grid-cols-2 gap-6">
       <FormField name="cardTags" control={control} render={({ field }) => (
