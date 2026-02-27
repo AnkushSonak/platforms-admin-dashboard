@@ -8,4 +8,6 @@ export interface IJobSnapshot {
   jobType?: string;
   ageLimitText?: string;
   applicationFee?: any;
+  minAge?: number;
+  maxAge?: number;
 }

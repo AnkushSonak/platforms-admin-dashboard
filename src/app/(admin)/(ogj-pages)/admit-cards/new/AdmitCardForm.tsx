@@ -153,6 +153,8 @@ export function AdmitCardForm({ isAdmin, initialValues, onSubmit, isEditMode }: 
       jobType: selectedJob.jobType,
       ageLimitText: selectedJob.ageLimitText,
       applicationFee: selectedJob.applicationFee,
+      minAge: selectedJob.minAge,
+      maxAge: selectedJob.maxAge,
     };
     form.setValue('jobSnapshot', jobSnapshot, { shouldDirty: true });
     // Optionally set jobId for reference
