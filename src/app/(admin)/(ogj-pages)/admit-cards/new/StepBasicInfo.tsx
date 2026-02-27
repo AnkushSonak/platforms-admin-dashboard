@@ -3,8 +3,6 @@ import { FormField, FormItem, FormLabel, FormControl, FormMessage, } from "@/com
 import { Input } from "@/components/shadcn/ui/input"
 import { NewsAndNntfnStatusType } from "@/app/helper/constants/NewsAndNntfnStatusType"
 import { FormSelect } from "../../jobs/sections/FormSelect";
-import { NewsAndNtfnPriorityType } from "@/app/helper/constants/NewsAndNtfnPriorityType";
-import { NewsAndNtfnRelatedEntityType } from "@/app/helper/constants/NewsAndNtfnRelatedEntityType";
 import { Checkbox } from "@/components/shadcn/ui/checkbox";
 import { FormSelectId } from "../../jobs/sections/FormSelectId";
 import React, { useEffect } from "react";
@@ -38,42 +36,31 @@ export function StepBasicInfo({ handleJobSelect, jobs }: { handleJobSelect: (job
   const [answerKeys, setAnswerKeys] = React.useState<IAnswerKey[]>([]);
   const selectedJobId = watch('jobId');
 
-  // // Autofill admit card fields when a job is selected
-  // React.useEffect(() => {
-  //   if (!selectedJobId) return;
-  //   const selectedJob = jobs.find(j => j.id === selectedJobId);
-  //   if (!selectedJob) return;
-  //   // Map simple fields
-  //   Object.entries(JOB_TO_ADMITCARD_MAP).forEach(([jobKey, admitKey]) => {
-  //     const value = selectedJob[jobKey as keyof IJob];
-  //     if (value !== undefined && value !== null) {
-  //       setValue(admitKey, value as any, { shouldDirty: true });
-  //     }
-  //   });
-  //   // Category → categoryId
-  //   if (selectedJob.category) {
-  //     setValue('categoryId', String(selectedJob.category.id), { shouldDirty: true });
-  //   }
-  //   // States → stateIds
-  //   if (selectedJob.states?.length) {
-  //     setValue('stateIds', selectedJob.states.map((s) => String(s.id)), { shouldDirty: true });
-  //   }
-  // }, [selectedJobId, jobs, setValue]);
-
   React.useEffect(() => {
     if (!selectedJobId) return;
     const selectedJob = jobs.find(j => j.id === selectedJobId);
     if (!selectedJob) return;
-    setValue('jobSnapshot', {
-      advtNumber: selectedJob.advtNumber,
-      sector: selectedJob.sector,
-      // qualifications: selectedJob.qualifications,
-      totalVacancies: selectedJob.totalVacancies,
-      jobType: selectedJob.jobType,
-      ageLimitText: selectedJob.ageLimitText,
-      applicationFee: selectedJob.applicationFee,
-    }, { shouldDirty: true });
-    setValue('jobId', selectedJob.id, { shouldDirty: true });
+      setValue('jobSnapshot', {
+        advtNumber: selectedJob.advtNumber,
+        sector: selectedJob.sector,
+        totalVacancies: selectedJob.totalVacancies,
+        jobType: selectedJob.jobType,
+        ageLimitText: selectedJob.ageLimitText,
+        applicationFee: selectedJob.applicationFee,
+        minAge: selectedJob.minAge,
+        maxAge: selectedJob.maxAge,
+      }, { shouldDirty: true });
+      setValue('jobId', selectedJob.id, { shouldDirty: true });
+
+      // Autofill individual fields
+      setValue('advtNumber', selectedJob.advtNumber ?? '', { shouldDirty: true });
+      setValue('sector', selectedJob.sector ?? '', { shouldDirty: true });
+      setValue('totalVacancies', selectedJob.totalVacancies ?? '', { shouldDirty: true });
+      setValue('jobType', selectedJob.jobType ?? '', { shouldDirty: true });
+      setValue('ageLimitText', selectedJob.ageLimitText ?? '', { shouldDirty: true });
+      setValue('applicationFee', selectedJob.applicationFee ?? '', { shouldDirty: true });
+      setValue('minAge', selectedJob.minAge ?? '', { shouldDirty: true });
+      setValue('maxAge', selectedJob.maxAge ?? '', { shouldDirty: true });
   }, [selectedJobId, jobs, setValue]);
 
   useEffect(() => { getPaginatedEntity<IOrganization>("type=organizations&page=1", ORGANIZATION_API, { entityName: "organizations" }).then(res => setOrganizations(res.data)).catch(() => setOrganizations([])); }, []);
@@ -93,23 +80,6 @@ export function StepBasicInfo({ handleJobSelect, jobs }: { handleJobSelect: (job
     { value: NewsAndNntfnStatusType.RETRACTED, label: 'Retracted' },
     { value: NewsAndNntfnStatusType.EXPIRED, label: 'Expired' },
   ];
-
-  const newsAndNtfnPriorityOptions = [
-    { value: NewsAndNtfnPriorityType.HIGH, label: 'High' },
-    { value: NewsAndNtfnPriorityType.MEDIUM, label: 'Medium' },
-    { value: NewsAndNtfnPriorityType.LOW, label: 'Low' },
-  ];
-
-  const newsAndNtfnRelatedEntityOptions = [
-    { value: NewsAndNtfnRelatedEntityType.JOB_POSTING, label: 'Job' },
-    { value: NewsAndNtfnRelatedEntityType.ADMIT_CARD, label: 'Admit Card' },
-    { value: NewsAndNtfnRelatedEntityType.RESULT, label: 'Result' },
-    { value: NewsAndNtfnRelatedEntityType.ANSWER_KEY, label: 'Answer Key' },
-    { value: NewsAndNtfnRelatedEntityType.EXAM_NOTIFICATION, label: 'Exam Notification' },
-    { value: NewsAndNtfnRelatedEntityType.NOTICE, label: 'Notice' },
-    { value: NewsAndNtfnRelatedEntityType.UPDATE, label: 'Update' },
-  ];
-
 
   return (
     <div>
@@ -250,29 +220,40 @@ export function StepBasicInfo({ handleJobSelect, jobs }: { handleJobSelect: (job
           </FormItem>
         )} />
 
-        <FormField name="officialOrderNumber" control={control} render={({ field }) => (
+        <FormField name="advtNumber" control={control} render={({ field }) => (
           <FormItem>
-            <FormLabel>Official Order Number</FormLabel>
+            <FormLabel>Advt Number</FormLabel>
             <FormControl><Input {...field} /></FormControl>
             <FormMessage />
           </FormItem>
         )} />
 
-        <FormField name="officialLink" control={control} render={({ field }) => (
+        <FormField name="sector" control={control} render={({ field }) => (
           <FormItem>
-            <FormLabel>Official Link</FormLabel>
+            <FormLabel>Sector</FormLabel>
             <FormControl><Input {...field} /></FormControl>
             <FormMessage />
           </FormItem>
         )} />
 
-        <FormField name="downloadLink" control={control} render={({ field }) => (
+        <FormField name="totalVacancies" control={control} render={({ field }) => (
+          <FormItem>
+            <FormLabel>Total Vacancies</FormLabel>
+            <FormControl><Input type="number" value={field.value ?? ""} onChange={(e) =>
+                field.onChange(e.target.value === "" ? undefined : e.target.valueAsNumber)
+              }
+              /></FormControl>
+            <FormMessage />
+          </FormItem>
+        )} />
+
+        {/* <FormField name="downloadLink" control={control} render={({ field }) => (
           <FormItem>
             <FormLabel>Download Link</FormLabel>
             <FormControl><Input {...field} /></FormControl>
             <FormMessage />
           </FormItem>
-        )} />
+        )} />  */}
 
         <FormField name="relatedJobIds" control={control} render={({ field }) => (
           <FormItem>
@@ -346,6 +327,7 @@ export function StepBasicInfo({ handleJobSelect, jobs }: { handleJobSelect: (job
         )}
         />
 
+        {/* //should be mapped with job qualifications for auto-fill, but allowing manual entry as well for flexibility
         <FormField name="qualificationIds" control={control} render={({ field }) => (
           <FormItem>
             <FormControl>
@@ -355,7 +337,7 @@ export function StepBasicInfo({ handleJobSelect, jobs }: { handleJobSelect: (job
             </FormControl>
             <FormMessage />
           </FormItem>
-        )} />
+        )} /> */}
 
         <FormField name="isFeatured" control={control} render={({ field }) => (
           <FormItem>

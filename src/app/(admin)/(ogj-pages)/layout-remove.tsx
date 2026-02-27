@@ -13,7 +13,7 @@ export default function AdminLayout({ children, }: { children: React.ReactNode; 
     console.debug("admin/layout.tsx : logout() : Logging out user...");
     sessionStorage.removeItem('tokenid');
     CookieUtils.deleteCookie('tokenid');
-    window.location.href = '/admin/login';
+    window.location.href = '/signin';
   }
 
   return (

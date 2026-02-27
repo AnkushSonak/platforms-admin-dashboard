@@ -10,13 +10,29 @@ import React, { useEffect } from "react"
 import { getPaginatedEntity } from "@/lib/api/global/Generic"
 import { ITag } from "@/app/helper/interfaces/ITag"
 import { TAGS_API } from "@/app/envConfig"
+import { FormVideoLinksInput } from "../../jobs/sections/FormVideoLinksInput"
+import { Input } from "@/components/shadcn/ui/input"
+import { JsonFieldDialog } from "@/components/form/existing/JsonFieldDialog"
 
 export function StepContent() {
-  const { control, setValue } = useFormContext()
+  const { control, setValue, watch } = useFormContext();
   const [allTags, setAllTags] = React.useState<ITag[]>([]);
 
-  useEffect(() => { getPaginatedEntity<ITag>("type=tags&page=1", TAGS_API,  { entityName: "tags" }).then((response) => setAllTags(response.data)).catch(() => setAllTags([])); }, []);
-  
+  useEffect(() => {
+    getPaginatedEntity<ITag>("type=tags&page=1", TAGS_API,  { entityName: "tags" })
+      .then((response) => setAllTags(response.data))
+      .catch(() => setAllTags([]));
+  }, []);
+
+  // Autofill StepContent fields from jobSnapshot
+  const jobSnapshot = watch('jobSnapshot');
+  useEffect(() => {
+    if (!jobSnapshot) return;
+    // Example: autofill descriptionJson, importantInstructions, etc. if present in jobSnapshot
+    if (jobSnapshot.descriptionJson) setValue('descriptionJson', jobSnapshot.descriptionJson, { shouldDirty: true });
+    if (jobSnapshot.importantInstructions) setValue('importantInstructions', jobSnapshot.importantInstructions, { shouldDirty: true });
+    // Add more fields as needed based on jobSnapshot structure
+  }, [jobSnapshot, setValue]);
 
   return (
     <div className="grid grid-cols-1 gap-6">
@@ -70,6 +86,34 @@ export function StepContent() {
           <FormLabel>Dynamic Fields</FormLabel>
           <FormControl>
               <DynamicFieldsSection />
+          </FormControl>
+          <FormMessage />
+        </FormItem>
+      )} />
+
+      <FormField name="helpfullVideoLinks" control={control} render={({ field }) => (
+        <FormItem>
+          <FormControl>
+              <FormVideoLinksInput name="helpfullVideoLinks" control={control} label="Helpful Video Links" />
+          </FormControl>
+          <FormMessage />
+        </FormItem>
+      )} />
+
+      <FormField name="importantDates" control={control} render={({ field }) => (
+        <FormItem>
+          <FormControl>
+              <JsonFieldDialog title="Important Dates" value={field.value || []} onChange={(v) => field.onChange(v)} />
+          </FormControl>
+          <FormMessage />
+        </FormItem>
+      )} />
+
+      <FormField name="importantInstructions" control={control} render={({ field }) => (
+        <FormItem>
+          <FormLabel>Important Instructions</FormLabel>
+          <FormControl>
+            <Input {...field} placeholder="Important Instructions (comma separated)" />
           </FormControl>
           <FormMessage />
         </FormItem>
