@@ -16,9 +16,9 @@ export default function RootLayout({ children, }: Readonly<{ children: React.Rea
       <body className={`${outfit.className} dark:bg-gray-900`}>
         <ThemeProvider>
           <ReduxProvider>
-            <AuthGuard>
+            {/* <AuthGuard> */}
               <SidebarProvider>{children}</SidebarProvider>
-            </AuthGuard>
+            {/* </AuthGuard> */}
           </ReduxProvider>
         </ThemeProvider>
       </body>
