@@ -3,7 +3,6 @@ import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/comp
 import { useFormContext } from "react-hook-form"
 import DynamicFieldsSection from "../../jobs/sections/DynamicFieldsSection"
 import { FormTagInput } from "../../jobs/sections/FormTagInput"
-import { DynamicLinksEditor } from "../../jobs/sections/DynamicLinksEditor"
 import { FormMultiSelectIds } from "../../jobs/sections/FormMultiSelectIds"
 import { MultiSelect } from "@/components/shadcn/ui/multi-select"
 import React, { useEffect } from "react"
@@ -13,6 +12,8 @@ import { TAGS_API } from "@/app/envConfig"
 import { FormVideoLinksInput } from "../../jobs/sections/FormVideoLinksInput"
 import { Input } from "@/components/shadcn/ui/input"
 import { JsonFieldDialog } from "@/components/form/existing/JsonFieldDialog"
+import { DynamicLinksEditorPro } from "@/components/form/DynamicLinksEditorPro"
+import { ImportantDatesDialog } from "@/components/form/ImportantDatesDialog"
 
 export function StepContent() {
   const { control, setValue, watch } = useFormContext();
@@ -29,9 +30,10 @@ export function StepContent() {
   useEffect(() => {
     if (!jobSnapshot) return;
     // Example: autofill descriptionJson, importantInstructions, etc. if present in jobSnapshot
-    if (jobSnapshot.descriptionJson) setValue('descriptionJson', jobSnapshot.descriptionJson, { shouldDirty: true });
-    if (jobSnapshot.importantInstructions) setValue('importantInstructions', jobSnapshot.importantInstructions, { shouldDirty: true });
-    // Add more fields as needed based on jobSnapshot structure
+    if (jobSnapshot.dynamicFields) setValue('dynamicFields', jobSnapshot.dynamicFields, { shouldDirty: true });
+    if (jobSnapshot.importantLinks) setValue('importantLinks', jobSnapshot.importantLinks, { shouldDirty: true });
+    if (jobSnapshot.importantDates) setValue('importantDates', jobSnapshot.importantDates, { shouldDirty: true });
+    if (jobSnapshot.helpfullVideoLinks) setValue('helpfullVideoLinks', jobSnapshot.helpfullVideoLinks, { shouldDirty: true });
   }, [jobSnapshot, setValue]);
 
   return (
@@ -75,7 +77,7 @@ export function StepContent() {
         <FormItem>
           <FormLabel>Important Links</FormLabel>
           <FormControl>
-            <DynamicLinksEditor value={field.value || []} onChange={field.onChange} />
+            <DynamicLinksEditorPro value={field.value || []} onChange={field.onChange} />
           </FormControl>
           <FormMessage />
         </FormItem>
@@ -103,13 +105,13 @@ export function StepContent() {
       <FormField name="importantDates" control={control} render={({ field }) => (
         <FormItem>
           <FormControl>
-              <JsonFieldDialog title="Important Dates" value={field.value || []} onChange={(v) => field.onChange(v)} />
+              <ImportantDatesDialog value={field.value || []} onChange={(v) => field.onChange(v)} />
           </FormControl>
           <FormMessage />
         </FormItem>
       )} />
 
-      <FormField name="importantInstructions" control={control} render={({ field }) => (
+      {/* <FormField name="importantInstructions" control={control} render={({ field }) => (
         <FormItem>
           <FormLabel>Important Instructions</FormLabel>
           <FormControl>
@@ -117,7 +119,7 @@ export function StepContent() {
           </FormControl>
           <FormMessage />
         </FormItem>
-      )} />
+      )} /> */}
 
 
     </div>

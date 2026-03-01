@@ -21,24 +21,58 @@ const ExamShiftSchema = z.object({
 
 const ImportantLinkSchema = z.object({
   label: z.string().min(1),
-  url: z.string().url(),
+  links: z.array(z.object({
+    title: z.string().min(1),
+    url: z.string().url(),
+    type: z.string().min(1),
+    description: z.string().optional(),
+  })),
 });
 
 const DynamicFieldSchema = z.object({
-  key: z.string().min(1),
-  value: z.union([
-    z.string(),
-    z.number(),
-    z.boolean(),
-    z.null(),
-  ]),
+  label: z.string().min(1),
+  value: z.any(),
+  type: z.enum(["text", "json", "table", "richtext"]),
+  meta: z.any().optional(),
 });
 
+// const jobSnapshotSchema = z.object({
+//   advtNumber: z.string().optional(),
+//   jobType: z.string().optional(),
+//   jobLevel: z.string().optional(),
+//   ageLimitText: z.string().optional(),
+//   applyLink: z.string().url().optional(),
+//   estimatedSalaryRange: z.object({
+//     min: z.union([z.string(), z.number()]).optional(),
+//     max: z.union([z.string(), z.number()]).optional(),
+//   }).optional(),
+//   applicationMode: z.string().optional(),
+//   dynamicFields: z.array(DynamicFieldSchema).optional(),
+// });
+
 const SeoSchema = z.object({
-  metaTitle: z.string().min(1).optional(),
-  metaDescription: z.string().min(1).optional(),
-  keywords: z.array(z.string().min(1)).optional(),
-  canonicalUrl: z.string().url().optional(),
+  metaTitle: z
+    .string()
+    .trim()
+    .min(10, "Meta title must be at least 10 characters")
+    .optional()
+    .or(z.literal("")),
+
+  metaDescription: z
+    .string()
+    .trim()
+    .min(30, "Meta description must be at least 30 characters")
+    .optional()
+    .or(z.literal("")),
+
+  seoKeywords: z.array(z.string().min(1)).optional(),
+
+  seoCanonicalUrl: z
+    .string()
+    .url("Must be a valid URL")
+    .optional()
+    .or(z.literal("")),
+
   schemaMarkupJson: z.any().optional(),
 });
 
@@ -78,10 +112,10 @@ export const AdmitCardSchema = z.object({
 
   examLocation: z.string().nullable().optional(),
 
-  importantInstructions: z
-    .array(z.string().min(1))
-    .nullable()
-    .optional(),
+  // importantInstructions: z
+  //   .array(z.string().min(1))
+  //   .nullable()
+  //   .optional(),
 
   /* ================= Relations ================= */
 
@@ -102,7 +136,7 @@ export const AdmitCardSchema = z.object({
     .nullable()
     .optional(),
 
-  importantDates: z.record(z.string(), z.any()).nullable().optional(),
+  importantDates: z.any().nullable().optional(),
 
   importantLinks: z.array(ImportantLinkSchema).nullable().optional(),
 
@@ -124,3 +158,5 @@ export const AdmitCardSchema = z.object({
 
   lastUpdatedBy: z.string().nullable().optional(),
 });
+
+export type AdmitCardFormValues = z.input<typeof AdmitCardSchema>;

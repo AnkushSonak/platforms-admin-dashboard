@@ -12,7 +12,7 @@ import { FormMultiSelectIds } from "../../jobs/sections/FormMultiSelectIds";
 import { MultiSelect } from "@/components/shadcn/ui/multi-select";
 import { IOrganization } from "@/app/helper/interfaces/IOrganization";
 import { IJob } from "@/app/helper/interfaces/IJob";
-import { IAdmitCard } from "@/app/helper/interfaces/IAdmitCard";
+import { AdmitCardStatus, IAdmitCard } from "@/app/helper/interfaces/IAdmitCard";
 import { IResult } from "@/app/helper/interfaces/IResult";
 import { IAnswerKey } from "@/app/helper/interfaces/IAnswerKey";
 import { getPaginatedEntity } from "@/lib/api/global/Generic";
@@ -20,6 +20,7 @@ import { ADMIT_CARDS_API, ANSWER_KEYS_API, CATEGORY_API, NEWS_AND_NTFN_API, ORGA
 import { IQualification } from "@/app/helper/interfaces/IQualification";
 import { INewsAndNtfn } from "@/app/helper/interfaces/INewsAndNtfn";
 import { DateTimePicker } from "@/components/shadcn/ui/date-time-picker";
+import { ExamShiftsField } from "@/components/form/ExamShiftsField";
 
 
 export function StepBasicInfo({ handleJobSelect, jobs }: { handleJobSelect: (jobId: string) => void; jobs: IJob[] }) {
@@ -31,7 +32,7 @@ export function StepBasicInfo({ handleJobSelect, jobs }: { handleJobSelect: (job
   const [allNewsAndNotifications, setAllNewsAndNotifications] = React.useState<INewsAndNtfn[]>([]);
   const [allQualifications, setAllQualifications] = React.useState<any[]>([]);
   // const [jobs, setJobs] = React.useState<IJob[]>([]);
-  const [admitCards, setAdmitCards] = React.useState<IAdmitCard[]>([]);
+  // const [admitCards, setAdmitCards] = React.useState<IAdmitCard[]>([]);
   const [results, setResults] = React.useState<IResult[]>([]);
   const [answerKeys, setAnswerKeys] = React.useState<IAnswerKey[]>([]);
   const selectedJobId = watch('jobId');
@@ -67,18 +68,20 @@ export function StepBasicInfo({ handleJobSelect, jobs }: { handleJobSelect: (job
   useEffect(() => { getPaginatedEntity<ICategory>("type=categories&page=1", CATEGORY_API, { entityName: "categories" }).then((res) => setCategories(res.data)).catch(() => setCategories([])); }, []);
   useEffect(() => { getPaginatedEntity<IState>("type=states&page=1", STATE_API, { entityName: "states" }).then((res) => setAllStates(res.data)).catch(() => setAllStates([])); }, []);
   useEffect(() => { getPaginatedEntity<INewsAndNtfn>("type=news-and-notifications&page=1", NEWS_AND_NTFN_API, { entityName: "newsAndNotifications" }).then((res) => setAllNewsAndNotifications(res.data)).catch(() => setAllNewsAndNotifications([])); }, []);
-  // useEffect(() => { getPaginatedEntity<IJob>("type=jobs&page=1", JOBS_API,  { entityName: "jobs" }).then((response) => setJobs(response.data)).catch(() => setJobs([])); }, []);
-  useEffect(() => { getPaginatedEntity<IAdmitCard>("type=admitCards&page=1", ADMIT_CARDS_API, { entityName: "admitCards" }).then((response) => setAdmitCards(response.data)).catch(() => setAdmitCards([])); }, []);
   useEffect(() => { getPaginatedEntity<IResult>("type=results&page=1", RESULTS_API, { entityName: "results" }).then((response) => setResults(response.data)).catch(() => setResults([])); }, []);
   useEffect(() => { getPaginatedEntity<IAnswerKey>("type=answer-keys&page=1", ANSWER_KEYS_API, { entityName: "answerKeys" }).then((response) => setAnswerKeys(response.data)).catch(() => setAnswerKeys([])); }, []);
   useEffect(() => { getPaginatedEntity<IQualification>("type=qualifications&page=1", QUALIFICATIONS_API, { entityName: "qualifications" }).then((response) => setAllQualifications(response.data)).catch(() => setAllQualifications([])); }, []);
 
-  const newsAndNtfnStatusOptions = [
-    { value: NewsAndNntfnStatusType.PENDING, label: 'Pending' },
-    { value: NewsAndNntfnStatusType.PUBLISHED, label: 'Published' },
-    { value: NewsAndNntfnStatusType.UPDATED, label: 'Updated' },
-    { value: NewsAndNntfnStatusType.RETRACTED, label: 'Retracted' },
-    { value: NewsAndNntfnStatusType.EXPIRED, label: 'Expired' },
+  const admitCardStatusOptions = [
+    { value: AdmitCardStatus.ACTIVE, label: 'Active' },
+    { value: AdmitCardStatus.POSTPONED, label: 'Postponed' },
+    { value: AdmitCardStatus.LINK_INACTIVE, label: 'Link Inactive' },
+    { value: AdmitCardStatus.RELEASED, label: 'Released' },
+    { value: AdmitCardStatus.UPCOMING, label: 'Upcoming' },
+    { value: AdmitCardStatus.CLOSED, label: 'Closed' },
+    { value: AdmitCardStatus.DELETED, label: 'Deleted' },
+    { value: AdmitCardStatus.DRAFT, label: 'Draft' },
+    { value: AdmitCardStatus.ARCHIVED, label: 'Archived' },
   ];
 
   return (
@@ -121,7 +124,7 @@ export function StepBasicInfo({ handleJobSelect, jobs }: { handleJobSelect: (job
         <FormField name="status" control={control} render={({ field }) => (
           <FormItem>
             {/* <FormLabel>Status</FormLabel> */}
-            <FormSelect {...field} name="status" control={control} label="Select Status" placeholder="Select Status" options={newsAndNtfnStatusOptions} />
+            <FormSelect {...field} name="status" control={control} label="Select Status" placeholder="Select Status" options={admitCardStatusOptions} />
             <FormMessage />
           </FormItem>
         )} />
@@ -130,7 +133,7 @@ export function StepBasicInfo({ handleJobSelect, jobs }: { handleJobSelect: (job
           <FormItem>
             <FormControl>
               <FormSelectId {...field} name="organizationId" control={control} label="Select Organization" placeholder="Select organization"
-                options={organizations.map((o) => ({ id: o.id, label: o.fullName, }))} />
+                options={organizations.map((o) => ({ id: String(o.id), label: o.fullName, }))} />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -204,14 +207,6 @@ export function StepBasicInfo({ handleJobSelect, jobs }: { handleJobSelect: (job
           </FormItem>
         )} />
 
-        <FormField name="examShifts" control={control} render={({ field }) => (
-          <FormItem>
-            <FormLabel>Exam Shifts</FormLabel>
-            <FormControl><Input {...field} /></FormControl>
-            <FormMessage />
-          </FormItem>
-        )} />
-
         <FormField name="examLocation" control={control} render={({ field }) => (
           <FormItem>
             <FormLabel>Exam Location</FormLabel>
@@ -220,7 +215,7 @@ export function StepBasicInfo({ handleJobSelect, jobs }: { handleJobSelect: (job
           </FormItem>
         )} />
 
-        <FormField name="advtNumber" control={control} render={({ field }) => (
+        <FormField name="jobSnapshot.advtNumber" control={control} render={({ field }) => (
           <FormItem>
             <FormLabel>Advt Number</FormLabel>
             <FormControl><Input {...field} /></FormControl>
@@ -228,7 +223,7 @@ export function StepBasicInfo({ handleJobSelect, jobs }: { handleJobSelect: (job
           </FormItem>
         )} />
 
-        <FormField name="sector" control={control} render={({ field }) => (
+        <FormField name="jobSnapshot.sector" control={control} render={({ field }) => (
           <FormItem>
             <FormLabel>Sector</FormLabel>
             <FormControl><Input {...field} /></FormControl>
@@ -236,7 +231,7 @@ export function StepBasicInfo({ handleJobSelect, jobs }: { handleJobSelect: (job
           </FormItem>
         )} />
 
-        <FormField name="totalVacancies" control={control} render={({ field }) => (
+        <FormField name="jobSnapshot.totalVacancies" control={control} render={({ field }) => (
           <FormItem>
             <FormLabel>Total Vacancies</FormLabel>
             <FormControl><Input type="number" value={field.value ?? ""} onChange={(e) =>
@@ -285,7 +280,7 @@ export function StepBasicInfo({ handleJobSelect, jobs }: { handleJobSelect: (job
         </FormItem>
       )} /> */}
 
-        <FormField name="minAge" control={control} render={({ field }) => (
+        <FormField name="jobSnapshot.minAge" control={control} render={({ field }) => (
           <FormItem>
             <FormLabel>Min Age</FormLabel>
             <FormControl>
@@ -299,7 +294,7 @@ export function StepBasicInfo({ handleJobSelect, jobs }: { handleJobSelect: (job
         )}
         />
 
-        <FormField name="maxAge" control={control} render={({ field }) => (
+        <FormField name="jobSnapshot.maxAge" control={control} render={({ field }) => (
           <FormItem>
             <FormLabel>Max Age</FormLabel>
             <FormControl>
@@ -313,7 +308,7 @@ export function StepBasicInfo({ handleJobSelect, jobs }: { handleJobSelect: (job
         )}
         />
 
-        <FormField name="qualificationSummary" control={control} render={({ field }) => (
+        <FormField name="jobSnapshot.qualificationSummary" control={control} render={({ field }) => (
           <FormItem>
             <FormLabel>Qualification Summary</FormLabel>
             <FormControl>
@@ -344,7 +339,7 @@ export function StepBasicInfo({ handleJobSelect, jobs }: { handleJobSelect: (job
             <FormLabel>Is Featured</FormLabel>
             <FormControl>
               <Checkbox style={{ marginLeft: '10px' }}
-                id={`form-news-and-ntfn-checkbox-${field.name}`}
+                id={`form-admit-card-checkbox-${field.name}`}
                 checked={!!field.value}
                 onCheckedChange={(checked) =>
                   field.onChange(checked === true)
@@ -355,6 +350,17 @@ export function StepBasicInfo({ handleJobSelect, jobs }: { handleJobSelect: (job
           </FormItem>
         )}
         />
+
+        {/* Modern dynamic exam shifts field */}
+        <FormField name="examShifts" control={control} render={() => (
+          <FormItem>
+            <FormControl>
+              <ExamShiftsField name="examShifts" />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )} />
+
       </div>
     </div>
   )

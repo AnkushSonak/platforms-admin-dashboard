@@ -1,5 +1,116 @@
-// DynamicFieldsSection.tsx (refactor + features)
 "use client";
+// --- Utility: convert Lexical JSON -> HTML ---
+export const convertLexicalJsonToHtml = (json: any): string => {
+  try {
+    if (!json) return "";
+    if (typeof json === "object" && json.html && typeof json.html === "string") return json.html;
+    const tryExtractText = (node: any): string => {
+      if (node == null) return "";
+      if (typeof node === "string") return node;
+      if (Array.isArray(node)) return node.map(tryExtractText).join("");
+      if (typeof node === "object") {
+        if (node.type === "text" && node.text) return node.text;
+        if (node.children) return tryExtractText(node.children);
+        if (node.value) return tryExtractText(node.value);
+        return Object.values(node).map(tryExtractText).join("");
+      }
+      return "";
+    };
+    const txt = tryExtractText(json);
+    return txt ? `<p>${txt.replace(/\n/g, "<br/>")}</p>` : "";
+  } catch (e) {
+    return "";
+  }
+};
+
+type DynamicFieldValue = string | any[] | { json: any; html: string };
+export type DynamicField = {
+  label: string;
+  type: "text" | "json" | "table" | "richtext";
+  value?: DynamicFieldValue;
+  meta?: Record<string, any>;
+};
+
+function EditorIsolated({ keyId, children }: { keyId: string; children: React.ReactNode }) {
+  return <div key={keyId}>{children}</div>;
+}
+
+// Table/JSON helpers
+const ensureMeta = (idx: number, dynamicFields: DynamicField[]) => dynamicFields[idx]?.meta ?? {};
+const onJsonChange = (index: number, jsonVal: any, dynamicFields: DynamicField[], saveField: any, setValue: any) => {
+  saveField(index, { value: jsonVal });
+  setValue(`dynamicFields.${index}.value`, jsonVal, { shouldValidate: true });
+};
+const updateTableCell = (index: number, row: number, col: number, val: string, dynamicFields: DynamicField[], saveField: any, setValue: any) => {
+  const table = Array.isArray(dynamicFields[index]?.value) ? [...(dynamicFields[index]!.value as any[])] : [[]];
+  table[row] = [...(table[row] || [])];
+  table[row][col] = val;
+  saveField(index, { value: table });
+  setValue(`dynamicFields.${index}.value`, table, { shouldValidate: true });
+};
+const addTableRow = (index: number, dynamicFields: DynamicField[], saveField: any, setValue: any) => {
+  const table = Array.isArray(dynamicFields[index]?.value) ? [...(dynamicFields[index]!.value as any[])] : [[]];
+  const cols = table[0]?.length || 1;
+  table.push(Array(cols).fill(""));
+  saveField(index, { value: table });
+  setValue(`dynamicFields.${index}.value`, table, { shouldValidate: true });
+};
+const addTableCol = (index: number, dynamicFields: DynamicField[], saveField: any, setValue: any) => {
+  const table = Array.isArray(dynamicFields[index]?.value) ? (dynamicFields[index]!.value as any[]).map((r: any[]) => [...r, ""]) : [["", ""]];
+  const meta = { ...(dynamicFields[index]?.meta || {}) };
+  meta.columns = meta.columns ? [...meta.columns, `Col ${meta.columns.length + 1}`] : Array(table[0].length).fill("");
+  saveField(index, { value: table, meta });
+  setValue(`dynamicFields.${index}.value`, table, { shouldValidate: true });
+  setValue(`dynamicFields.${index}.meta`, meta, { shouldValidate: true });
+};
+const deleteTableRow = (index: number, row: number, dynamicFields: DynamicField[], saveField: any, setValue: any) => {
+  const table = Array.isArray(dynamicFields[index]?.value) ? [...(dynamicFields[index]!.value as any[])] : [[]];
+  table.splice(row, 1);
+  saveField(index, { value: table });
+  setValue(`dynamicFields.${index}.value`, table, { shouldValidate: true });
+};
+const reorderTableRows = (idx: number, from: number, to: number, dynamicFields: DynamicField[], saveField: any, setValue: any) => {
+  const table = Array.isArray(dynamicFields[idx]?.value) ? [...(dynamicFields[idx]!.value as any[])] : [];
+  if (from < 0 || to < 0 || from >= table.length || to >= table.length) return;
+  const item = table.splice(from, 1)[0];
+  table.splice(to, 0, item);
+  saveField(idx, { value: table });
+  setValue(`dynamicFields.${idx}.value`, table, { shouldValidate: true });
+};
+const requestTypeChange = (idx: number, nextType: DynamicField['type'], dynamicFields: DynamicField[], setConfirmTypeChange: any) => {
+  if (dynamicFields[idx]?.type === nextType) return;
+  setConfirmTypeChange({ open: true, idx, nextType });
+};
+const performTypeChange = (confirmTypeChange: any, dynamicFields: DynamicField[], update: any, setConfirmTypeChange: any) => {
+  const { idx, nextType } = confirmTypeChange;
+  if (idx === null || idx === undefined || nextType === undefined) return setConfirmTypeChange({ open: false, idx: null });
+  const current = dynamicFields[idx] || {};
+  update(idx, { ...current, type: nextType });
+  setConfirmTypeChange({ open: false, idx: null });
+};
+const openBulkEdit = (idx: number, dynamicFields: DynamicField[], setBulkEdit: any) => {
+  const table = Array.isArray(dynamicFields[idx]?.value) ? (dynamicFields[idx]!.value as any[]) : [];
+  const text = table.map((r: any[]) => r.map((c: any) => String(c ?? "")).join(",")).join("\n");
+  setBulkEdit({ open: true, idx, text });
+};
+const applyBulkEdit = (bulkEdit: any, dynamicFields: DynamicField[], saveField: any, setValue: any, setBulkEdit: any) => {
+  const idx = bulkEdit.idx;
+  if (idx === null) return setBulkEdit({ open: false, idx: null, text: "" });
+  const raw = bulkEdit.text || "";
+  const rows = raw.split(/\r?\n/).map((r: any) => r.split(","));
+  const normalized = rows.map((r: any) => r.map((c: any) => String(c ?? "").trim()));
+  const meta = { ...(dynamicFields[idx]?.meta || {}) };
+  meta.columns = meta.columns && meta.columns.length >= (normalized[0]?.length || 0)
+    ? meta.columns.slice(0, normalized[0].length)
+    : Array.from({ length: (normalized[0]?.length || 0) }, (_, i) => `Col ${i + 1}`);
+  saveField(idx, { value: normalized, meta });
+  setValue(`dynamicFields.${idx}.value`, normalized, { shouldValidate: true });
+  setValue(`dynamicFields.${idx}.meta`, meta, { shouldValidate: true });
+  setBulkEdit({ open: false, idx: null, text: "" });
+};
+
+// DynamicFieldsSection.tsx (refactor + features)
+
 
 import React, { useState, useRef } from "react";
 import { useFieldArray, useFormContext, Controller } from "react-hook-form";
@@ -10,84 +121,38 @@ import { JsonField } from "@/components/form/existing/JsonField";
 import RichTextEditor from "@/components/form/existing/RichTextEditor";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/shadcn/ui/dialog";
 import { Card } from "@/components/shadcn/ui/card";
+import { FieldCard } from "./FieldCard";
 
-function EditorIsolated({ keyId, children }: { keyId: string; children: React.ReactNode }) {
-  // simple wrapper that forces React to unmount/mount when keyId changes
-  return <div key={keyId}>{children}</div>;
-}
+// ...existing code...
 
-// NOTE: This file implements:
-// - Strict RichTextEditor contract { json, html }
-// - Lexical JSON -> HTML converter util (convertLexicalJsonToHtml)
-// - Type-change confirmation modal
-// - Table editor upgrades: column headers, reorder rows/cols, bulk edit
-// - Drag & drop reordering of fields (HTML5 DnD)
-// - Hardened typings & runtime guards
-
-type DynamicFieldValue =
-  | string
-  | any[] // e.g. table or json
-  | { json: any; html: string };
-
-export type DynamicField = {
-  label: string;
-  type: "text" | "json" | "table" | "richtext";
-  value?: DynamicFieldValue;
-  meta?: Record<string, any>;
-};
-
-// --- Utility: convert Lexical JSON -> HTML ---
-// Attempt to convert lexical JSON dump to HTML without needing editor instance.
-// Implementation tries to rely on @lexical/html; if unavailable, it returns empty string.
-// You can replace body with a project-specific implementation if needed.
-export const convertLexicalJsonToHtml = (json: any): string => {
-  try {
-    // If @lexical/html is available in your project, you can do something like this:
-    // const editor = createEditor();
-    // editor.parseEditorState(JSON.stringify(json));
-    // const html = $generateHtmlFromNodes(editor); // pseudo
-    // return html;
-    // But since we cannot guarantee environment here, we provide a safe fallback that
-    // attempts to pluck an existing html if present or stringify text nodes.
-
-    if (!json) return "";
-
-    // If the json already has html property, use it
-    if (typeof json === "object" && json.html && typeof json.html === "string") return json.html;
-
-    // Try to extract plaintext from lexical-like structure
-    const tryExtractText = (node: any): string => {
-      if (node == null) return "";
-      if (typeof node === "string") return node;
-      if (Array.isArray(node)) return node.map(tryExtractText).join("");
-      if (typeof node === "object") {
-        if (node.type === "text" && node.text) return node.text;
-        // children
-        if (node.children) return tryExtractText(node.children);
-        // for nodes that store a value
-        if (node.value) return tryExtractText(node.value);
-        // last resort: flatten object values
-        return Object.values(node).map(tryExtractText).join("");
-      }
-      return "";
-    };
-
-    const txt = tryExtractText(json);
-    // Basic paragraph wrapping
-    return txt ? `<p>${txt.replace(/\n/g, "<br/>")}</p>` : "";
-  } catch (e) {
-    return "";
-  }
-};
 
 export default function DynamicFieldsSection() {
-  const { control, watch, setValue, getValues } = useFormContext();
-  const { fields, append, update, remove, move } = useFieldArray({
+  // DnD for field reordering (HTML5 DnD)
+  const dragStartIdx = useRef<number | null>(null);
+  const onDragStart = (e: React.DragEvent, idx: number) => {
+    dragStartIdx.current = idx;
+    e.dataTransfer.effectAllowed = "move";
+    try { e.dataTransfer.setData("text/plain", String(idx)); } catch { }
+  };
+  const onDragOver = (e: React.DragEvent, idx: number) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+  };
+  const onDrop = (e: React.DragEvent, idx: number) => {
+    e.preventDefault();
+    const from = dragStartIdx.current ?? parseInt(e.dataTransfer.getData("text/plain") || "-1", 10);
+    const to = idx;
+    if (from >= 0 && to >= 0 && from !== to) move(from, to);
+    dragStartIdx.current = null;
+  };
+  const { control, watch, setValue, getValues, formState } = useFormContext();
+  const { fields, append, update, remove, move, insert } = useFieldArray({
     control,
     name: "dynamicFields",
   });
 
   const dynamicFields: DynamicField[] = watch("dynamicFields") || [];
+  const errors = formState.errors?.dynamicFields || [];
 
   // dialog state: edit a specific field index
   const [editIndex, setEditIndex] = useState<number | null>(null);
@@ -99,8 +164,14 @@ export default function DynamicFieldsSection() {
   // bulk edit modal
   const [bulkEdit, setBulkEdit] = useState<{ open: boolean; idx: number | null; text: string }>({ open: false, idx: null, text: "" });
 
-  // DnD drag index
-  const dragStartIdx = useRef<number | null>(null);
+  // preview modal
+  const [previewIdx, setPreviewIdx] = useState<number | null>(null);
+
+  // search/filter/group
+  const [search, setSearch] = useState("");
+  const [groupByType, setGroupByType] = useState(false);
+
+  // DnD drag index handled inside component
 
   const openEditor = (index: number) => {
     setEditIndex(index);
@@ -123,157 +194,34 @@ export default function DynamicFieldsSection() {
     update(index, { ...current, ...payload });
   };
 
-  // When saving richtext, handle the known contract { json, html }
-  const onRichEditorChange = (index: number, data: { json: any; html: string }) => {
-    if (!data || typeof data !== "object") return;
-    const jsonVal = data.json ?? null;
-    const htmlVal = data.html ?? convertLexicalJsonToHtml(jsonVal) ?? "";
-    const value = { json: jsonVal, html: htmlVal };
-    saveField(index, { value });
-    setValue(`dynamicFields.${index}.value`, value, { shouldValidate: true });
+  // Duplicate field
+  const duplicateField = (index: number) => {
+    const field = dynamicFields[index];
+    if (!field) return;
+    insert(index + 1, { ...field, label: field.label + " (Copy)" });
   };
 
-  // table helpers (update a specific row/col)
-  const updateTableCell = (index: number, row: number, col: number, val: string) => {
-    const table = Array.isArray(dynamicFields[index]?.value) ? [...(dynamicFields[index]!.value as any[])] : [[]];
-    table[row] = [...(table[row] || [])];
-    table[row][col] = val;
-    saveField(index, { value: table });
-    setValue(`dynamicFields.${index}.value`, table, { shouldValidate: true });
-  };
+  // Preview field
+  const openPreview = (index: number) => setPreviewIdx(index);
+  const closePreview = () => setPreviewIdx(null);
 
-  const addTableRow = (index: number) => {
-    const table = Array.isArray(dynamicFields[index]?.value) ? [...(dynamicFields[index]!.value as any[])] : [[]];
-    const cols = table[0]?.length || 1;
-    table.push(Array(cols).fill(""));
-    saveField(index, { value: table });
-    setValue(`dynamicFields.${index}.value`, table, { shouldValidate: true });
-  };
+  // Search/filter/group helpers
+  const filteredFields = fields.filter((f, idx) => {
+    if (!search) return true;
+    const label = dynamicFields[idx]?.label?.toLowerCase() || "";
+    return label.includes(search.toLowerCase());
+  });
 
-  const addTableCol = (index: number) => {
-    const table = Array.isArray(dynamicFields[index]?.value) ? (dynamicFields[index]!.value as any[]).map((r: any[]) => [...r, ""]) : [["", ""]];
-    // ensure meta.columns length consistency
-    const meta = { ...(dynamicFields[index]?.meta || {}) };
-    meta.columns = meta.columns ? [...meta.columns, `Col ${meta.columns.length + 1}`] : Array(table[0].length).fill("");
-    saveField(index, { value: table, meta });
-    setValue(`dynamicFields.${index}.value`, table, { shouldValidate: true });
-    setValue(`dynamicFields.${index}.meta`, meta, { shouldValidate: true });
-  };
+  const groupedFields = groupByType
+    ? filteredFields.reduce((acc, f, idx) => {
+        const type = dynamicFields[idx]?.type || "other";
+        if (!acc[type]) acc[type] = [];
+        acc[type].push({ f, idx });
+        return acc;
+      }, {} as Record<string, Array<{ f: typeof fields[0]; idx: number }>>)
+    : null;
 
-  const deleteTableRow = (index: number, row: number) => {
-    const table = Array.isArray(dynamicFields[index]?.value) ? [...(dynamicFields[index]!.value as any[])] : [[]];
-    table.splice(row, 1);
-    saveField(index, { value: table });
-    setValue(`dynamicFields.${index}.value`, table, { shouldValidate: true });
-  };
-
-  const ensureMeta = (idx: number) => dynamicFields[idx]?.meta ?? {};
-
-  // JSON editor handler
-  const onJsonChange = (index: number, jsonVal: any) => {
-    saveField(index, { value: jsonVal });
-    setValue(`dynamicFields.${index}.value`, jsonVal, { shouldValidate: true });
-  };
-
-  // --- Type change with confirmation ---
-  const requestTypeChange = (idx: number, nextType: DynamicField['type']) => {
-    // if same type, noop
-    if (dynamicFields[idx]?.type === nextType) return;
-    setConfirmTypeChange({ open: true, idx, nextType });
-  };
-
-  const performTypeChange = () => {
-    const { idx, nextType } = confirmTypeChange as any;
-    if (idx === null || idx === undefined || nextType === undefined) return setConfirmTypeChange({ open: false, idx: null });
-    const current = dynamicFields[idx] || {};
-    // No automatic reset — just change type and keep value (as requested). We still warn user.
-    update(idx, { ...current, type: nextType });
-    setConfirmTypeChange({ open: false, idx: null });
-  };
-
-  // --- DnD for field reordering (HTML5 DnD) ---
-  const onDragStart = (e: React.DragEvent, idx: number) => {
-    dragStartIdx.current = idx;
-    e.dataTransfer.effectAllowed = "move";
-    try { e.dataTransfer.setData("text/plain", String(idx)); } catch { }
-  };
-
-  const onDragOver = (e: React.DragEvent, idx: number) => {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = "move";
-  };
-
-  const onDrop = (e: React.DragEvent, idx: number) => {
-    e.preventDefault();
-    const from = dragStartIdx.current ?? parseInt(e.dataTransfer.getData("text/plain") || "-1", 10);
-    const to = idx;
-    if (from >= 0 && to >= 0 && from !== to) move(from, to);
-    dragStartIdx.current = null;
-  };
-
-  // --- Table utilities: reorder rows/cols, bulk edit ---
-  const reorderTableRows = (idx: number, from: number, to: number) => {
-    const table = Array.isArray(dynamicFields[idx]?.value) ? [...(dynamicFields[idx]!.value as any[])] : [];
-    if (from < 0 || to < 0 || from >= table.length || to >= table.length) return;
-    const item = table.splice(from, 1)[0];
-    table.splice(to, 0, item);
-    saveField(idx, { value: table });
-    setValue(`dynamicFields.${idx}.value`, table, { shouldValidate: true });
-  };
-
-  const reorderTableCols = (idx: number, from: number, to: number) => {
-    const table = Array.isArray(dynamicFields[idx]?.value) ? (dynamicFields[idx]!.value as any[]).map((r: any[]) => [...r]) : [];
-    if (table.length === 0) return;
-    const cols = table[0].length;
-    if (from < 0 || to < 0 || from >= cols || to >= cols) return;
-    const meta = { ...(dynamicFields[idx]?.meta || {}) };
-
-    // reorder each row
-    const newTable = table.map((r: any[]) => {
-      const row = [...r];
-      const item = row.splice(from, 1)[0];
-      row.splice(to, 0, item);
-      return row;
-    });
-
-    // reorder meta.columns if present
-    if (meta.columns && Array.isArray(meta.columns)) {
-      const colsArr = [...meta.columns];
-      const item = colsArr.splice(from, 1)[0];
-      colsArr.splice(to, 0, item);
-      meta.columns = colsArr;
-    }
-
-    saveField(idx, { value: newTable, meta });
-    setValue(`dynamicFields.${idx}.value`, newTable, { shouldValidate: true });
-    setValue(`dynamicFields.${idx}.meta`, meta, { shouldValidate: true });
-  };
-
-  const openBulkEdit = (idx: number) => {
-    // Pre-fill CSV-ish text
-    const table = Array.isArray(dynamicFields[idx]?.value) ? (dynamicFields[idx]!.value as any[]) : [];
-    const text = table.map((r: any[]) => r.map((c: any) => String(c ?? "")).join(",")).join("\n");
-    setBulkEdit({ open: true, idx, text });
-  };
-
-  const applyBulkEdit = () => {
-    const idx = bulkEdit.idx;
-    if (idx === null) return setBulkEdit({ open: false, idx: null, text: "" });
-    const raw = bulkEdit.text || "";
-    const rows = raw.split(/\r?\n/).map((r) => r.split(","));
-    // trim
-    const normalized = rows.map((r) => r.map((c) => String(c ?? "").trim()));
-    // ensure columns meta
-    const meta = { ...(dynamicFields[idx]?.meta || {}) };
-    meta.columns = meta.columns && meta.columns.length >= (normalized[0]?.length || 0)
-      ? meta.columns.slice(0, normalized[0].length)
-      : Array.from({ length: (normalized[0]?.length || 0) }, (_, i) => `Col ${i + 1}`);
-
-    saveField(idx, { value: normalized, meta });
-    setValue(`dynamicFields.${idx}.value`, normalized, { shouldValidate: true });
-    setValue(`dynamicFields.${idx}.meta`, meta, { shouldValidate: true });
-    setBulkEdit({ open: false, idx: null, text: "" });
-  };
+  // ...existing code...
 
   // --- Render ---
   return (
@@ -286,56 +234,46 @@ export default function DynamicFieldsSection() {
       </div>
 
       <div className="space-y-3">
-        {fields.map((f, idx) => (
-          <Card
-            key={f.id}
-            className="p-3 flex justify-between items-start"
-            draggable
-            onDragStart={(e) => onDragStart(e, idx)}
-            onDragOver={(e) => onDragOver(e, idx)}
-            onDrop={(e) => onDrop(e, idx)}
-          >
-            <div className="flex-1">
-              <div className="flex gap-2 items-center">
-                <strong>{dynamicFields[idx]?.label || `Field ${idx + 1}`}</strong>
-                <span className="text-xs text-muted-foreground">({dynamicFields[idx]?.type})</span>
+        {groupByType && groupedFields
+          ? Object.entries(groupedFields).map(([type, arr]) => (
+              <div key={type} className="mb-4">
+                <div className="font-semibold text-primary mb-2">{type.toUpperCase()}</div>
+                <div className="space-y-2">
+                  {arr.map(({ f, idx }) => (
+                    <FieldCard
+                      key={f.id}
+                      idx={idx}
+                      f={f}
+                      dynamicFields={dynamicFields}
+                      errors={errors}
+                      openEditor={openEditor}
+                      remove={remove}
+                      duplicateField={duplicateField}
+                      openPreview={openPreview}
+                      onDragStart={onDragStart}
+                      onDragOver={onDragOver}
+                      onDrop={onDrop}
+                    />
+                  ))}
+                </div>
               </div>
-
-              <div className="mt-2 text-sm text-muted-foreground">
-                {dynamicFields[idx]?.type === "text" && <div>{String(dynamicFields[idx]?.value || "")}</div>}
-
-                {dynamicFields[idx]?.type === "json" && <pre className="text-xs">{JSON.stringify(dynamicFields[idx]?.value || {}, null, 2)}</pre>}
-
-                {dynamicFields[idx]?.type === "table" && (
-                  <div className="overflow-auto max-w-full">
-                    <table className="border-collapse border">
-                      <tbody>
-                        {Array.isArray(dynamicFields[idx]?.value) ? ((dynamicFields[idx]?.value || [[]]).map((row: any[], r: number) => (
-                          <tr key={r}>
-                            {(row || []).map((cell, c) => <td key={c} className="border px-2 py-1 text-xs">{String(cell)}</td>)}
-                          </tr>
-                        ))) : []}
-                      </tbody>
-                    </table>
-                  </div>
-                )}
-
-                {dynamicFields[idx]?.type === "richtext" && typeof dynamicFields[idx]?.value === "object" && dynamicFields[idx]?.value !== null && "html" in dynamicFields[idx]?.value && (
-                  <div dangerouslySetInnerHTML={{ __html: dynamicFields[idx]?.value.html || "" }} />
-                )}
-              </div>
-            </div>
-
-            <div className="flex flex-col gap-2 ml-4">
-              <div className="flex gap-2">
-                <Button type="button" onClick={() => openEditor(idx)}>Edit</Button>
-                <Button variant="ghost" type="button" onClick={() => remove(idx)}>Delete</Button>
-              </div>
-
-              <div className="text-xs text-muted-foreground">Drag to reorder</div>
-            </div>
-          </Card>
-        ))}
+            ))
+          : filteredFields.map((f, idx) => (
+              <FieldCard
+                key={f.id}
+                idx={idx}
+                f={f}
+                dynamicFields={dynamicFields}
+                errors={errors}
+                openEditor={openEditor}
+                remove={remove}
+                duplicateField={duplicateField}
+                openPreview={openPreview}
+                onDragStart={onDragStart}
+                onDragOver={onDragOver}
+                onDrop={onDrop}
+              />
+            ))}
       </div>
 
       {/* Editor Dialog */}
@@ -367,7 +305,7 @@ export default function DynamicFieldsSection() {
                       <select
                         {...field}
                         className="mt-1 border rounded px-2 py-1 w-full"
-                        onChange={(e) => requestTypeChange(editIndex, e.target.value as DynamicField['type'])}
+                        onChange={(e) => requestTypeChange(editIndex, e.target.value as DynamicField['type'], dynamicFields, setConfirmTypeChange)}
                       >
                         <option value="text">text</option>
                         <option value="richtext">richtext</option>
@@ -390,7 +328,7 @@ export default function DynamicFieldsSection() {
                 {dynamicFields[editIndex]?.type === "json" && (
                   <Controller control={control} name={`dynamicFields.${editIndex}.value`} render={({ field }) => (
                     <div className="border rounded p-2">
-                      <JsonField value={field.value || []} onChange={(v) => { field.onChange(v); onJsonChange(editIndex, v); }} />
+                      <JsonField value={field.value || []} onChange={(v) => { field.onChange(v); onJsonChange(editIndex, v, dynamicFields, saveField, setValue); }} />
                     </div>
                   )} />
                 )}
@@ -400,7 +338,7 @@ export default function DynamicFieldsSection() {
                     <div className="overflow-auto">
                       {/* Column headers */}
                       <div className="flex gap-2 items-center mb-2">
-                        {(ensureMeta(editIndex).columns || []).map((col: string, ci: number) => (
+                        {(ensureMeta(editIndex, dynamicFields).columns || []).map((col: string, ci: number) => (
                           <div key={ci} className="text-xs border px-2 py-1 rounded">{col}</div>
                         ))}
                       </div>
@@ -408,14 +346,14 @@ export default function DynamicFieldsSection() {
                       <table className="border-collapse border w-full">
                         <tbody>
                           {(Array.isArray(dynamicFields[editIndex]?.value) ? dynamicFields[editIndex]?.value : []).map((row: any[] = [], r: number) => (
-                            <tr key={r} draggable onDragStart={(e) => { e.dataTransfer.setData("row", String(r)); }} onDrop={(e) => { const from = parseInt(e.dataTransfer.getData("row") || "-1", 10); const to = r; if (from >= 0 && to >= 0 && from !== to) reorderTableRows(editIndex, from, to); }} onDragOver={(e) => e.preventDefault()}>
+                            <tr key={r} draggable onDragStart={(e) => { e.dataTransfer.setData("row", String(r)); }} onDrop={(e) => { const from = parseInt(e.dataTransfer.getData("row") || "-1", 10); const to = r; if (from >= 0 && to >= 0 && from !== to) reorderTableRows(editIndex, from, to, dynamicFields, saveField, setValue); }} onDragOver={(e) => e.preventDefault()}>
                               {row.map((cell, c) => (
                                 <td key={c} className="border p-1">
-                                  <Input value={cell} onChange={(e) => updateTableCell(editIndex, r, c, e.target.value)} />
+                                  <Input value={cell} onChange={(e) => updateTableCell(editIndex, r, c, e.target.value, dynamicFields, saveField, setValue)} />
                                 </td>
                               ))}
                               <td className="border p-1">
-                                <Button variant="destructive" type="button" onClick={() => deleteTableRow(editIndex, r)}>Remove Row</Button>
+                                <Button variant="destructive" type="button" onClick={() => deleteTableRow(editIndex, r, dynamicFields, saveField, setValue)}>Remove Row</Button>
                               </td>
                             </tr>
                           ))}
@@ -424,9 +362,9 @@ export default function DynamicFieldsSection() {
                     </div>
 
                     <div className="flex gap-2">
-                      <Button onClick={() => addTableRow(editIndex)}>+ Row</Button>
-                      <Button onClick={() => addTableCol(editIndex)}>+ Col</Button>
-                      <Button onClick={() => openBulkEdit(editIndex)}>Bulk Edit</Button>
+                      <Button onClick={() => addTableRow(editIndex, dynamicFields, saveField, setValue)}>+ Row</Button>
+                      <Button onClick={() => addTableCol(editIndex, dynamicFields, saveField, setValue)}>+ Col</Button>
+                      <Button onClick={() => openBulkEdit(editIndex, dynamicFields, setBulkEdit)}>Bulk Edit</Button>
                     </div>
                   </div>
                 )}
@@ -501,7 +439,7 @@ export default function DynamicFieldsSection() {
           </div>
           <DialogFooter>
             <Button variant="ghost" onClick={() => setConfirmTypeChange({ open: false, idx: null })}>Cancel</Button>
-            <Button onClick={() => performTypeChange()}>Proceed</Button>
+            <Button onClick={() => performTypeChange(confirmTypeChange, dynamicFields, update, setConfirmTypeChange)}>Proceed</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -524,7 +462,7 @@ export default function DynamicFieldsSection() {
 
           <DialogFooter>
             <Button variant="ghost" onClick={() => setBulkEdit({ open: false, idx: null, text: "" })}>Cancel</Button>
-            <Button onClick={() => applyBulkEdit()}>Apply</Button>
+            <Button onClick={() => applyBulkEdit(bulkEdit, dynamicFields, saveField, setValue, setBulkEdit)}>Apply</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

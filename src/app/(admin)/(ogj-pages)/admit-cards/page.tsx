@@ -62,7 +62,7 @@ export default function AdminAdmitCardsPage() {
         </Link>
       </div>
 
-      <Card className="bg-white shadow-md">
+      <Card className="shadow-md">
         <CardHeader className="pb-4">
           <CardTitle className="text-lg font-semibold">Admit Card Listings</CardTitle>
           <Input
@@ -94,7 +94,6 @@ export default function AdminAdmitCardsPage() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Title</TableHead>
-                  <TableHead>Type</TableHead>
                   <TableHead>Slug</TableHead>
                   <TableHead>Created At</TableHead>
                   <TableHead className="text-right">Actions</TableHead>

@@ -1,4 +1,6 @@
+import { LinkItem } from "./ILinkItem";
+
 export interface IImportantLink {
   label: string;
-  links: string[];
+  links: LinkItem[];
 }

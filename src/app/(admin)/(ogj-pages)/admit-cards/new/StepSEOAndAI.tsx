@@ -1,28 +1,21 @@
 import { useFormContext } from "react-hook-form"
-import {
-  FormField,
-  FormItem,
-  FormLabel,
-  FormControl,
-  FormMessage,
-} from "@/components/shadcn/ui/form"
-import { Textarea } from "@/components/shadcn/ui/textarea"
 import { SEOFields } from "../../jobs/sections/SEOFields"
+import { FormControl, FormField, FormItem, FormMessage } from "@/components/shadcn/ui/form"
 
 export function StepSEOAndAI() {
   const { control, watch } = useFormContext()
 
   return (
     <div className="space-y-6">
-      <SEOFields control={control} watch={watch} />
+      
 
-      {/* <FormField name="aiMeta.tldr" control={control} render={({ field }) => (
+      <FormField name="aiMeta.tldr" control={control} render={({ field }) => (
         <FormItem>
-          <FormLabel>AI Summary</FormLabel>
-          <FormControl><Textarea rows={3} {...field} /></FormControl>
+          {/* <FormLabel>AI Summary</FormLabel> */}
+          <FormControl><SEOFields control={control} watch={watch} /></FormControl>
           <FormMessage />
         </FormItem>
-      )} /> */}
+      )} />
     </div>
   )
 }

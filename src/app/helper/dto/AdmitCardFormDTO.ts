@@ -140,8 +140,12 @@
 // }
 
 
-import { AdmitCardStatus } from "@/app/helper/interfaces/IAdmitCard";
+import { AdmitCardStatus, IExamShift } from "@/app/helper/interfaces/IAdmitCard";
 import { IJobSnapshot } from "../interfaces/IJobSnapshot";
+import { ISeoSettings } from "../interfaces/ISeoSettings";
+import { IDynamicField } from "../interfaces/IDynamicField";
+import { IImportantLink } from "../interfaces/IImportantLink";
+import { IImportantDate } from "../interfaces/IImportantDate";
 
 export interface AdmitCardFormDTO {
   /* ================= Core ================= */
@@ -170,17 +174,11 @@ export interface AdmitCardFormDTO {
   /* ================= Exam Details ================= */
 
   modeOfExam?: string | null;
-  examShifts?: {
-    shiftName: string;
-    reportingTime: string;
-    gateClosingTime: string;
-    examTime: string;
-    otherDetails?: string;
-  }[] | null;
+  examShifts?: IExamShift[] | null;
 
   examLocation?: string | null;
 
-  importantInstructions?: string[] | null;
+  // importantInstructions?: string[] | null;
 
   /* ================= Relations (IDs only) ================= */
 
@@ -196,29 +194,17 @@ export interface AdmitCardFormDTO {
   cardTags?: string[] | null;
   helpfullVideoLinks?: string[] | null;
 
-  importantDates?: Record<string, any> | null;
+  importantDates?: IImportantDate[] | null;
 
-  importantLinks?: {
-    label: string;
-    url: string;
-  }[] | null;
+  importantLinks?: IImportantLink[] | null;
 
   /* ================= Dynamic ================= */
 
-  dynamicFields?: {
-    key: string;
-    value: string | number | boolean | null;
-  }[] | null;
+  dynamicFields?: IDynamicField[] | null;
 
   /* ================= SEO ================= */
 
-  seo?: {
-    metaTitle?: string;
-    metaDescription?: string;
-    keywords?: string[] | null;
-    canonicalUrl?: string | null;
-    schemaMarkupJson?: any;
-  } | null;
+  seoSettings?: ISeoSettings | null;
 
   /* ================= Flags ================= */
 

@@ -16,7 +16,7 @@ import { REVIEW_STATUS } from "../../../../helper/dto/global"
 import { createEntity, getPaginatedEntity, updateEntity } from "@/lib/api/global/Generic"
 import { AdmitCardStatus, IAdmitCard } from "@/app/helper/interfaces/IAdmitCard"
 import { ADMIT_CARDS_API, JOBS_API } from "@/app/envConfig"
-import { AdmitCardSchema } from "@/lib/schemas/AdmitCardSchema"
+import { AdmitCardFormValues, AdmitCardSchema } from "@/lib/schemas/AdmitCardSchema"
 import { IJob } from "@/app/helper/interfaces/IJob"
 import { AdmitCardFormDTO } from "@/app/helper/dto/AdmitCardFormDTO"
 
@@ -31,7 +31,7 @@ export const stepValidationMap: Record<number, any[]> = {
   0: ["title", "examName", "status", "jobId", "organizationId", "categoryId", "stateIds", "newsAndNotificationIds", "isFeatured", 
     "releaseDate", "examStartDate", "examEndDate", "modeOfExam", "examShifts", "examLocation", "jobSnapshot",],
 
-  1: ["descriptionJson", "dynamicFields", "cardTags", "tagIds", "importantDates", "importantLinks", "helpfullVideoLinks", "importantInstructions"],
+  1: ["descriptionJson", "dynamicFields", "cardTags", "tagIds", "importantDates", "importantLinks", "helpfullVideoLinks"], //"importantInstructions"
 
   2: ["metaTitle", "metaDescription", "seoKeywords", "seoCanonicalUrl", "schemaMarkupJson"],
 
@@ -70,7 +70,7 @@ const admitCardDefaultValues = {
 
   examLocation: null,
 
-  importantInstructions: [],
+  // importantInstructions: [],
 
   /* ================= Relations ================= */
 
@@ -97,12 +97,12 @@ const admitCardDefaultValues = {
 
   /* ================= SEO ================= */
 
-  seo: {
+  seoSettings: {
     metaTitle: "",
     metaDescription: "",
-    keywords: [],
-    canonicalUrl: "",
-    schemaMarkupJson: null,
+    seoKeywords: [],
+    seoCanonicalUrl: "",
+    schemaMarkupJson: {},
   },
 
   /* ================= Flags ================= */
@@ -123,15 +123,15 @@ export function AdmitCardForm({ isAdmin, initialValues, onSubmit, isEditMode }: 
   const [jobSearch, setJobSearch] = useState('');
   const [jobLoading, setJobLoading] = useState(false);
 
-  // console.log("NotificationForm : Initial values for form:", initialValues);
+  console.log("AdmitCardForm : Initial values for form:", initialValues);
 
-  const form = useForm({
+  const form = useForm<AdmitCardFormValues>({
     resolver: zodResolver(AdmitCardSchema),
     defaultValues: initialValues || admitCardDefaultValues,
     mode: "onTouched",
   });
 
-    useEffect(() => {
+  useEffect(() => {
     setJobLoading(true);
     getPaginatedEntity<IJob>("type=jobs&page=1", JOBS_API, { entityName: "jobs" })
       .then((res) => {
@@ -222,7 +222,7 @@ export function AdmitCardForm({ isAdmin, initialValues, onSubmit, isEditMode }: 
             console.log("FORM STATE ERRORS:", form.formState.errors);
           })}
         >
-          <Card className="bg-white">
+          <Card className="">
             <CardHeader />
             <CardContent className="space-y-6">
               {steps[step]}

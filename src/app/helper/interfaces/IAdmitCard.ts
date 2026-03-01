@@ -1,6 +1,7 @@
 
 import { ICategory } from "./ICategory";
 import { IDynamicField } from "./IDynamicField";
+import { IImportantDate } from "./IImportantDate";
 import { IImportantLink } from "./IImportantLink";
 import { IJob } from "./IJob";
 import { IJobSnapshot } from "./IJobSnapshot";
@@ -24,9 +25,17 @@ export enum AdmitCardStatus {
 
 export interface IExamShift {
   shiftName: string;
+  shiftDate: string; // ISO date
   reportingTime: string;
   gateClosingTime: string;
   examTime: string;
+  examEndTime?: string;
+  instructions?: string[];
+  status?: "active" | "postponed" | "completed" | "cancelled";
+  language?: string;
+  examType?: string;
+  maxCapacity?: number;
+  isSpecialShift?: boolean;
   otherDetails?: string;
 }
 
@@ -54,14 +63,14 @@ export interface IAdmitCard {
   examShifts?: IExamShift[] | null;
   examLocation?: string | null;
 
-  importantInstructions?: string[] | null;
+  // importantInstructions?: string[] | null;
 
   cardTags: string[] | null;
   tags: ITag[];
 
   helpfullVideoLinks?: string[] | null;
 
-  importantDates?: any;
+  importantDates?: IImportantDate[];
   importantLinks?: IImportantLink[] | null;
 
   job?: IJob | null;
