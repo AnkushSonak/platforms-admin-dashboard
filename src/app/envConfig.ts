@@ -14,7 +14,7 @@ export const RESULTS_API = `${BACKEND_BASE_URL}/results`;
 
 /* ------------------------ ADMIT_CARD API Endpoints ------------------------ */
 export const ADMIT_CARDS_API = `${BACKEND_BASE_URL}/admit-cards`;
-export const GET_ADMIT_CARDS_FOR_FORMS_API = `${BACKEND_BASE_URL}/admit-cards/forFormBySlug`;
+export const GET_ADMIT_CARDS_FOR_FORMS_API = `${BACKEND_BASE_URL}/admit-cards/form`;
 
 /* ------------------------ ANSWER_KEYS API Endpoints ------------------------ */
 export const ANSWER_KEYS_API = `${BACKEND_BASE_URL}/answer-keys`;

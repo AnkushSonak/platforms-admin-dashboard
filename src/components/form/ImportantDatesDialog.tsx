@@ -3,22 +3,11 @@ import { Button } from "@/components/shadcn/ui/button";
 import { Input } from "@/components/shadcn/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/shadcn/ui/dialog";
 import { X, Plus, Calendar, Flag, Tag, Edit, Copy } from "lucide-react";
-
-export type ImportantDateType = "application" | "exam" | "result" | "other";
-export interface ImportantDateItem {
-  label: string;
-  date: string;
-  type: ImportantDateType;
-  description?: string;
-  tag?: string;
-  isMilestone?: boolean;
-  color?: string;
-  icon?: string;
-}
+import {  IImportantDate, ImportantDateType } from "@/app/helper/interfaces/IImportantDate";
 
 interface Props {
-  value: ImportantDateItem[];
-  onChange: (value: ImportantDateItem[]) => void;
+  value: IImportantDate[];
+  onChange: (value: IImportantDate[]) => void;
 }
 
 const typeOptions: { value: ImportantDateType; label: string; icon: React.ReactNode }[] = [
@@ -31,7 +20,7 @@ const typeOptions: { value: ImportantDateType; label: string; icon: React.ReactN
 export function ImportantDatesDialog({ value = [], onChange }: Props) {
   const [isOpen, setIsOpen] = useState(false);
   const [editIdx, setEditIdx] = useState<number | null>(null);
-  const [form, setForm] = useState<ImportantDateItem>({ label: "", date: "", type: "other", description: "", tag: "", isMilestone: false, color: "#1976d2", icon: "calendar" });
+  const [form, setForm] = useState<IImportantDate>({ label: "", date: "", type: "other", description: "", tag: "", isMilestone: false, color: "#1976d2", icon: "calendar" });
   const [importJson, setImportJson] = useState("");
 
   // Drag-and-drop reordering (simple)

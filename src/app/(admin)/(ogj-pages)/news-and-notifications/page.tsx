@@ -92,7 +92,7 @@ export default function AdminNotificationsPage() {
         </Link>
       </div>
 
-      <Card className="bg-white shadow-md">
+      <Card className="shadow-md">
         <CardHeader className="pb-4">
           <CardTitle className="text-lg font-semibold">Notification Listings</CardTitle>
           <Input

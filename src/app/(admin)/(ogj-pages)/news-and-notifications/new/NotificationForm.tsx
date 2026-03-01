@@ -145,7 +145,7 @@ export function NotificationForm({ isAdmin, initialValues, onSubmit, isEditMode 
             console.log("FORM STATE ERRORS:", form.formState.errors);
           })}
         >
-          <Card className="bg-white">
+          <Card className="">
             <CardHeader></CardHeader>
             <CardContent className="space-y-6">
               {steps[step]}

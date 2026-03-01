@@ -36,7 +36,7 @@ export function FormMultiSelectIds<T extends FieldValues>({
 
         return (
           <div>
-            <label className="block text-sm pb-2">{label}</label>
+            <label className="block text-sm">{label}</label>
 
             <MultiSelectComponent
               options={options}

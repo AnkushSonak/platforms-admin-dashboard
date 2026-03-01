@@ -33,7 +33,7 @@ export function FormSelect<T extends FieldValues>({
       control={control}
       render={({ field }) => (
         <div>
-          <label className="block text-sm pb-2">{label}</label>
+          <label className="block text-sm">{label}</label>
 
           <Select
             value={field.value ?? ''}

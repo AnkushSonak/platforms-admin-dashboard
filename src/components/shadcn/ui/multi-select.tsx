@@ -52,7 +52,7 @@ export function MultiSelect({ options, selected, onSelect, placeholder, classNam
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className={cn("w-full justify-between h-auto min-h-[40px] flex-wrap", className)}
+          className={cn("w-full shadow-none justify-between h-auto min-h-[40px] flex-wrap", className)}
         >
           {selected.length === 0 ? (
             <span className="text-muted-foreground">{placeholder || "Select items..."}</span>

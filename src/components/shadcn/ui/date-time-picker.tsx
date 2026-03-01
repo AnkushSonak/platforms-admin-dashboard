@@ -42,18 +42,18 @@ export function DateTimePicker({ value, onChange }: Props) {
   return (
     <div className="flex gap-4">
       {/* DATE PICKER */}
-      <div className="flex flex-col gap-3">
+      <div className="flex w-2/3 flex-col gap-3">
         {/* <Label className="px-1">Date</Label> */}
 
         <Popover open={open} onOpenChange={setOpen}>
           <PopoverTrigger asChild>
-            <Button variant="outline" className="w-40 justify-between font-normal">
+            <Button variant="outline" className="w-full h-full shadow-none justify-between font-normal">
               {value ? value.toLocaleDateString() : "Select date"}
               <ChevronDownIcon />
             </Button>
           </PopoverTrigger>
 
-          <PopoverContent className="w-auto p-0" align="start">
+          <PopoverContent className="w-full bg-gray-50 p-0" align="start">
             <Calendar
               mode="single"
               selected={value ?? undefined}
@@ -84,7 +84,7 @@ export function DateTimePicker({ value, onChange }: Props) {
       </div>
 
       {/* TIME PICKER */}
-      <div className="flex flex-col gap-3">
+      <div className="flex w-1/3 flex-col gap-3">
         {/* <Label className="px-1">Time</Label> */}
         <Input
           type="time"
