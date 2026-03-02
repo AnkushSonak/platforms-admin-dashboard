@@ -1,7 +1,6 @@
 import { useFormContext } from "react-hook-form"
 import { FormField, FormItem, FormLabel, FormControl, FormMessage, } from "@/components/shadcn/ui/form"
 import { Input } from "@/components/shadcn/ui/input"
-import { NewsAndNntfnStatusType } from "@/app/helper/constants/NewsAndNntfnStatusType"
 import { FormSelect } from "../../jobs/sections/FormSelect";
 import { Checkbox } from "@/components/shadcn/ui/checkbox";
 import { FormSelectId } from "../../jobs/sections/FormSelectId";
@@ -16,61 +15,16 @@ import { AdmitCardStatus, IAdmitCard } from "@/app/helper/interfaces/IAdmitCard"
 import { IResult } from "@/app/helper/interfaces/IResult";
 import { IAnswerKey } from "@/app/helper/interfaces/IAnswerKey";
 import { getPaginatedEntity } from "@/lib/api/global/Generic";
-import { ADMIT_CARDS_API, ANSWER_KEYS_API, CATEGORY_API, NEWS_AND_NTFN_API, ORGANIZATION_API, QUALIFICATIONS_API, RESULTS_API, STATE_API } from "@/app/envConfig";
+import { ANSWER_KEYS_API, CATEGORY_API, NEWS_AND_NTFN_API, ORGANIZATION_API, QUALIFICATIONS_API, RESULTS_API, STATE_API } from "@/app/envConfig";
 import { IQualification } from "@/app/helper/interfaces/IQualification";
 import { INewsAndNtfn } from "@/app/helper/interfaces/INewsAndNtfn";
 import { DateTimePicker } from "@/components/shadcn/ui/date-time-picker";
 import { ExamShiftsField } from "@/components/form/ExamShiftsField";
+import { AdmitCardFormValues } from "@/lib/schemas/AdmitCardSchema";
 
 
-export function StepBasicInfo({ handleJobSelect, jobs }: { handleJobSelect: (jobId: string) => void; jobs: IJob[] }) {
-  const { control, setValue, watch } = useFormContext();
-
-  const [organizations, setOrganizations] = React.useState<IOrganization[]>([]);
-  const [categories, setCategories] = React.useState<ICategory[]>([]);
-  const [allStates, setAllStates] = React.useState<IState[]>([]);
-  const [allNewsAndNotifications, setAllNewsAndNotifications] = React.useState<INewsAndNtfn[]>([]);
-  const [allQualifications, setAllQualifications] = React.useState<any[]>([]);
-  // const [jobs, setJobs] = React.useState<IJob[]>([]);
-  // const [admitCards, setAdmitCards] = React.useState<IAdmitCard[]>([]);
-  const [results, setResults] = React.useState<IResult[]>([]);
-  const [answerKeys, setAnswerKeys] = React.useState<IAnswerKey[]>([]);
-  const selectedJobId = watch('jobId');
-
-  React.useEffect(() => {
-    if (!selectedJobId) return;
-    const selectedJob = jobs.find(j => j.id === selectedJobId);
-    if (!selectedJob) return;
-      setValue('jobSnapshot', {
-        advtNumber: selectedJob.advtNumber,
-        sector: selectedJob.sector,
-        totalVacancies: selectedJob.totalVacancies,
-        jobType: selectedJob.jobType,
-        ageLimitText: selectedJob.ageLimitText,
-        applicationFee: selectedJob.applicationFee,
-        minAge: selectedJob.minAge,
-        maxAge: selectedJob.maxAge,
-      }, { shouldDirty: true });
-      setValue('jobId', selectedJob.id, { shouldDirty: true });
-
-      // Autofill individual fields
-      setValue('advtNumber', selectedJob.advtNumber ?? '', { shouldDirty: true });
-      setValue('sector', selectedJob.sector ?? '', { shouldDirty: true });
-      setValue('totalVacancies', selectedJob.totalVacancies ?? '', { shouldDirty: true });
-      setValue('jobType', selectedJob.jobType ?? '', { shouldDirty: true });
-      setValue('ageLimitText', selectedJob.ageLimitText ?? '', { shouldDirty: true });
-      setValue('applicationFee', selectedJob.applicationFee ?? '', { shouldDirty: true });
-      setValue('minAge', selectedJob.minAge ?? '', { shouldDirty: true });
-      setValue('maxAge', selectedJob.maxAge ?? '', { shouldDirty: true });
-  }, [selectedJobId, jobs, setValue]);
-
-  useEffect(() => { getPaginatedEntity<IOrganization>("type=organizations&page=1", ORGANIZATION_API, { entityName: "organizations" }).then(res => setOrganizations(res.data)).catch(() => setOrganizations([])); }, []);
-  useEffect(() => { getPaginatedEntity<ICategory>("type=categories&page=1", CATEGORY_API, { entityName: "categories" }).then((res) => setCategories(res.data)).catch(() => setCategories([])); }, []);
-  useEffect(() => { getPaginatedEntity<IState>("type=states&page=1", STATE_API, { entityName: "states" }).then((res) => setAllStates(res.data)).catch(() => setAllStates([])); }, []);
-  useEffect(() => { getPaginatedEntity<INewsAndNtfn>("type=news-and-notifications&page=1", NEWS_AND_NTFN_API, { entityName: "newsAndNotifications" }).then((res) => setAllNewsAndNotifications(res.data)).catch(() => setAllNewsAndNotifications([])); }, []);
-  useEffect(() => { getPaginatedEntity<IResult>("type=results&page=1", RESULTS_API, { entityName: "results" }).then((response) => setResults(response.data)).catch(() => setResults([])); }, []);
-  useEffect(() => { getPaginatedEntity<IAnswerKey>("type=answer-keys&page=1", ANSWER_KEYS_API, { entityName: "answerKeys" }).then((response) => setAnswerKeys(response.data)).catch(() => setAnswerKeys([])); }, []);
-  useEffect(() => { getPaginatedEntity<IQualification>("type=qualifications&page=1", QUALIFICATIONS_API, { entityName: "qualifications" }).then((response) => setAllQualifications(response.data)).catch(() => setAllQualifications([])); }, []);
+export function StepBasicInfo({ onJobChange, jobs, organizations, categories, allStates, allNewsAndNotifications, allQualifications, results, answerKeys }: { onJobChange: (jobId: string) => void; jobs: IJob[]; organizations: IOrganization[]; categories: ICategory[]; allStates: IState[]; allNewsAndNotifications: INewsAndNtfn[]; allQualifications: IQualification[]; results: IResult[]; answerKeys: IAnswerKey[] }) {
+  const { control, setValue } = useFormContext<AdmitCardFormValues>();
 
   const admitCardStatusOptions = [
     { value: AdmitCardStatus.ACTIVE, label: 'Active' },
@@ -93,8 +47,18 @@ export function StepBasicInfo({ handleJobSelect, jobs }: { handleJobSelect: (job
             <FormLabel>Related Job (auto-fill)</FormLabel>
             <FormControl>
               <select
-                {...field}
+                name={field.name}
+                ref={field.ref}
+                value={field.value ?? ""}
+                onBlur={field.onBlur}
+                disabled={field.disabled}
                 className="w-full border rounded p-2"
+                onChange={(e) => {
+                  const jobId = e.target.value;
+                  field.onChange(jobId);
+                  onJobChange(jobId);
+                }}
+
               >
                 <option value="">Select a job to auto-fill</option>
                 {jobs.map(job => (
@@ -176,7 +140,8 @@ export function StepBasicInfo({ handleJobSelect, jobs }: { handleJobSelect: (job
         <FormField name="releaseDate" control={control} render={({ field }) => (
           <FormItem>
             <FormLabel>Release Date</FormLabel>
-            <FormControl><DateTimePicker value={field.value ? new Date(field.value) : null} onChange={field.onChange} /></FormControl>
+            <FormControl><DateTimePicker value={field.value && (typeof field.value === "string" || typeof field.value === "number" || field.value instanceof Date)
+              ? new Date(field.value) : null} onChange={field.onChange} /></FormControl>
             <FormMessage />
           </FormItem>
         )} />
@@ -184,7 +149,10 @@ export function StepBasicInfo({ handleJobSelect, jobs }: { handleJobSelect: (job
         <FormField name="examStartDate" control={control} render={({ field }) => (
           <FormItem>
             <FormLabel>Exam Start Date</FormLabel>
-            <FormControl><DateTimePicker value={field.value ? new Date(field.value) : null} onChange={field.onChange} /></FormControl>
+            <FormControl><DateTimePicker value={
+              field.value && (typeof field.value === "string" || typeof field.value === "number" || field.value instanceof Date) ? new Date(field.value)
+                : null} onChange={field.onChange} />
+            </FormControl>
             <FormMessage />
           </FormItem>
         )} />
@@ -192,7 +160,8 @@ export function StepBasicInfo({ handleJobSelect, jobs }: { handleJobSelect: (job
         <FormField name="examEndDate" control={control} render={({ field }) => (
           <FormItem>
             <FormLabel>Exam End Date</FormLabel>
-            <FormControl><DateTimePicker value={field.value ? new Date(field.value) : null} onChange={field.onChange} /></FormControl>
+            <FormControl><DateTimePicker value={field.value && (typeof field.value === "string" || typeof field.value === "number" || field.value instanceof Date)
+              ? new Date(field.value) : null} onChange={field.onChange} /></FormControl>
             <FormMessage />
           </FormItem>
         )} />
@@ -202,7 +171,7 @@ export function StepBasicInfo({ handleJobSelect, jobs }: { handleJobSelect: (job
         <FormField name="modeOfExam" control={control} render={({ field }) => (
           <FormItem>
             <FormLabel>Mode of Exam</FormLabel>
-            <FormControl><Input {...field} /></FormControl>
+            <FormControl><Input  {...field} value={field.value ?? ""} /></FormControl>
             <FormMessage />
           </FormItem>
         )} />
@@ -210,7 +179,7 @@ export function StepBasicInfo({ handleJobSelect, jobs }: { handleJobSelect: (job
         <FormField name="examLocation" control={control} render={({ field }) => (
           <FormItem>
             <FormLabel>Exam Location</FormLabel>
-            <FormControl><Input {...field} /></FormControl>
+            <FormControl><Input  {...field} value={field.value ?? ""} /></FormControl>
             <FormMessage />
           </FormItem>
         )} />
@@ -235,9 +204,9 @@ export function StepBasicInfo({ handleJobSelect, jobs }: { handleJobSelect: (job
           <FormItem>
             <FormLabel>Total Vacancies</FormLabel>
             <FormControl><Input type="number" value={field.value ?? ""} onChange={(e) =>
-                field.onChange(e.target.value === "" ? undefined : e.target.valueAsNumber)
-              }
-              /></FormControl>
+              field.onChange(e.target.value === "" ? undefined : e.target.valueAsNumber)
+            }
+            /></FormControl>
             <FormMessage />
           </FormItem>
         )} />
@@ -284,7 +253,7 @@ export function StepBasicInfo({ handleJobSelect, jobs }: { handleJobSelect: (job
           <FormItem>
             <FormLabel>Min Age</FormLabel>
             <FormControl>
-              <Input type="number" value={field.value ?? ""} onChange={(e) =>
+              <Input type="number" value={field.value} onChange={(e) =>
                 field.onChange(e.target.value === "" ? undefined : e.target.valueAsNumber)
               }
               />
