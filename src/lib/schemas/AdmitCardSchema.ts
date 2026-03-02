@@ -121,6 +121,7 @@ export const AdmitCardSchema = z.object({
 
   jobId: z.string().nullable().optional(),
 
+  relatedJobIds: z.array(z.string()).optional(),
   stateIds: z.array(z.string()).default([]),
   tagIds: z.array(z.string()).default([]),
   newsAndNotificationIds: z.array(z.string()).default([]),
