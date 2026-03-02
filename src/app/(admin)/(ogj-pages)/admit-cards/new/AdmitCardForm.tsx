@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import React, { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 
@@ -15,10 +15,17 @@ import { StepBasicInfo } from "./StepBasicInfo"
 import { REVIEW_STATUS } from "../../../../helper/dto/global"
 import { createEntity, getPaginatedEntity, updateEntity } from "@/lib/api/global/Generic"
 import { AdmitCardStatus, IAdmitCard } from "@/app/helper/interfaces/IAdmitCard"
-import { ADMIT_CARDS_API, JOBS_API } from "@/app/envConfig"
+import { ADMIT_CARDS_API, ANSWER_KEYS_API, CATEGORY_API, JOBS_API, NEWS_AND_NTFN_API, ORGANIZATION_API, QUALIFICATIONS_API, RESULTS_API, STATE_API } from "@/app/envConfig"
 import { AdmitCardFormValues, AdmitCardSchema } from "@/lib/schemas/AdmitCardSchema"
 import { IJob } from "@/app/helper/interfaces/IJob"
 import { AdmitCardFormDTO } from "@/app/helper/dto/AdmitCardFormDTO"
+import { IOrganization } from "@/app/helper/interfaces/IOrganization"
+import { ICategory } from "@/app/helper/interfaces/ICategory"
+import { IState } from "@/app/helper/interfaces/IState"
+import { INewsAndNtfn } from "@/app/helper/interfaces/INewsAndNtfn"
+import { IResult } from "@/app/helper/interfaces/IResult"
+import { IAnswerKey } from "@/app/helper/interfaces/IAnswerKey"
+import { IQualification } from "@/app/helper/interfaces/IQualification"
 
 interface Props {
   isAdmin: boolean;
@@ -29,7 +36,7 @@ interface Props {
 
 export const stepValidationMap: Record<number, any[]> = {
   0: ["title", "examName", "status", "jobId", "organizationId", "categoryId", "stateIds", "newsAndNotificationIds", "isFeatured", 
-    "releaseDate", "examStartDate", "examEndDate", "modeOfExam", "examShifts", "examLocation", "jobSnapshot",],
+    "releaseDate", "examStartDate", "examEndDate", "modeOfExam", "examShifts", "examLocation",],
 
   1: ["descriptionJson", "dynamicFields", "cardTags", "tagIds", "importantDates", "importantLinks", "helpfullVideoLinks"], //"importantInstructions"
 
@@ -123,6 +130,22 @@ export function AdmitCardForm({ isAdmin, initialValues, onSubmit, isEditMode }: 
   const [jobSearch, setJobSearch] = useState('');
   const [jobLoading, setJobLoading] = useState(false);
 
+  const [organizations, setOrganizations] = React.useState<IOrganization[]>([]);
+  const [categories, setCategories] = React.useState<ICategory[]>([]);
+  const [allStates, setAllStates] = React.useState<IState[]>([]);
+  const [allNewsAndNotifications, setAllNewsAndNotifications] = React.useState<INewsAndNtfn[]>([]);
+  const [allQualifications, setAllQualifications] = React.useState<any[]>([]);
+  const [results, setResults] = React.useState<IResult[]>([]);
+  const [answerKeys, setAnswerKeys] = React.useState<IAnswerKey[]>([]);
+
+  useEffect(() => { getPaginatedEntity<IOrganization>("type=organizations&page=1", ORGANIZATION_API, { entityName: "organizations" }).then(res => setOrganizations(res.data)).catch(() => setOrganizations([])); }, []);
+  useEffect(() => { getPaginatedEntity<ICategory>("type=categories&page=1", CATEGORY_API, { entityName: "categories" }).then((res) => setCategories(res.data)).catch(() => setCategories([])); }, []);
+  useEffect(() => { getPaginatedEntity<IState>("type=states&page=1", STATE_API, { entityName: "states" }).then((res) => setAllStates(res.data)).catch(() => setAllStates([])); }, []);
+  useEffect(() => { getPaginatedEntity<INewsAndNtfn>("type=news-and-notifications&page=1", NEWS_AND_NTFN_API, { entityName: "newsAndNotifications" }).then((res) => setAllNewsAndNotifications(res.data)).catch(() => setAllNewsAndNotifications([])); }, []);
+  useEffect(() => { getPaginatedEntity<IResult>("type=results&page=1", RESULTS_API, { entityName: "results" }).then((response) => setResults(response.data)).catch(() => setResults([])); }, []);
+  useEffect(() => { getPaginatedEntity<IAnswerKey>("type=answer-keys&page=1", ANSWER_KEYS_API, { entityName: "answerKeys" }).then((response) => setAnswerKeys(response.data)).catch(() => setAnswerKeys([])); }, []);
+  useEffect(() => { getPaginatedEntity<IQualification>("type=qualifications&page=1", QUALIFICATIONS_API, { entityName: "qualifications" }).then((response) => setAllQualifications(response.data)).catch(() => setAllQualifications([])); }, []);
+
   console.log("AdmitCardForm : Initial values for form:", initialValues);
 
   const form = useForm<AdmitCardFormValues>({
@@ -130,6 +153,13 @@ export function AdmitCardForm({ isAdmin, initialValues, onSubmit, isEditMode }: 
     defaultValues: initialValues || admitCardDefaultValues,
     mode: "onTouched",
   });
+
+  useEffect(() => {
+    if (initialValues) {
+      form.reset(initialValues);
+    }
+  }, [initialValues]);
+
 
   useEffect(() => {
     setJobLoading(true);
@@ -141,30 +171,48 @@ export function AdmitCardForm({ isAdmin, initialValues, onSubmit, isEditMode }: 
       .catch(() => setJobLoading(false));
   }, [jobSearch]);
 
-  const handleJobSelect = (jobId: string) => {
+  const handleJobChange = (jobId: string | null) => {
+    const previousJobId = form.getValues("jobId");
+
+    // CASE 1: switching FROM mapped → manual
+    if (!jobId) {
+      form.setValue("jobId", null, { shouldDirty: true });
+      return; // snapshot stays manual
+    }
+
+    // CASE 2: same job re-selected → do nothing
+    if (jobId === previousJobId) return;
+
+    // CASE 3: new job selected → autofill snapshot
     const selectedJob = jobs.find(j => j.id === jobId);
     if (!selectedJob) return;
 
-    const jobSnapshot = {
-      advtNumber: selectedJob.advtNumber,
-      sector: selectedJob.sector,
-      // qualifications: selectedJob.qualifications,
-      totalVacancies: selectedJob.totalVacancies,
-      jobType: selectedJob.jobType,
-      ageLimitText: selectedJob.ageLimitText,
-      applicationFee: selectedJob.applicationFee,
-      minAge: selectedJob.minAge,
-      maxAge: selectedJob.maxAge,
-    };
-    form.setValue('jobSnapshot', jobSnapshot, { shouldDirty: true });
-    // Optionally set jobId for reference
-    form.setValue('jobId', selectedJob.id, { shouldDirty: true });
+    form.setValue("jobId", jobId, { shouldDirty: true });
+
+    form.setValue("jobSnapshot", {
+      advtNumber: selectedJob.advtNumber ?? "",
+      sector: selectedJob.sector ?? "",
+      qualificationSummary: selectedJob.qualificationSummary ?? "",
+      totalVacancies: selectedJob.totalVacancies ?? undefined,
+      jobType: selectedJob.jobType ?? "",
+      ageLimitText: selectedJob.ageLimitText ?? "",
+      applicationFee: selectedJob.applicationFee ?? "",
+      minAge: selectedJob.minAge ?? undefined,
+      maxAge: selectedJob.maxAge ?? undefined,
+    }, { shouldDirty: true });
   };
 
+
+
   const steps = [
-    <StepBasicInfo handleJobSelect={handleJobSelect} jobs={jobs} key="basic" />,
+    <StepBasicInfo onJobChange={handleJobChange} jobs={jobs} organizations={organizations} categories={categories}
+     allStates={allStates} allNewsAndNotifications={allNewsAndNotifications} allQualifications={allQualifications}
+      results={results} answerKeys={answerKeys} key="basic" />,
+
     <StepContent key="content" />,
+
     <StepSEOAndAI key="seo-ai" />,
+    
     <StepReviewAndSubmit key="review" isAdmin={isAdmin} />,
   ];
 
@@ -174,6 +222,7 @@ export function AdmitCardForm({ isAdmin, initialValues, onSubmit, isEditMode }: 
       console.error("Validation errors:", form.formState.errors);
     }
     if (valid) setStep((s) => s + 1);
+    if (step >= steps.length - 1) return;
   }
 
   function prevStep() {
@@ -194,7 +243,11 @@ export function AdmitCardForm({ isAdmin, initialValues, onSubmit, isEditMode }: 
         if (res.success) setSuccess("Admit Card created successfully!");
       }
       if (!res.success) setError(res.message || "Failed to submit");
-      if (res.success && form.reset) form.reset();
+      
+      if (!isEditMode && res.success) {
+        form.reset(admitCardDefaultValues);
+      }
+
       if (onSubmit) await onSubmit(values);
     } catch (e: any) {
       setError(e.message || "Error occurred");
@@ -218,7 +271,7 @@ export function AdmitCardForm({ isAdmin, initialValues, onSubmit, isEditMode }: 
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(handleSubmit, (errors) => {
-            // console.log("FORM SUBMIT ERRORS:", errors);
+            console.log("FORM SUBMIT ERRORS:", errors);
             console.log("FORM STATE ERRORS:", form.formState.errors);
           })}
         >
@@ -239,15 +292,16 @@ export function AdmitCardForm({ isAdmin, initialValues, onSubmit, isEditMode }: 
                 </Button>
 
                 {/* Next / Submit Button */}
-                {step < steps.length - 1 ? (
-                  <Button type="button" onClick={nextStep}>
-                    Next
-                  </Button>
-                ) : (
-                  <Button type="submit" disabled={loading}>
-                    {loading ? getLoadingLabel() : getSubmitLabel()}
-                  </Button>
-                )}
+                <Button
+                  type={step === steps.length - 1 ? "submit" : "button"}
+                  onClick={step === steps.length - 1 ? undefined : nextStep}
+                  disabled={loading}
+                >
+                  {step === steps.length - 1
+                    ? (loading ? getLoadingLabel() : getSubmitLabel())
+                    : "Next"}
+                </Button>
+
               </div>
 
               {/* Messages */}
