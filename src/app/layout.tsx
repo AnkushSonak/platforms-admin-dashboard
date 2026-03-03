@@ -5,6 +5,8 @@ import { SidebarProvider } from '@/context/SidebarContext';
 import { ThemeProvider } from '@/context/ThemeContext';
 import AuthGuard from '@/context/AuthGuard';
 import ReduxProvider from '@/context/ReduxProvider';
+import { Toaster } from '@/components/shadcn/ui/sonner';
+import ReactQueryProvider from '@/context/ReactQueryProvider';
 
 const outfit = Outfit({
   subsets: ["latin"],
@@ -15,11 +17,16 @@ export default function RootLayout({ children, }: Readonly<{ children: React.Rea
     <html lang="en">
       <body className={`${outfit.className} dark:bg-gray-900`}>
         <ThemeProvider>
-          <ReduxProvider>
-            {/* <AuthGuard> */}
-              <SidebarProvider>{children}</SidebarProvider>
-            {/* </AuthGuard> */}
-          </ReduxProvider>
+          <ReactQueryProvider>
+            <ReduxProvider>
+              {/* <AuthGuard> */}
+                <SidebarProvider>
+                  {children}
+                  <Toaster />
+                </SidebarProvider>
+              {/* </AuthGuard> */}
+            </ReduxProvider>
+          </ReactQueryProvider>
         </ThemeProvider>
       </body>
     </html>

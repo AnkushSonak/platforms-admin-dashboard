@@ -6,6 +6,7 @@ import { FormTagInput } from "../../jobs/sections/FormTagInput"
 import { FormMultiSelectIds } from "../../jobs/sections/FormMultiSelectIds"
 import { MultiSelect } from "@/components/shadcn/ui/multi-select"
 import React, { useEffect } from "react"
+import { useQuery } from "@tanstack/react-query"
 import { getPaginatedEntity } from "@/lib/api/global/Generic"
 import { ITag } from "@/app/helper/interfaces/ITag"
 import { TAGS_API } from "@/app/envConfig"
@@ -17,13 +18,22 @@ import { ImportantDatesDialog } from "@/components/form/ImportantDatesDialog"
 
 export function StepContent() {
   const { control, setValue, watch } = useFormContext();
-  const [allTags, setAllTags] = React.useState<ITag[]>([]);
+  const [tagsUnavailable, setTagsUnavailable] = React.useState(false);
 
-  useEffect(() => {
-    getPaginatedEntity<ITag>("type=tags&page=1", TAGS_API,  { entityName: "tags" })
-      .then((response) => setAllTags(response.data))
-      .catch(() => setAllTags([]));
-  }, []);
+  const tagsQuery = useQuery({
+    queryKey: ["admit-card-form", "tags"],
+    queryFn: () =>
+      getPaginatedEntity<ITag>("type=tags&page=1", TAGS_API, {
+      entityName: "tags",
+      suppressErrorStatuses: [404],
+      onHttpError: ({ status }) => {
+        if (status === 404) {
+          setTagsUnavailable(true);
+        }
+      },
+    }),
+  });
+  const allTags = tagsQuery.data?.data ?? [];
 
   // Autofill StepContent fields from jobSnapshot
   const jobSnapshot = watch('jobSnapshot');
@@ -51,7 +61,7 @@ export function StepContent() {
         </FormItem>
       )} />
 
-        <div className="grid grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       <FormField name="cardTags" control={control} render={({ field }) => (
         <FormItem>
           <FormControl>
@@ -68,6 +78,9 @@ export function StepContent() {
               label: s.name, value: String(s.id),
             }))} MultiSelectComponent={MultiSelect} />
           </FormControl>
+          {tagsUnavailable && (
+            <p className="text-sm text-amber-600">Tags service is unavailable right now. You can continue without selecting tags.</p>
+          )}
           <FormMessage />
         </FormItem>
       )} />

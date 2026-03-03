@@ -13,9 +13,9 @@ export const SEOFields: React.FC<SEOFieldsProps> = ({ control, watch }) => {
 const { formState: { errors },} = useFormContext<AdmitCardFormValues>();
 
   // Preview values
-  const metaTitle = watch('seo.metaTitle') || 'Your meta title will appear here';
-  const metaDescription = watch('seo.metaDescription') || 'Your meta description will appear here, showing how it will appear in search results.';
-  const seoCanonicalUrl = watch('seo.seoCanonicalUrl') || 'https://example.com/page';
+  const metaTitle = watch('seoSettings.metaTitle') || 'Your meta title will appear here';
+  const metaDescription = watch('seoSettings.metaDescription') || 'Your meta description will appear here, showing how it will appear in search results.';
+  const seoCanonicalUrl = watch('seoSettings.seoCanonicalUrl') || 'https://example.com/page';
 
   return (
     <div className="space-y-8">
@@ -29,7 +29,7 @@ const { formState: { errors },} = useFormContext<AdmitCardFormValues>();
           </div>
 
           <Controller
-            name="seo.metaTitle"
+            name="seoSettings.metaTitle"
             control={control}
             render={({ field }) => (
               <>
@@ -42,9 +42,9 @@ const { formState: { errors },} = useFormContext<AdmitCardFormValues>();
                   {field.value?.length || 0}/60 characters
                 </p>
 
-                {errors?.seo?.metaTitle && (
+                {errors?.seoSettings?.metaTitle && (
                   <p className="text-red-500 text-xs mt-1">
-                    {errors.seo.metaTitle.message as string}
+                    {errors.seoSettings.metaTitle.message as string}
                   </p>
                 )}
               </>
@@ -60,7 +60,7 @@ const { formState: { errors },} = useFormContext<AdmitCardFormValues>();
           </div>
 
           <Controller
-            name="seo.metaDescription"
+            name="seoSettings.metaDescription"
             control={control}
             render={({ field }) => (
               <>
@@ -74,9 +74,9 @@ const { formState: { errors },} = useFormContext<AdmitCardFormValues>();
                   {field.value?.length || 0}/160 characters
                 </p>
 
-                {errors?.seo?.metaDescription && (
+                {errors?.seoSettings?.metaDescription && (
                   <p className="text-red-500 text-xs mt-1">
-                    {errors.seo.metaDescription.message as string}
+                    {errors.seoSettings.metaDescription.message as string}
                   </p>
                 )}
               </>
@@ -87,7 +87,7 @@ const { formState: { errors },} = useFormContext<AdmitCardFormValues>();
         {/* SEO Keywords */}
         <div className="bg-secondary shadow-sm rounded-lg p-4 flex flex-col gap-2 md:col-span-2">
           <Controller
-            name="seo.seoKeywords"
+            name="seoSettings.seoKeywords"
             control={control}
             render={({ field }) => {
               const keywords = Array.isArray(field.value)
@@ -146,7 +146,7 @@ const { formState: { errors },} = useFormContext<AdmitCardFormValues>();
         {/* Canonical URL */}
         <div className="bg-secondary shadow-sm rounded-lg p-4 flex flex-col gap-2">
           <Controller
-            name="seo.seoCanonicalUrl"
+            name="seoSettings.seoCanonicalUrl"
             control={control}
             render={({ field }) => (
               <>
@@ -156,9 +156,9 @@ const { formState: { errors },} = useFormContext<AdmitCardFormValues>();
                   placeholder="https://example.com/page"
                 />
 
-                {errors?.seo?.seoCanonicalUrl && (
+                {errors?.seoSettings?.seoCanonicalUrl && (
                   <p className="text-red-500 text-xs mt-1">
-                    {errors.seo.seoCanonicalUrl.message as string}
+                    {errors.seoSettings.seoCanonicalUrl.message as string}
                   </p>
                 )}
               </>
@@ -169,7 +169,7 @@ const { formState: { errors },} = useFormContext<AdmitCardFormValues>();
         {/* Schema JSON */}
         <div className="bg-secondary shadow-sm rounded-lg p-4 flex flex-col gap-2 md:col-span-2">
           <Controller
-            name="seo.schemaMarkupJson"
+            name="seoSettings.schemaMarkupJson"
             control={control}
             render={({ field }) => {
               const [jsonError, setJsonError] = useState<string | null>(null);

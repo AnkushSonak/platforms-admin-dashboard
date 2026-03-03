@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
+import { useQuery } from "@tanstack/react-query"
 
 import { Form } from "@/components/shadcn/ui/form"
 import { Card, CardContent, CardHeader } from "@/components/shadcn/ui/card"
@@ -15,16 +16,13 @@ import { StepBasicInfo } from "./StepBasicInfo"
 import { REVIEW_STATUS } from "../../../../helper/dto/global"
 import { createEntity, getPaginatedEntity, updateEntity } from "@/lib/api/global/Generic"
 import { AdmitCardStatus, IAdmitCard } from "@/app/helper/interfaces/IAdmitCard"
-import { ADMIT_CARDS_API, ANSWER_KEYS_API, CATEGORY_API, JOBS_API, NEWS_AND_NTFN_API, ORGANIZATION_API, QUALIFICATIONS_API, RESULTS_API, STATE_API } from "@/app/envConfig"
+import { ADMIT_CARDS_API, CATEGORY_API, JOBS_API, NEWS_AND_NTFN_API, ORGANIZATION_API, QUALIFICATIONS_API, STATE_API } from "@/app/envConfig"
 import { AdmitCardFormValues, AdmitCardSchema } from "@/lib/schemas/AdmitCardSchema"
 import { IJob } from "@/app/helper/interfaces/IJob"
-import { AdmitCardFormDTO } from "@/app/helper/dto/AdmitCardFormDTO"
 import { IOrganization } from "@/app/helper/interfaces/IOrganization"
 import { ICategory } from "@/app/helper/interfaces/ICategory"
 import { IState } from "@/app/helper/interfaces/IState"
 import { INewsAndNtfn } from "@/app/helper/interfaces/INewsAndNtfn"
-import { IResult } from "@/app/helper/interfaces/IResult"
-import { IAnswerKey } from "@/app/helper/interfaces/IAnswerKey"
 import { IQualification } from "@/app/helper/interfaces/IQualification"
 
 interface Props {
@@ -40,15 +38,10 @@ export const stepValidationMap: Record<number, any[]> = {
 
   1: ["descriptionJson", "dynamicFields", "cardTags", "tagIds", "importantDates", "importantLinks", "helpfullVideoLinks"], //"importantInstructions"
 
-  2: ["metaTitle", "metaDescription", "seoKeywords", "seoCanonicalUrl", "schemaMarkupJson"],
+  2: ["seoSettings.metaTitle", "seoSettings.metaDescription", "seoSettings.seoKeywords", "seoSettings.seoCanonicalUrl", "seoSettings.schemaMarkupJson"],
 
   3: ["reviewStatus", "publishedAt"],
 }
-
-// Only map jobSnapshot field for admit card autofill from job
-const JOB_TO_ADMITCARD_MAP: Record<string, keyof AdmitCardFormDTO> = {
-  jobSnapshot: 'jobSnapshot',
-};
 
 const admitCardDefaultValues = {
   title: "",
@@ -126,27 +119,49 @@ export function AdmitCardForm({ isAdmin, initialValues, onSubmit, isEditMode }: 
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [jobs, setJobs] = useState<IJob[]>([]);
-  const [jobSearch, setJobSearch] = useState('');
-  const [jobLoading, setJobLoading] = useState(false);
+  const organizationsQuery = useQuery({
+    queryKey: ["admit-card-form", "organizations"],
+    queryFn: () => getPaginatedEntity<IOrganization>("type=organizations&page=1", ORGANIZATION_API, { entityName: "organizations" }),
+  });
+  const categoriesQuery = useQuery({
+    queryKey: ["admit-card-form", "categories"],
+    queryFn: () => getPaginatedEntity<ICategory>("type=categories&page=1", CATEGORY_API, { entityName: "categories" }),
+  });
+  const statesQuery = useQuery({
+    queryKey: ["admit-card-form", "states"],
+    queryFn: () => getPaginatedEntity<IState>("type=states&page=1", STATE_API, { entityName: "states" }),
+  });
+  const newsAndNotificationsQuery = useQuery({
+    queryKey: ["admit-card-form", "news-and-notifications"],
+    queryFn: () =>
+      getPaginatedEntity<INewsAndNtfn>("type=news-and-notifications&page=1", NEWS_AND_NTFN_API, {
+        entityName: "newsAndNotifications",
+      }),
+  });
+  const qualificationsQuery = useQuery({
+    queryKey: ["admit-card-form", "qualifications"],
+    queryFn: () =>
+      getPaginatedEntity<IQualification>("type=qualifications&page=1", QUALIFICATIONS_API, {
+        entityName: "qualifications",
+      }),
+  });
+  const jobsQuery = useQuery({
+    queryKey: ["admit-card-form", "jobs"],
+    queryFn: () => getPaginatedEntity<IJob>("type=jobs&page=1", JOBS_API, { entityName: "jobs" }),
+  });
 
-  const [organizations, setOrganizations] = React.useState<IOrganization[]>([]);
-  const [categories, setCategories] = React.useState<ICategory[]>([]);
-  const [allStates, setAllStates] = React.useState<IState[]>([]);
-  const [allNewsAndNotifications, setAllNewsAndNotifications] = React.useState<INewsAndNtfn[]>([]);
-  const [allQualifications, setAllQualifications] = React.useState<any[]>([]);
-  const [results, setResults] = React.useState<IResult[]>([]);
-  const [answerKeys, setAnswerKeys] = React.useState<IAnswerKey[]>([]);
+  const organizations = organizationsQuery.data?.data ?? [];
+  const categories = categoriesQuery.data?.data ?? [];
+  const allStates = statesQuery.data?.data ?? [];
+  const allNewsAndNotifications = newsAndNotificationsQuery.data?.data ?? [];
+  const allQualifications = qualificationsQuery.data?.data ?? [];
+  const jobs = jobsQuery.data?.data ?? [];
 
-  useEffect(() => { getPaginatedEntity<IOrganization>("type=organizations&page=1", ORGANIZATION_API, { entityName: "organizations" }).then(res => setOrganizations(res.data)).catch(() => setOrganizations([])); }, []);
-  useEffect(() => { getPaginatedEntity<ICategory>("type=categories&page=1", CATEGORY_API, { entityName: "categories" }).then((res) => setCategories(res.data)).catch(() => setCategories([])); }, []);
-  useEffect(() => { getPaginatedEntity<IState>("type=states&page=1", STATE_API, { entityName: "states" }).then((res) => setAllStates(res.data)).catch(() => setAllStates([])); }, []);
-  useEffect(() => { getPaginatedEntity<INewsAndNtfn>("type=news-and-notifications&page=1", NEWS_AND_NTFN_API, { entityName: "newsAndNotifications" }).then((res) => setAllNewsAndNotifications(res.data)).catch(() => setAllNewsAndNotifications([])); }, []);
-  useEffect(() => { getPaginatedEntity<IResult>("type=results&page=1", RESULTS_API, { entityName: "results" }).then((response) => setResults(response.data)).catch(() => setResults([])); }, []);
-  useEffect(() => { getPaginatedEntity<IAnswerKey>("type=answer-keys&page=1", ANSWER_KEYS_API, { entityName: "answerKeys" }).then((response) => setAnswerKeys(response.data)).catch(() => setAnswerKeys([])); }, []);
-  useEffect(() => { getPaginatedEntity<IQualification>("type=qualifications&page=1", QUALIFICATIONS_API, { entityName: "qualifications" }).then((response) => setAllQualifications(response.data)).catch(() => setAllQualifications([])); }, []);
-
-  console.log("AdmitCardForm : Initial values for form:", initialValues);
+  useEffect(() => {
+    if (process.env.NODE_ENV !== "production") {
+      console.debug("AdmitCardForm : Initial values for form:", initialValues);
+    }
+  }, [initialValues]);
 
   const form = useForm<AdmitCardFormValues>({
     resolver: zodResolver(AdmitCardSchema),
@@ -160,17 +175,6 @@ export function AdmitCardForm({ isAdmin, initialValues, onSubmit, isEditMode }: 
     }
   }, [initialValues]);
 
-
-  useEffect(() => {
-    setJobLoading(true);
-    getPaginatedEntity<IJob>("type=jobs&page=1", JOBS_API, { entityName: "jobs" })
-      .then((res) => {
-        setJobs(res.data);
-        setJobLoading(false);
-      })
-      .catch(() => setJobLoading(false));
-  }, [jobSearch]);
-
   const handleJobChange = (jobId: string | null) => {
     const previousJobId = form.getValues("jobId");
 
@@ -182,6 +186,13 @@ export function AdmitCardForm({ isAdmin, initialValues, onSubmit, isEditMode }: 
 
     // CASE 2: same job re-selected → do nothing
     if (jobId === previousJobId) return;
+
+    if (typeof window !== "undefined") {
+      const shouldProceed = window.confirm(
+        "Selecting a related job will overwrite auto-fill fields from the selected job. Continue?"
+      );
+      if (!shouldProceed) return;
+    }
 
     // CASE 3: new job selected → autofill snapshot
     const selectedJob = jobs.find(j => j.id === jobId);
@@ -206,8 +217,7 @@ export function AdmitCardForm({ isAdmin, initialValues, onSubmit, isEditMode }: 
 
   const steps = [
     <StepBasicInfo onJobChange={handleJobChange} jobs={jobs} organizations={organizations} categories={categories}
-     allStates={allStates} allNewsAndNotifications={allNewsAndNotifications} allQualifications={allQualifications}
-      results={results} answerKeys={answerKeys} key="basic" />,
+     allStates={allStates} allNewsAndNotifications={allNewsAndNotifications} allQualifications={allQualifications} key="basic" />,
 
     <StepContent key="content" />,
 
@@ -217,12 +227,15 @@ export function AdmitCardForm({ isAdmin, initialValues, onSubmit, isEditMode }: 
   ];
 
   async function nextStep() {
+    if (step >= steps.length - 1) return;
+
     const valid = await form.trigger(stepValidationMap[step]);
     if (!valid) {
       console.error("Validation errors:", form.formState.errors);
+      return;
     }
-    if (valid) setStep((s) => s + 1);
-    if (step >= steps.length - 1) return;
+
+    setStep((s) => s + 1);
   }
 
   function prevStep() {
@@ -292,15 +305,22 @@ export function AdmitCardForm({ isAdmin, initialValues, onSubmit, isEditMode }: 
                 </Button>
 
                 {/* Next / Submit Button */}
-                <Button
-                  type={step === steps.length - 1 ? "submit" : "button"}
-                  onClick={step === steps.length - 1 ? undefined : nextStep}
-                  disabled={loading}
-                >
-                  {step === steps.length - 1
-                    ? (loading ? getLoadingLabel() : getSubmitLabel())
-                    : "Next"}
-                </Button>
+                {step === steps.length - 1 ? (
+                  <Button type="submit" disabled={loading}>
+                    {loading ? getLoadingLabel() : getSubmitLabel()}
+                  </Button>
+                ) : (
+                  <Button
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      void nextStep();
+                    }}
+                    disabled={loading}
+                  >
+                    Next
+                  </Button>
+                )}
 
               </div>
 

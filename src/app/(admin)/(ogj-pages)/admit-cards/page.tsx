@@ -1,52 +1,119 @@
 "use client";
 
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/shadcn/ui/card';
-import { Button } from '@/components/shadcn/ui/button';
-import { Input } from '@/components/shadcn/ui/input';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/shadcn/ui/table';
-import { PlusCircle, BellRing } from 'lucide-react';
-import Link from 'next/link';
-// import { useAuth } from '@/app/contexts/AuthContext'; // Adjust path
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import {
+  BellRing,
+  ChevronLeft,
+  ChevronRight,
+  Edit,
+  PlusCircle,
+  Search,
+  Trash2,
+} from "lucide-react";
+import { toast } from "sonner";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-import { useSelector } from 'react-redux';
-import { RootState } from '@/state/store';
-import { getPaginatedEntity } from '@/lib/api/global/Generic';
-import { IAdmitCard } from '@/app/helper/interfaces/IAdmitCard';
-import { ADMIT_CARDS_API } from '@/app/envConfig';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/shadcn/ui/card";
+import { Button } from "@/components/shadcn/ui/button";
+import { Input } from "@/components/shadcn/ui/input";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/shadcn/ui/table";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/shadcn/ui/alert-dialog";
+import { useSelector } from "react-redux";
+
+import { RootState } from "@/state/store";
+import { getPaginatedEntity } from "@/lib/api/global/Generic";
+import { IAdmitCard } from "@/app/helper/interfaces/IAdmitCard";
+import { ADMIT_CARDS_API } from "@/app/envConfig";
+
+const ADMIT_CARDS_PER_PAGE = 10;
 
 export default function AdminAdmitCardsPage() {
   const { user, loading: authLoading } = useSelector((state: RootState) => state.authentication);
-  // const { user, isLoading: authLoading } = useAuth();
-  const [admitCards, setAdmitCards] = useState<IAdmitCard[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(0);
-  const [searchQuery, setSearchQuery] = useState('');
+  const queryClient = useQueryClient();
 
-  const API_BASE_URL = process.env.NEXT_PUBLIC_BACKEND_SERVER_BASE_URL;
+  const [currentPage, setCurrentPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
 
   useEffect(() => {
-    if (!authLoading && user) {
-      getPaginatedEntity<IAdmitCard>("type=admit-cards&page=1", ADMIT_CARDS_API,  { entityName: "admit-cards" }).then(result => {
-        setAdmitCards(result.data);
-        setLoading(false);
+    const timeoutId = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery.trim());
+    }, 350);
+
+    return () => clearTimeout(timeoutId);
+  }, [searchQuery]);
+
+  const listQuery = useQuery({
+    queryKey: ["admit-cards-list", currentPage, debouncedSearchQuery],
+    enabled: !!user && !authLoading,
+    queryFn: async () => {
+      const query = `type=admit-cards&search=${encodeURIComponent(debouncedSearchQuery)}&page=${currentPage}&limit=${ADMIT_CARDS_PER_PAGE}`;
+      return getPaginatedEntity<IAdmitCard>(query, ADMIT_CARDS_API, { entityName: "admit-cards" });
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const response = await fetch(`${ADMIT_CARDS_API}/${id}`, {
+        method: "DELETE",
+        credentials: "include",
       });
-    }
-  }, [user, authLoading]);
+
+      if (!response.ok) {
+        const message =
+          response.status === 401 || response.status === 403
+            ? "Unauthorized to delete admit card."
+            : "Failed to delete admit card.";
+        throw new Error(message);
+      }
+    },
+    onSuccess: async (_, id) => {
+      toast.success("Admit card deleted successfully.");
+
+      const admitCards = listQuery.data?.data ?? [];
+      const isLastItemOnPage = admitCards.length === 1 && currentPage > 1;
+      if (isLastItemOnPage) {
+        setCurrentPage((prev) => Math.max(1, prev - 1));
+      } else {
+        await queryClient.invalidateQueries({ queryKey: ["admit-cards-list"] });
+      }
+    },
+    onError: (error: any) => {
+      toast.error(error?.message || "Network error during deletion.");
+    },
+  });
+
+  const admitCards = listQuery.data?.data ?? [];
+  const totalPages = listQuery.data?.totalPages || 1;
+  const loading = listQuery.isLoading || listQuery.isFetching;
+  const error = listQuery.error instanceof Error ? listQuery.error.message : null;
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
     setCurrentPage(1);
   };
 
-  if (authLoading || !user) {
+  if (authLoading) {
     return (
       <div className="flex items-center justify-center h-full min-h-[calc(100vh-100px)]">
         <p className="text-gray-600">Loading...</p>
       </div>
     );
+  }
+
+  if (!user) {
+    return null;
   }
 
   return (
@@ -65,12 +132,15 @@ export default function AdminAdmitCardsPage() {
       <Card className="shadow-md">
         <CardHeader className="pb-4">
           <CardTitle className="text-lg font-semibold">Admit Card Listings</CardTitle>
-          <Input
-            placeholder="Search admit cards by title, description..."
-            value={searchQuery}
-            onChange={handleSearchChange}
-            className="mt-4 max-w-sm"
-          />
+          <div className="relative mt-4 max-w-sm">
+            <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
+            <Input
+              placeholder="Search admit cards by title..."
+              value={searchQuery}
+              onChange={handleSearchChange}
+              className="pl-8"
+            />
+          </div>
         </CardHeader>
         <CardContent>
           {loading ? (
@@ -90,60 +160,98 @@ export default function AdminAdmitCardsPage() {
           ) : admitCards.length === 0 ? (
             <div className="text-center py-10 text-red-600">No admit cards found.</div>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Title</TableHead>
-                  <TableHead>Slug</TableHead>
-                  <TableHead>Created At</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {admitCards.map((admitCard) => (
-                  <TableRow key={admitCard.id}>
-                    <TableCell className="font-medium">{admitCard.title}</TableCell>
-                    {/* <TableCell>{admitCard.relatedEntityType}</TableCell> */}
-                    <TableCell>{admitCard.slug}</TableCell>
-                    <TableCell>{new Date(admitCard.createdAt).toLocaleDateString()}</TableCell>
-                    <TableCell className="text-right flex justify-end space-x-2">
-                      <Link href={`/admit-cards/${admitCard.slug}/edit`} passHref>
-                        <Button variant="outline" size="icon" className="h-8 w-8">
-                          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-edit"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4Z"/></svg>
-                        </Button>
-                      </Link>
-                      {/* Delete Admit Card Button - Add AlertDialog later */}
-                      <Button variant="destructive" size="icon" className="h-8 w-8">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-trash-2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
-                      </Button>
-                    </TableCell>
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Title</TableHead>
+                    <TableHead>Slug</TableHead>
+                    <TableHead>Created At</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {admitCards.map((admitCard) => (
+                    <TableRow key={admitCard.id}>
+                      <TableCell className="font-medium">{admitCard.title}</TableCell>
+                      <TableCell>{admitCard.slug}</TableCell>
+                      <TableCell>{new Date(admitCard.createdAt).toLocaleDateString()}</TableCell>
+                      <TableCell className="text-right flex justify-end space-x-2">
+                        <Link href={`/admit-cards/${admitCard.slug}/edit`} passHref>
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            className="h-8 w-8"
+                            aria-label={`Edit ${admitCard.title}`}
+                            title="Edit"
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                        </Link>
+
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button
+                              variant="destructive"
+                              size="icon"
+                              className="h-8 w-8"
+                              disabled={deleteMutation.isPending}
+                              aria-label={`Delete ${admitCard.title}`}
+                              title="Delete"
+                            >
+                              {deleteMutation.isPending && deleteMutation.variables === admitCard.id ? (
+                                <span className="animate-spin">...</span>
+                              ) : (
+                                <Trash2 className="h-4 w-4" />
+                              )}
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Delete admit card?</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                This action cannot be undone. This will permanently delete "{admitCard.title}".
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={() => deleteMutation.mutate(admitCard.id)}
+                                className="bg-red-600 hover:bg-red-700"
+                              >
+                                Delete
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
           )}
 
-          {/* Pagination */}
           {totalPages > 1 && !loading && admitCards.length > 0 && (
             <div className="flex justify-center items-center gap-4 mt-6">
               <Button
-                onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
                 disabled={currentPage === 1}
                 variant="outline"
                 size="sm"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-chevron-left"><path d="m15 18-6-6 6-6"/></svg> Previous
+                <ChevronLeft className="w-4 h-4" /> Previous
               </Button>
               <span className="text-sm text-gray-700">
                 Page {currentPage} of {totalPages}
               </span>
               <Button
-                onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
                 disabled={currentPage === totalPages}
                 variant="outline"
                 size="sm"
               >
-                Next <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-chevron-right"><path d="m9 18 6-6-6-6"/></svg>
+                Next <ChevronRight className="w-4 h-4" />
               </Button>
             </div>
           )}

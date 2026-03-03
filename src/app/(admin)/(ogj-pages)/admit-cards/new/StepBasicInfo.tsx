@@ -4,18 +4,15 @@ import { Input } from "@/components/shadcn/ui/input"
 import { FormSelect } from "../../jobs/sections/FormSelect";
 import { Checkbox } from "@/components/shadcn/ui/checkbox";
 import { FormSelectId } from "../../jobs/sections/FormSelectId";
-import React, { useEffect } from "react";
 import { ICategory } from "@/app/helper/interfaces/ICategory";
 import { IState } from "@/app/helper/interfaces/IState";
 import { FormMultiSelectIds } from "../../jobs/sections/FormMultiSelectIds";
 import { MultiSelect } from "@/components/shadcn/ui/multi-select";
 import { IOrganization } from "@/app/helper/interfaces/IOrganization";
 import { IJob } from "@/app/helper/interfaces/IJob";
-import { AdmitCardStatus, IAdmitCard } from "@/app/helper/interfaces/IAdmitCard";
+import { AdmitCardStatus } from "@/app/helper/interfaces/IAdmitCard";
 import { IResult } from "@/app/helper/interfaces/IResult";
 import { IAnswerKey } from "@/app/helper/interfaces/IAnswerKey";
-import { getPaginatedEntity } from "@/lib/api/global/Generic";
-import { ANSWER_KEYS_API, CATEGORY_API, NEWS_AND_NTFN_API, ORGANIZATION_API, QUALIFICATIONS_API, RESULTS_API, STATE_API } from "@/app/envConfig";
 import { IQualification } from "@/app/helper/interfaces/IQualification";
 import { INewsAndNtfn } from "@/app/helper/interfaces/INewsAndNtfn";
 import { DateTimePicker } from "@/components/shadcn/ui/date-time-picker";
@@ -23,7 +20,9 @@ import { ExamShiftsField } from "@/components/form/ExamShiftsField";
 import { AdmitCardFormValues } from "@/lib/schemas/AdmitCardSchema";
 
 
-export function StepBasicInfo({ onJobChange, jobs, organizations, categories, allStates, allNewsAndNotifications, allQualifications, results, answerKeys }: { onJobChange: (jobId: string) => void; jobs: IJob[]; organizations: IOrganization[]; categories: ICategory[]; allStates: IState[]; allNewsAndNotifications: INewsAndNtfn[]; allQualifications: IQualification[]; results: IResult[]; answerKeys: IAnswerKey[] }) {
+export function StepBasicInfo({ onJobChange, jobs, organizations, categories, allStates, allNewsAndNotifications, allQualifications }
+  : { onJobChange: (jobId: string | null) => void; jobs: IJob[]; organizations: IOrganization[]; categories: ICategory[]; allStates: IState[]; 
+    allNewsAndNotifications: INewsAndNtfn[]; allQualifications: IQualification[]; }) {
   const { control, setValue } = useFormContext<AdmitCardFormValues>();
 
   const admitCardStatusOptions = [
@@ -40,7 +39,7 @@ export function StepBasicInfo({ onJobChange, jobs, organizations, categories, al
 
   return (
     <div>
-      <div className="grid grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Job select for autofill */}
         <FormField name="jobId" control={control} render={({ field }) => (
           <FormItem>
@@ -54,8 +53,7 @@ export function StepBasicInfo({ onJobChange, jobs, organizations, categories, al
                 disabled={field.disabled}
                 className="w-full border rounded p-2"
                 onChange={(e) => {
-                  const jobId = e.target.value;
-                  field.onChange(jobId);
+                  const jobId = e.target.value || null;
                   onJobChange(jobId);
                 }}
 
@@ -136,7 +134,7 @@ export function StepBasicInfo({ onJobChange, jobs, organizations, categories, al
         )} />
       </div>
 
-      <div className="grid grid-cols-3 gap-6 my-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 my-6">
         <FormField name="releaseDate" control={control} render={({ field }) => (
           <FormItem>
             <FormLabel>Release Date</FormLabel>
@@ -167,7 +165,7 @@ export function StepBasicInfo({ onJobChange, jobs, organizations, categories, al
         )} />
       </div>
 
-      <div className="grid grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <FormField name="modeOfExam" control={control} render={({ field }) => (
           <FormItem>
             <FormLabel>Mode of Exam</FormLabel>

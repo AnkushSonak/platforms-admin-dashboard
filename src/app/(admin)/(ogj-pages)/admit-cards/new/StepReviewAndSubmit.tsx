@@ -20,8 +20,8 @@ export function StepReviewAndSubmit({ isAdmin }: Props) {
   }
 
   // AI summary suggestion (stub)
-  const aiSummary = values.metaDescription
-    ? `AI Suggestion: ${values.metaDescription.slice(0, 80)}...`
+  const aiSummary = values.seoSettings?.metaDescription
+    ? `AI Suggestion: ${values.seoSettings.metaDescription.slice(0, 80)}...`
     : "AI can suggest a summary here.";
 
   return (
@@ -76,25 +76,25 @@ export function StepReviewAndSubmit({ isAdmin }: Props) {
           </button>
           {showSeo && (
             <div className="space-y-3">
-              {values.metaTitle && (
+              {values.seoSettings?.metaTitle && (
                 <div className="flex items-center gap-2">
                   <span className="material-icons text-blue-400">title</span>
                   <span className="font-semibold">Meta Title:</span>
-                  <span className="ml-2 text-gray-800 font-mono bg-blue-50 px-2 py-1 rounded cursor-pointer" title="Copy" onClick={() => copyToClipboard(values.metaTitle)}>{values.metaTitle}</span>
+                  <span className="ml-2 text-gray-800 font-mono bg-blue-50 px-2 py-1 rounded cursor-pointer" title="Copy" onClick={() => copyToClipboard(values.seoSettings.metaTitle)}>{values.seoSettings.metaTitle}</span>
                 </div>
               )}
-              {values.metaDescription && (
+              {values.seoSettings?.metaDescription && (
                 <div className="flex items-center gap-2">
                   <span className="material-icons text-green-400">description</span>
                   <span className="font-semibold">Meta Description:</span>
-                  <span className="ml-2 text-gray-800 font-mono bg-green-50 px-2 py-1 rounded cursor-pointer" title="Copy" onClick={() => copyToClipboard(values.metaDescription)}>{values.metaDescription}</span>
+                  <span className="ml-2 text-gray-800 font-mono bg-green-50 px-2 py-1 rounded cursor-pointer" title="Copy" onClick={() => copyToClipboard(values.seoSettings.metaDescription)}>{values.seoSettings.metaDescription}</span>
                 </div>
               )}
-              {values.seoCanonicalUrl && (
+              {values.seoSettings?.seoCanonicalUrl && (
                 <div className="flex items-center gap-2">
                   <span className="material-icons text-orange-400">link</span>
                   <span className="font-semibold">Canonical URL:</span>
-                  <span className="ml-2 text-gray-800 font-mono bg-orange-50 px-2 py-1 rounded cursor-pointer" title="Copy" onClick={() => copyToClipboard(values.seoCanonicalUrl)}>{values.seoCanonicalUrl}</span>
+                  <span className="ml-2 text-gray-800 font-mono bg-orange-50 px-2 py-1 rounded cursor-pointer" title="Copy" onClick={() => copyToClipboard(values.seoSettings.seoCanonicalUrl)}>{values.seoSettings.seoCanonicalUrl}</span>
                 </div>
               )}
               {/* Add more SEO fields as needed */}

@@ -23,6 +23,14 @@ export type ApiResponse<T> = {
   };
 };
 
+export type PaginatedFetchOptions = {
+  revalidate?: number;
+  timeoutMs?: number;
+  entityName?: string;
+  suppressErrorStatuses?: number[];
+  onHttpError?: (args: { status: number; statusText: string; url: string; entityName: string }) => void;
+};
+
 type FetchBySlugOptions = {
   revalidate?: number;
   timeoutMs?: number;
@@ -51,6 +59,25 @@ export const DEFAULT_PAGINATED_RESULT: PaginatedResult<never> = {
 };
 
 const FETCH_TIMEOUT_MS = 10_000;
+const IS_DEV = process.env.NODE_ENV !== "production";
+const inFlightRequests = new Map<string, Promise<unknown>>();
+
+function devLog(level: "debug" | "info" | "error", ...args: unknown[]) {
+  if (!IS_DEV) return;
+  console[level](...args);
+}
+
+function dedupeInFlight<T>(key: string, fn: () => Promise<T>): Promise<T> {
+  const existing = inFlightRequests.get(key) as Promise<T> | undefined;
+  if (existing) return existing;
+
+  const request = fn().finally(() => {
+    inFlightRequests.delete(key);
+  });
+
+  inFlightRequests.set(key, request as Promise<unknown>);
+  return request;
+}
 
 export async function fetchWithTimeout( input: RequestInfo, init: RequestInit = {}, timeoutMs = FETCH_TIMEOUT_MS): Promise<Response> {
   const controller = new AbortController();
@@ -74,85 +101,105 @@ export function isValidPaginatedApiResponse<T>( payload: unknown ): payload is A
   );
 }
 
-export async function getPaginatedEntity<T>( query: string, entityUrl: string, options?: { revalidate?: number; timeoutMs?: number; entityName?: string; }): Promise<PaginatedResult<T>> {
-  const { revalidate = 3600, timeoutMs = FETCH_TIMEOUT_MS, entityName = "entity",} = options ?? {};
+export async function getPaginatedEntity<T>( query: string, entityUrl: string, options?: PaginatedFetchOptions): Promise<PaginatedResult<T>> {
+  const {
+    revalidate = 3600,
+    timeoutMs = FETCH_TIMEOUT_MS,
+    entityName = "entity",
+    suppressErrorStatuses = [],
+    onHttpError,
+  } = options ?? {};
 
   const url = new URL(entityUrl, backendBaseUrl);
   url.search = query;
+  const requestKey = `GET:${url.toString()}:revalidate=${revalidate}`;
 
-  console.debug(`[getPaginatedEntity] Fetching ${entityName}`, { url: url.toString(),});
+  return dedupeInFlight(requestKey, async () => {
+    devLog("debug", `[getPaginatedEntity] Fetching ${entityName}`, { url: url.toString() });
 
-  try {
-    const response = await fetchWithTimeout( url.toString(), { next: { revalidate } }, timeoutMs );
+    try {
+      const response = await fetchWithTimeout( url.toString(), { next: { revalidate } }, timeoutMs );
 
-    if (!response.ok) {
-      console.error(`[getPaginatedEntity] API error`, { entityName, status: response.status, statusText: response.statusText, });
+      if (!response.ok) {
+        onHttpError?.({
+          entityName,
+          status: response.status,
+          statusText: response.statusText,
+          url: url.toString(),
+        });
+        if (!suppressErrorStatuses.includes(response.status)) {
+          devLog("error", `[getPaginatedEntity] API error`, { entityName, status: response.status, statusText: response.statusText });
+        }
+        return DEFAULT_PAGINATED_RESULT;
+      }
+
+      const json: unknown = await response.json();
+
+      if (!isValidPaginatedApiResponse<T>(json)) {
+        devLog("error", `[getPaginatedEntity] Invalid response shape`, json);
+        return DEFAULT_PAGINATED_RESULT;
+      }
+
+      const { items, meta } = json.data!;
+
+      devLog("info", `[getPaginatedEntity] Success`, { entityName, count: items!.length, page: meta!.currentPage });
+
+      return { data: items!, total: meta!.total, page: meta!.currentPage, totalPages: meta!.totalPages };
+    } catch (error) {
+      if (error instanceof DOMException && error.name === "AbortError") {
+        devLog("error", `[getPaginatedEntity] Request timed out`, { entityName });
+      } else {
+        devLog("error", `[getPaginatedEntity] Unexpected error`, { entityName, error });
+      }
+
       return DEFAULT_PAGINATED_RESULT;
     }
-
-    const json: unknown = await response.json();
-
-    if (!isValidPaginatedApiResponse<T>(json)) {
-      console.error(`[getPaginatedEntity] Invalid response shape`, json);
-      return DEFAULT_PAGINATED_RESULT;
-    }
-
-    const { items, meta } = json.data!;
-
-    console.info(`[getPaginatedEntity] Success`, { entityName, count: items!.length, page: meta!.currentPage, });
-
-    return { data: items!, total: meta!.total, page: meta!.currentPage, totalPages: meta!.totalPages, };
-  } catch (error) {
-    if (error instanceof DOMException && error.name === "AbortError") {
-      console.error(`[getPaginatedEntity] Request timed out`, { entityName, });
-    } else {
-      console.error(`[getPaginatedEntity] Unexpected error`, { entityName, error, });
-    }
-
-    return DEFAULT_PAGINATED_RESULT;
-  }
+  });
 }
 
 export async function getEntityBySlug<T>(entityUrl: string, slug: string, options?: FetchBySlugOptions ): Promise<T | null> {
   const { revalidate = 3600, timeoutMs = FETCH_TIMEOUT_MS, entityName = "entity", } = options ?? {};
 
   const url = new URL(`${entityUrl}/${slug}`, backendBaseUrl);
+  const requestKey = `GET:${url.toString()}:revalidate=${revalidate}`;
 
-  console.debug(`[getEntityBySlug] Fetching ${entityName}`, { slug, url: url.toString(), });
+  return dedupeInFlight(requestKey, async () => {
+    devLog("debug", `[getEntityBySlug] Fetching ${entityName}`, { slug, url: url.toString() });
 
-  try {
-    const response = await fetchWithTimeout( url.toString(), { next: { revalidate } }, timeoutMs );
+    try {
+      const response = await fetchWithTimeout( url.toString(), { next: { revalidate } }, timeoutMs );
 
-    if (response.status === 404) {
-      console.info(`[getEntityBySlug] ${entityName} not found`, { slug });
+      if (response.status === 404) {
+        devLog("info", `[getEntityBySlug] ${entityName} not found`, { slug });
+        return null;
+      }
+
+      if (!response.ok) {
+        const errorBody = await response.text();
+        devLog("error", `[getEntityBySlug] API error`, { entityName, slug, status: response.status, statusText: response.statusText, body: errorBody });
+        return null;
+      }
+
+      const json: unknown = await response.json();
+
+      // Optional runtime guard hook (can be extended later)
+      if (!json || typeof json !== "object") {
+        devLog("error", `[getEntityBySlug] Invalid response payload`, { entityName, slug, json });
+        return null;
+      }
+      const data = (json as any).data;
+      devLog("info", `[getEntityBySlug] Success`, { entityName, slug });
+
+      return data as T;
+    } catch (error) {
+      if (error instanceof DOMException && error.name === "AbortError") {
+        devLog("error", `[getEntityBySlug] Request timed out`, { entityName, slug });
+      } else {
+        devLog("error", `[getEntityBySlug] Unexpected error`, { entityName, slug, error });
+      }
       return null;
     }
-
-    if (!response.ok) {
-      const errorBody = await response.text();
-      console.error(`[getEntityBySlug] API error`, { entityName, slug, status: response.status, statusText: response.statusText, body: errorBody, });
-      return null;
-    }
-
-    const json: unknown = await response.json();
-
-    // Optional runtime guard hook (can be extended later)
-    if (!json || typeof json !== "object") {
-      console.error(`[getEntityBySlug] Invalid response payload`, { entityName, slug, json, });
-      return null;
-    }
-    const data = (json as any).data;
-    console.info(`[getEntityBySlug] Success`, { entityName, slug, });
-
-    return data as T;
-  } catch (error) {
-    if (error instanceof DOMException && error.name === "AbortError") {
-      console.error(`[getEntityBySlug] Request timed out`, { entityName, slug, });
-    } else {
-      console.error(`[getEntityBySlug] Unexpected error`, { entityName, slug, error, });
-    }
-    return null;
-  }
+  });
 }
 
 export async function createEntity<T, R = any>( endpoint: string, data: T, options?: CrudOptions): Promise<CrudResult<R>> {
@@ -165,7 +212,7 @@ export async function createEntity<T, R = any>( endpoint: string, data: T, optio
 
   const url = new URL(endpoint, backendBaseUrl);
 
-  console.debug(`[createEntity] Creating ${entityName}`, { url, data });
+  devLog("debug", `[createEntity] Creating ${entityName}`, { url, data });
 
   try {
     const response = await fetchWithTimeout(
@@ -182,7 +229,7 @@ export async function createEntity<T, R = any>( endpoint: string, data: T, optio
     const text = await response.text();
 
     if (!response.ok) {
-      console.error(`[createEntity] API error for ${entityName}`, {
+      devLog("error", `[createEntity] API error for ${entityName}`, {
         status: response.status,
         statusText: response.statusText,
         body: text,
@@ -197,7 +244,7 @@ export async function createEntity<T, R = any>( endpoint: string, data: T, optio
       data: (json as any).data,
     };
   } catch (error: any) {
-    console.error(`[createEntity] Unexpected error for ${entityName}`, error);
+    devLog("error", `[createEntity] Unexpected error for ${entityName}`, error);
     return { success: false, message: error.message || "Unknown error" };
   }
 }
@@ -212,7 +259,7 @@ export async function updateEntity<T, R = any>( endpoint: string, id: string, da
 
   const url = new URL(`${endpoint}/${encodeURIComponent(id)}`, backendBaseUrl);
 
-  console.debug(`[updateEntity] Updating ${entityName}`, { url, data });
+  devLog("debug", `[updateEntity] Updating ${entityName}`, { url, data });
 
   try {
     const response = await fetchWithTimeout(
@@ -229,7 +276,7 @@ export async function updateEntity<T, R = any>( endpoint: string, id: string, da
     const text = await response.text();
 
     if (!response.ok) {
-      console.error(`[updateEntity] API error for ${entityName}`, {
+      devLog("error", `[updateEntity] API error for ${entityName}`, {
         status: response.status,
         statusText: response.statusText,
         body: text,
@@ -244,7 +291,7 @@ export async function updateEntity<T, R = any>( endpoint: string, id: string, da
       data: (json as any).data,
     };
   } catch (error: any) {
-    console.error(`[updateEntity] Unexpected error for ${entityName}`, error);
+    devLog("error", `[updateEntity] Unexpected error for ${entityName}`, error);
     return { success: false, message: error.message || "Unknown error" };
   }
 }

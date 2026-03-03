@@ -169,7 +169,7 @@ export interface AdmitCardFormDTO {
   releaseDate?: Date | null;
   examStartDate?: Date | null;
   examEndDate?: Date | null;
-  publishDate?: Date | null;
+  publishedAt?: Date | null;
 
   /* ================= Exam Details ================= */
 

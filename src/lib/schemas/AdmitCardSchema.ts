@@ -102,7 +102,7 @@ export const AdmitCardSchema = z.object({
   releaseDate: dateSchema.nullable().optional(),
   examStartDate: dateSchema.nullable().optional(),
   examEndDate: dateSchema.nullable().optional(),
-  publishDate: dateSchema.nullable().optional(),
+  publishedAt: dateSchema.nullable().optional(),
 
   /* ================= Exam Details ================= */
 
@@ -147,7 +147,7 @@ export const AdmitCardSchema = z.object({
 
   /* ================= SEO ================= */
 
-  seo: SeoSchema.nullable().optional(),
+  seoSettings: SeoSchema.nullable().optional(),
 
   /* ================= Flags ================= */
 

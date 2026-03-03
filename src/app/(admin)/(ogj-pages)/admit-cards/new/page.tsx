@@ -9,7 +9,9 @@ export default function Page() {
     <div className="space-y-6">
       <div className="flex items-center gap-4">
         <Link href="/admit-cards" passHref>
-          <Button variant="outline" size="icon" className="h-8 w-8"><ArrowLeft className="h-4 w-4" /></Button>
+          <Button variant="outline" size="icon" className="h-8 w-8" aria-label="Back to admit cards list" title="Back to admit cards list">
+            <ArrowLeft className="h-4 w-4" />
+          </Button>
         </Link>
         <h1 className="text-2xl font-bold">Add New Admit Card</h1>
       </div>
