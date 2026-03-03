@@ -64,13 +64,6 @@ export function Editor({
       : undefined,
   };
 
-  useEffect(() => {
-    console.log("LEXICAL INIT", {
-      namespace: initialConfig.namespace,
-      hasEditorSerializedState: !!editorSerializedState,
-    });
-  }, [initialConfig.namespace, editorSerializedState]);
-
   return (
     <div className="bg-background overflow-hidden rounded-lg border shadow">
       <LexicalComposer initialConfig={initialConfig}>

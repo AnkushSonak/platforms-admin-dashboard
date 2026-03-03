@@ -205,18 +205,6 @@ export default React.memo(function RichTextEditor({
   // const [initialState] = useState<SerializedEditorState>(() => parseInitial());
   const initialState = parseInitial();
 
-  // editors should be isolated by namespace. parent must pass namespace prop.
-  useEffect(() => {
-    console.log("EDITOR MOUNT", {
-      id,
-      namespaceProvided: namespace,
-      resolvedNamespace,
-      // valuePreview tiny safe
-      valuePreview: typeof value === "string" ? (value.length > 200 ? value.slice(0, 200) + "…" : value) : value,
-      initialHasRoot: !!initialState?.root,
-    });
-  }, [id, namespace, resolvedNamespace, value, initialState]);
-
   // called by inner Editor when it's ready
   const handleEditorReady = (editor: LexicalEditor) => {
     editorRef.current = editor;
@@ -270,3 +258,4 @@ export default React.memo(function RichTextEditor({
     </div>
   );
 });
+
