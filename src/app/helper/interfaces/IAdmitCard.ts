@@ -11,17 +11,32 @@ import { ISeoSettings } from "./ISeoSettings";
 import { IState } from "./IState";
 import { ITag } from "./ITag";
 
-export enum AdmitCardStatus {
-  ACTIVE = 'active',
-  POSTPONED = 'postponed',
-  LINK_INACTIVE = 'link_inactive',
-  RELEASED = 'released',
-  UPCOMING = 'upcoming',
-  CLOSED = 'closed',
-  DELETED = 'deleted',
-  DRAFT = 'draft',
-  ARCHIVED = 'archived',
-}
+// export enum AdmitCardStatus {
+//   ACTIVE = 'active',
+//   POSTPONED = 'postponed',
+//   LINK_INACTIVE = 'link_inactive',
+//   RELEASED = 'released',
+//   UPCOMING = 'upcoming',
+//   CLOSED = 'closed',
+//   DELETED = 'deleted',
+//   DRAFT = 'draft',
+//   ARCHIVED = 'archived',
+// }
+
+export type AdmitCardExamStatus =
+  | "upcoming"
+  | "released"
+  | "postponed"
+  | "closed"
+  | "expired"
+  | "link_inactive"
+  | "cancelled";
+
+export type AdmitCardLifecycleStatus =
+  | "draft"
+  | "pending_review"
+  | "published"
+  | "archived";
 
 export interface IExamShift {
   shiftName: string;
@@ -52,7 +67,8 @@ export interface IAdmitCard {
   organization: IOrganization;
   category?: ICategory | null;
 
-  status: AdmitCardStatus;
+  status: AdmitCardExamStatus;
+  lifecycleStatus: AdmitCardLifecycleStatus;
 
   // Key Dates
   releaseDate?: Date | null;
@@ -74,6 +90,7 @@ export interface IAdmitCard {
   importantLinks?: IImportantLink[] | null;
 
   job?: IJob | null;
+  relatedJobs?: IJob[];
 
   states: IState[];
 
@@ -85,7 +102,7 @@ export interface IAdmitCard {
 
   publishedAt?: Date | null;
 
-  reviewStatus: string;
+  // reviewStatus: string;
 
   dynamicFields?: IDynamicField[] | null;
 

@@ -1,54 +1,160 @@
 import { z } from "zod";
-import { AdmitCardStatus } from "@/app/helper/interfaces/IAdmitCard";
 
 /* ---------------------------------- */
 /* Helpers */
 /* ---------------------------------- */
 
 const dateSchema = z.coerce.date();
+const requiredTrimmedString = (message: string) =>
+  z.preprocess(
+    (v) => (v === undefined || v === null ? "" : v),
+    z.string().trim().min(1, message)
+  );
 
 /* ---------------------------------- */
 /* Nested Schemas */
 /* ---------------------------------- */
 
-const ExamShiftSchema = z.object({
-  shiftName: z.string().min(1),
-  reportingTime: z.string().min(1),
-  gateClosingTime: z.string().min(1),
-  examTime: z.string().min(1),
-  otherDetails: z.string().optional(),
-});
+const compareTime = (left: string, right: string) => left.localeCompare(right);
+
+const ExamShiftSchema = z
+  .object({
+    shiftName: requiredTrimmedString("Shift name is required"),
+    shiftDate: requiredTrimmedString("Shift date is required"),
+    reportingTime: requiredTrimmedString("Reporting time is required"),
+    gateClosingTime: requiredTrimmedString("Gate closing time is required"),
+    examTime: requiredTrimmedString("Exam start time is required"),
+    examEndTime: z.string().trim().optional(),
+    instructions: z.array(z.string().min(1)).optional(),
+    status: z.enum(["active", "postponed", "completed", "cancelled"]).optional(),
+    language: z.string().trim().optional(),
+    examType: z.string().trim().optional(),
+    maxCapacity: z.coerce.number().int().min(0).optional(),
+    isSpecialShift: z.boolean().optional(),
+    otherDetails: z.string().optional(),
+  })
+  .superRefine((shift, ctx) => {
+    if (compareTime(shift.reportingTime, shift.gateClosingTime) > 0) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["gateClosingTime"],
+        message: "Gate closing time must be after or equal to reporting time",
+      });
+    }
+    if (compareTime(shift.gateClosingTime, shift.examTime) > 0) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["examTime"],
+        message: "Exam start time must be after or equal to gate closing time",
+      });
+    }
+    if (shift.examEndTime && compareTime(shift.examTime, shift.examEndTime) >= 0) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["examEndTime"],
+        message: "Exam end time must be after exam start time",
+      });
+    }
+  });
 
 const ImportantLinkSchema = z.object({
   label: z.string().min(1),
   links: z.array(z.object({
     title: z.string().min(1),
     url: z.string().url(),
-    type: z.string().min(1),
+    type: z.enum(["website", "pdf", "video", "other"]),
     description: z.string().optional(),
   })),
 });
 
-const DynamicFieldSchema = z.object({
-  label: z.string().min(1),
-  value: z.any(),
-  type: z.enum(["text", "json", "table", "richtext"]),
-  meta: z.any().optional(),
+const DynamicFieldMetaSchema = z.record(z.string(), z.unknown()).optional();
+
+const DynamicFieldSchema = z.discriminatedUnion("type", [
+  z.object({
+    label: z.string().trim().min(1),
+    type: z.literal("text"),
+    value: z.string().optional(),
+    meta: DynamicFieldMetaSchema,
+  }),
+  z.object({
+    label: z.string().trim().min(1),
+    type: z.literal("json"),
+    value: z.union([z.record(z.string(), z.unknown()), z.array(z.unknown())]).optional(),
+    meta: DynamicFieldMetaSchema,
+  }),
+  z.object({
+    label: z.string().trim().min(1),
+    type: z.literal("table"),
+    value: z
+      .union([
+        z.array(z.array(z.union([z.string(), z.number(), z.boolean(), z.null()]))),
+        z.array(z.record(z.string(), z.union([z.string(), z.number(), z.boolean(), z.null()]))),
+      ])
+      .optional(),
+    columns: z.array(z.string()).optional(),
+    rows: z.array(z.array(z.string())).optional(),
+    meta: DynamicFieldMetaSchema,
+  }),
+  z.object({
+    label: z.string().trim().min(1),
+    type: z.literal("richtext"),
+    value: z
+      .object({
+        json: z.unknown().optional(),
+        html: z.string().optional(),
+      })
+      .optional(),
+    meta: DynamicFieldMetaSchema,
+  }),
+]);
+
+const ImportantDateSchema = z.object({
+  label: z.string().trim().min(1),
+  date: z.string().trim().min(1),
+  type: z.enum(["application", "exam", "result", "other"]),
+  description: z.string().optional(),
+  tag: z.string().optional(),
+  isMilestone: z.boolean().optional(),
+  color: z.string().optional(),
+  icon: z.string().optional(),
 });
 
-// const jobSnapshotSchema = z.object({
-//   advtNumber: z.string().optional(),
-//   jobType: z.string().optional(),
-//   jobLevel: z.string().optional(),
-//   ageLimitText: z.string().optional(),
-//   applyLink: z.string().url().optional(),
-//   estimatedSalaryRange: z.object({
-//     min: z.union([z.string(), z.number()]).optional(),
-//     max: z.union([z.string(), z.number()]).optional(),
-//   }).optional(),
-//   applicationMode: z.string().optional(),
-//   dynamicFields: z.array(DynamicFieldSchema).optional(),
-// });
+const ImportantDatesArraySchema = z.preprocess((value) => {
+  if (value === null || value === undefined) return value;
+  if (Array.isArray(value)) return value;
+
+  // Backward compatibility: tolerate legacy object payloads.
+  if (typeof value === "object") {
+    const objectValue = value as Record<string, unknown>;
+
+    // Single date object mistakenly stored as object.
+    if ("label" in objectValue && "date" in objectValue) {
+      return [objectValue];
+    }
+
+    // Keyed map/object container -> array of entries.
+    return Object.values(objectValue).filter((entry) => entry && typeof entry === "object");
+  }
+
+  return value;
+}, z.array(ImportantDateSchema));
+
+const JobSnapshotSchema = z.object({
+  advtNumber: z.string().optional(),
+  sector: z.string().optional(),
+  qualifications: z.array(z.unknown()).optional(),
+  qualificationSummary: z.string().optional(),
+  totalVacancies: z.coerce.number().int().min(0).optional(),
+  jobType: z.string().optional(),
+  ageLimitText: z.string().optional(),
+  applicationFee: z.unknown().optional(),
+  minAge: z.coerce.number().int().min(0).optional(),
+  maxAge: z.coerce.number().int().min(0).optional(),
+  dynamicFields: z.array(DynamicFieldSchema).optional(),
+  importantLinks: z.array(ImportantLinkSchema).optional(),
+  importantDates: ImportantDatesArraySchema.optional(),
+  helpfullVideoLinks: z.array(z.string().url()).optional(),
+});
 
 const SeoSchema = z.object({
   metaTitle: z
@@ -95,7 +201,8 @@ export const AdmitCardSchema = z.object({
   organizationId: z.string().min(1),
   categoryId: z.string().nullable().optional(),
 
-  status: z.enum(Object.values(AdmitCardStatus) as [string, ...string[]]),
+  status: z.enum(["upcoming", "released", "postponed", "closed", "expired", "link_inactive", "cancelled"]),
+  lifecycleStatus: z.enum(["draft", "pending_review", "published", "archived"]),
 
   /* ================= Dates ================= */
 
@@ -108,7 +215,27 @@ export const AdmitCardSchema = z.object({
 
   modeOfExam: z.string().nullable().optional(),
 
-  examShifts: z.array(ExamShiftSchema).nullable().optional(),
+  examShifts: z
+    .array(ExamShiftSchema)
+    .nullable()
+    .optional()
+    .superRefine((shifts, ctx) => {
+      if (!shifts) return;
+      const seen = new Map<string, number>();
+      shifts.forEach((shift, idx) => {
+        const key = `${shift.shiftDate.trim().toLowerCase()}::${shift.shiftName.trim().toLowerCase()}`;
+        const existing = seen.get(key);
+        if (existing !== undefined) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: [idx, "shiftName"],
+            message: "Shift name + date must be unique per admit card",
+          });
+        } else {
+          seen.set(key, idx);
+        }
+      });
+    }),
 
   examLocation: z.string().nullable().optional(),
 
@@ -126,7 +253,7 @@ export const AdmitCardSchema = z.object({
   tagIds: z.array(z.string()).default([]),
   newsAndNotificationIds: z.array(z.string()).default([]),
 
-  jobSnapshot: z.any().nullable().optional(),
+  jobSnapshot: JobSnapshotSchema.nullable().optional(),
 
   /* ================= Content Blocks ================= */
 
@@ -137,7 +264,7 @@ export const AdmitCardSchema = z.object({
     .nullable()
     .optional(),
 
-  importantDates: z.any().nullable().optional(),
+  importantDates: ImportantDatesArraySchema.nullable().optional(),
 
   importantLinks: z.array(ImportantLinkSchema).nullable().optional(),
 
@@ -154,9 +281,6 @@ export const AdmitCardSchema = z.object({
   isFeatured: z.boolean().default(false).optional(),
 
   /* ================= Admin ================= */
-
-  reviewStatus: z.enum(["draft", "published", "archived"]),
-
   lastUpdatedBy: z.string().nullable().optional(),
 });
 

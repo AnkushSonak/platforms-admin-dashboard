@@ -11,23 +11,39 @@ import { getPaginatedEntity } from "@/lib/api/global/Generic"
 import { ITag } from "@/app/helper/interfaces/ITag"
 import { TAGS_API } from "@/app/envConfig"
 import { FormVideoLinksInput } from "../../jobs/sections/FormVideoLinksInput"
-import { Input } from "@/components/shadcn/ui/input"
-import { JsonFieldDialog } from "@/components/form/existing/JsonFieldDialog"
 import { DynamicLinksEditorPro } from "@/components/form/DynamicLinksEditorPro"
 import { ImportantDatesDialog } from "@/components/form/ImportantDatesDialog"
 
+let tagsEndpointUnavailableInSession = false;
+
 export function StepContent() {
-  const { control, setValue, watch } = useFormContext();
-  const [tagsUnavailable, setTagsUnavailable] = React.useState(false);
+  const { control, setValue, watch, getValues } = useFormContext();
+  const [tagsUnavailable, setTagsUnavailable] = React.useState(tagsEndpointUnavailableInSession);
+  const lastAppliedSnapshotRef = React.useRef<string | null>(null);
+  const normalizeImportantDates = React.useCallback((value: unknown) => {
+    if (value == null) return value;
+    if (Array.isArray(value)) return value;
+    if (typeof value === "object") {
+      const objectValue = value as Record<string, unknown>;
+      if ("label" in objectValue && "date" in objectValue) return [objectValue];
+      return Object.values(objectValue).filter((entry) => entry && typeof entry === "object");
+    }
+    return value;
+  }, []);
 
   const tagsQuery = useQuery({
     queryKey: ["admit-card-form", "tags"],
+    staleTime: 5 * 60 * 1000,
+    retry: false,
+    refetchOnWindowFocus: false,
+    enabled: !tagsEndpointUnavailableInSession,
     queryFn: () =>
       getPaginatedEntity<ITag>("type=tags&page=1", TAGS_API, {
       entityName: "tags",
       suppressErrorStatuses: [404],
       onHttpError: ({ status }) => {
         if (status === 404) {
+          tagsEndpointUnavailableInSession = true;
           setTagsUnavailable(true);
         }
       },
@@ -39,12 +55,37 @@ export function StepContent() {
   const jobSnapshot = watch('jobSnapshot');
   useEffect(() => {
     if (!jobSnapshot) return;
-    // Example: autofill descriptionJson, importantInstructions, etc. if present in jobSnapshot
-    if (jobSnapshot.dynamicFields) setValue('dynamicFields', jobSnapshot.dynamicFields, { shouldDirty: true });
-    if (jobSnapshot.importantLinks) setValue('importantLinks', jobSnapshot.importantLinks, { shouldDirty: true });
-    if (jobSnapshot.importantDates) setValue('importantDates', jobSnapshot.importantDates, { shouldDirty: true });
-    if (jobSnapshot.helpfullVideoLinks) setValue('helpfullVideoLinks', jobSnapshot.helpfullVideoLinks, { shouldDirty: true });
-  }, [jobSnapshot, setValue]);
+    const payload = {
+      dynamicFields: jobSnapshot.dynamicFields ?? null,
+      importantLinks: jobSnapshot.importantLinks ?? null,
+      importantDates: jobSnapshot.importantDates ?? null,
+      helpfullVideoLinks: jobSnapshot.helpfullVideoLinks ?? null,
+    };
+    const signature = JSON.stringify(payload);
+    if (lastAppliedSnapshotRef.current === signature) return;
+    lastAppliedSnapshotRef.current = signature;
+
+    const hasArrayValues = (value: unknown) => Array.isArray(value) && value.length > 0;
+
+    // Do not overwrite existing/manual StepContent values on edit or after manual adjustments.
+    const currentDynamicFields = getValues("dynamicFields");
+    const currentImportantLinks = getValues("importantLinks");
+    const currentImportantDates = getValues("importantDates");
+    const currentHelpfulVideoLinks = getValues("helpfullVideoLinks");
+
+    if (jobSnapshot.dynamicFields && !hasArrayValues(currentDynamicFields)) {
+      setValue("dynamicFields", jobSnapshot.dynamicFields, { shouldDirty: false });
+    }
+    if (jobSnapshot.importantLinks && !hasArrayValues(currentImportantLinks)) {
+      setValue("importantLinks", jobSnapshot.importantLinks, { shouldDirty: false });
+    }
+    if (jobSnapshot.importantDates && !hasArrayValues(currentImportantDates)) {
+      setValue("importantDates", normalizeImportantDates(jobSnapshot.importantDates), { shouldDirty: false });
+    }
+    if (jobSnapshot.helpfullVideoLinks && !hasArrayValues(currentHelpfulVideoLinks)) {
+      setValue("helpfullVideoLinks", jobSnapshot.helpfullVideoLinks, { shouldDirty: false });
+    }
+  }, [getValues, jobSnapshot, normalizeImportantDates, setValue]);
 
   return (
     <div className="grid grid-cols-1 gap-6">
@@ -54,6 +95,7 @@ export function StepContent() {
           <FormLabel>Description (JSON)</FormLabel>
           <FormControl>
             <RichTextEditor id="descriptionJson" namespace="form-news-and-ntfn-description" value={field.value || ''}
+              mode="full"
               onChange={(data) => { field.onChange(JSON.stringify(data.json)); setValue('descriptionHtml', data.html); }}
             />
           </FormControl>

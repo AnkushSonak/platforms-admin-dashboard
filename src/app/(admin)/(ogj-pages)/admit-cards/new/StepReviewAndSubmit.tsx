@@ -6,7 +6,7 @@ interface Props {
   isAdmin: boolean
 }
 
-export function StepReviewAndSubmit({ isAdmin }: Props) {
+export function StepReviewAndSubmit({ isAdmin: _isAdmin }: Props) {
   const { getValues, formState } = useFormContext()
   const values = getValues()
   const errors = formState.errors || {}
@@ -60,8 +60,13 @@ export function StepReviewAndSubmit({ isAdmin }: Props) {
               </div>
               <div className="flex items-center gap-2">
                 <span className="material-icons text-gray-400">info</span>
-                <span className="font-semibold">Status on submit:</span>
-                <span className="ml-2 text-gray-800">{isAdmin ? "Published" : "Draft"}</span>
+                <span className="font-semibold">Exam Status:</span>
+                <span className="ml-2 text-gray-800">{values.status || <span className="text-gray-400">(Not set)</span>}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="material-icons text-gray-400">publish</span>
+                <span className="font-semibold">Lifecycle Status:</span>
+                <span className="ml-2 text-gray-800">{values.lifecycleStatus || <span className="text-gray-400">(Not set)</span>}</span>
               </div>
             </div>
           )}

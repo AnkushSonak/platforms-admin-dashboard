@@ -136,8 +136,8 @@ describe("AdmitCardForm integration", () => {
         title: "Existing Admit Card",
         examName: "Existing Exam",
         organizationId: "org-1",
-        status: "draft",
-        reviewStatus: "draft",
+        status: "upcoming",
+        lifecycleStatus: "draft",
       },
     });
 

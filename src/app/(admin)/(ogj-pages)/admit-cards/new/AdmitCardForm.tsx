@@ -13,17 +13,15 @@ import { StepContent } from "./StepContent"
 import { StepSEOAndAI } from "./StepSEOAndAI"
 import { StepReviewAndSubmit } from "./StepReviewAndSubmit"
 import { StepBasicInfo } from "./StepBasicInfo"
-import { REVIEW_STATUS } from "../../../../helper/dto/global"
 import { createEntity, getPaginatedEntity, updateEntity } from "@/lib/api/global/Generic"
-import { AdmitCardStatus, IAdmitCard } from "@/app/helper/interfaces/IAdmitCard"
-import { ADMIT_CARDS_API, CATEGORY_API, JOBS_API, NEWS_AND_NTFN_API, ORGANIZATION_API, QUALIFICATIONS_API, STATE_API } from "@/app/envConfig"
+import { IAdmitCard } from "@/app/helper/interfaces/IAdmitCard"
+import { ADMIT_CARDS_API, CATEGORY_API, JOBS_API, NEWS_AND_NTFN_API, ORGANIZATION_API, STATE_API } from "@/app/envConfig"
 import { AdmitCardFormValues, AdmitCardSchema } from "@/lib/schemas/AdmitCardSchema"
 import { IJob } from "@/app/helper/interfaces/IJob"
 import { IOrganization } from "@/app/helper/interfaces/IOrganization"
 import { ICategory } from "@/app/helper/interfaces/ICategory"
 import { IState } from "@/app/helper/interfaces/IState"
 import { INewsAndNtfn } from "@/app/helper/interfaces/INewsAndNtfn"
-import { IQualification } from "@/app/helper/interfaces/IQualification"
 
 interface Props {
   isAdmin: boolean;
@@ -33,14 +31,14 @@ interface Props {
 }
 
 export const stepValidationMap: Record<number, any[]> = {
-  0: ["title", "examName", "status", "jobId", "organizationId", "categoryId", "stateIds", "newsAndNotificationIds", "isFeatured", 
+  0: ["title", "examName", "status", "lifecycleStatus", "jobId", "organizationId", "categoryId", "stateIds", "newsAndNotificationIds", "isFeatured", 
     "releaseDate", "examStartDate", "examEndDate", "modeOfExam", "examShifts", "examLocation",],
 
   1: ["descriptionJson", "dynamicFields", "cardTags", "tagIds", "importantDates", "importantLinks", "helpfullVideoLinks"], //"importantInstructions"
 
   2: ["seoSettings.metaTitle", "seoSettings.metaDescription", "seoSettings.seoKeywords", "seoSettings.seoCanonicalUrl", "seoSettings.schemaMarkupJson"],
 
-  3: ["reviewStatus", "publishedAt"],
+  3: ["publishedAt"],
 }
 
 const admitCardDefaultValues = {
@@ -53,7 +51,8 @@ const admitCardDefaultValues = {
   organizationId: "",
   categoryId: null,
 
-  status: AdmitCardStatus.DRAFT,
+  status: "upcoming",
+  lifecycleStatus: "draft",
 
   /* ================= Dates ================= */
 
@@ -75,6 +74,7 @@ const admitCardDefaultValues = {
   /* ================= Relations ================= */
 
   jobId: null,
+  relatedJobIds: [],
 
   stateIds: [],
   tagIds: [],
@@ -87,7 +87,7 @@ const admitCardDefaultValues = {
   cardTags: [],
   helpfullVideoLinks: [],
 
-  importantDates: {},
+  importantDates: [],
 
   importantLinks: [],
 
@@ -110,8 +110,81 @@ const admitCardDefaultValues = {
   isFeatured: false,
 
   /* ================= Admin ================= */
-  reviewStatus: REVIEW_STATUS.DRAFT,
   lastUpdatedBy: null,
+};
+
+const normalizeDynamicFieldsFromApi = (fields: unknown) => {
+  if (!Array.isArray(fields)) return [];
+
+  return fields.map((rawField) => {
+    if (!rawField || typeof rawField !== "object") return rawField;
+
+    const field = rawField as Record<string, any>;
+    const type = String(field.type ?? "");
+    const label = String(field.label ?? "");
+    const meta = field.meta && typeof field.meta === "object" ? field.meta : undefined;
+
+    // Recover richtext fields that came back as legacy json + meta.originalType=richtext
+    if (type === "json" && meta?.originalType === "richtext") {
+      return {
+        ...field,
+        label,
+        type: "richtext",
+        value: {
+          json: field.value ?? null,
+          html: typeof meta?.html === "string" ? meta.html : "",
+        },
+      };
+    }
+
+    // Normalize richtext value shape to { json, html } expected by editor binding.
+    if (type === "richtext") {
+      const rawValue = field.value;
+      if (!rawValue || typeof rawValue !== "object" || Array.isArray(rawValue)) {
+        return {
+          ...field,
+          label,
+          type: "richtext",
+          value: { json: rawValue ?? null, html: "" },
+        };
+      }
+
+      const richValue = rawValue as Record<string, unknown>;
+      const hasJson = "json" in richValue;
+      const hasHtml = "html" in richValue;
+      if (!hasJson || !hasHtml) {
+        return {
+          ...field,
+          label,
+          type: "richtext",
+          value: {
+            json: hasJson ? richValue.json : rawValue,
+            html: typeof richValue.html === "string" ? richValue.html : "",
+          },
+        };
+      }
+    }
+
+    return {
+      ...field,
+      label,
+      type,
+    };
+  });
+};
+
+const mergeInitialWithDefaults = (initialValues?: any) => {
+  if (!initialValues) return admitCardDefaultValues;
+
+  return {
+    ...admitCardDefaultValues,
+    ...initialValues,
+    dynamicFields: normalizeDynamicFieldsFromApi(initialValues?.dynamicFields),
+    seoSettings: {
+      ...admitCardDefaultValues.seoSettings,
+      ...(initialValues?.seoSettings || {}),
+    },
+  };
 };
 
 export function AdmitCardForm({ isAdmin, initialValues, onSubmit, isEditMode }: Props) {
@@ -138,13 +211,6 @@ export function AdmitCardForm({ isAdmin, initialValues, onSubmit, isEditMode }: 
         entityName: "newsAndNotifications",
       }),
   });
-  const qualificationsQuery = useQuery({
-    queryKey: ["admit-card-form", "qualifications"],
-    queryFn: () =>
-      getPaginatedEntity<IQualification>("type=qualifications&page=1", QUALIFICATIONS_API, {
-        entityName: "qualifications",
-      }),
-  });
   const jobsQuery = useQuery({
     queryKey: ["admit-card-form", "jobs"],
     queryFn: () => getPaginatedEntity<IJob>("type=jobs&page=1", JOBS_API, { entityName: "jobs" }),
@@ -154,7 +220,6 @@ export function AdmitCardForm({ isAdmin, initialValues, onSubmit, isEditMode }: 
   const categories = categoriesQuery.data?.data ?? [];
   const allStates = statesQuery.data?.data ?? [];
   const allNewsAndNotifications = newsAndNotificationsQuery.data?.data ?? [];
-  const allQualifications = qualificationsQuery.data?.data ?? [];
   const jobs = jobsQuery.data?.data ?? [];
 
   useEffect(() => {
@@ -165,13 +230,13 @@ export function AdmitCardForm({ isAdmin, initialValues, onSubmit, isEditMode }: 
 
   const form = useForm<AdmitCardFormValues>({
     resolver: zodResolver(AdmitCardSchema),
-    defaultValues: initialValues || admitCardDefaultValues,
+    defaultValues: mergeInitialWithDefaults(initialValues),
     mode: "onTouched",
   });
 
   useEffect(() => {
     if (initialValues) {
-      form.reset(initialValues);
+      form.reset(mergeInitialWithDefaults(initialValues));
     }
   }, [initialValues]);
 
@@ -217,7 +282,7 @@ export function AdmitCardForm({ isAdmin, initialValues, onSubmit, isEditMode }: 
 
   const steps = [
     <StepBasicInfo onJobChange={handleJobChange} jobs={jobs} organizations={organizations} categories={categories}
-     allStates={allStates} allNewsAndNotifications={allNewsAndNotifications} allQualifications={allQualifications} key="basic" />,
+     allStates={allStates} allNewsAndNotifications={allNewsAndNotifications} key="basic" />,
 
     <StepContent key="content" />,
 
@@ -247,12 +312,86 @@ export function AdmitCardForm({ isAdmin, initialValues, onSubmit, isEditMode }: 
     setSuccess(null);
     setLoading(true);
     try {
+      const normalizeDynamicFieldsForApi = (fields: any[] | null | undefined) => {
+        if (!Array.isArray(fields)) return fields;
+
+        const isObjectRow = (row: unknown): row is Record<string, unknown> =>
+          !!row && typeof row === "object" && !Array.isArray(row);
+        const toCellValue = (value: unknown): string | number | boolean | null => {
+          if (value === null) return null;
+          if (typeof value === "string" || typeof value === "number" || typeof value === "boolean") return value;
+          if (value === undefined) return "";
+          return String(value);
+        };
+
+        return fields.map((field) => {
+          if (!field || typeof field !== "object") return field;
+          if (field.type !== "table") return field;
+
+          const valueRows = Array.isArray(field.value) ? field.value : [];
+          const isObjectRows = valueRows.length > 0 && valueRows.every(isObjectRow);
+          const isMatrixRows = valueRows.length > 0 && valueRows.every((r: unknown) => Array.isArray(r));
+
+          const columnsFromMeta = Array.isArray(field.meta?.columns)
+            ? field.meta.columns.map((c: unknown) => String(c ?? ""))
+            : null;
+          const columnsFromField = Array.isArray(field.columns)
+            ? field.columns.map((c: unknown) => String(c ?? ""))
+            : null;
+          let columns: string[] = columnsFromMeta?.length ? columnsFromMeta : columnsFromField?.length ? columnsFromField : [];
+          let value: Record<string, string | number | boolean | null>[] = [];
+
+          if (isObjectRows) {
+            value = (valueRows as Record<string, unknown>[]).map((row) =>
+              Object.fromEntries(
+                Object.entries(row).map(([key, cell]) => [String(key), toCellValue(cell)])
+              )
+            );
+            if (!columns.length) {
+              const keySet = new Set<string>();
+              value.forEach((row) => Object.keys(row).forEach((k) => keySet.add(k)));
+              columns = Array.from(keySet);
+            }
+          } else {
+            const rawMatrix =
+              isMatrixRows
+                ? (valueRows as unknown[][])
+                : Array.isArray(field.rows)
+                ? (field.rows as unknown[][])
+                : [];
+
+            const matrix = rawMatrix.map((row) =>
+              Array.isArray(row) ? row.map((cell) => toCellValue(cell)) : [toCellValue(row)]
+            );
+            const fallbackColCount = Math.max(1, matrix[0]?.length ?? 0);
+            if (!columns.length) {
+              columns = Array.from({ length: fallbackColCount }, (_, i) => `Col ${i + 1}`);
+            }
+            value = matrix.map((row) =>
+              Object.fromEntries(columns.map((col, idx) => [col, toCellValue(row[idx])]))
+            );
+          }
+
+          return {
+            ...field,
+            rows: value.map((row) => columns.map((col) => String(row[col] ?? ""))),
+            columns,
+            value,
+          };
+        });
+      };
+
+      const payload = {
+        ...values,
+        dynamicFields: normalizeDynamicFieldsForApi(values.dynamicFields),
+      };
+
       let res;
       if (isEditMode && initialValues && initialValues.id) {
-        res = await updateEntity<IAdmitCard>(ADMIT_CARDS_API, initialValues?.id, values, { entityName: "AdmitCard" });
+        res = await updateEntity<IAdmitCard>(ADMIT_CARDS_API, initialValues?.id, payload, { entityName: "AdmitCard" });
         if (res.success) setSuccess("Admit Card updated successfully!");
       } else {
-        res = await createEntity<IAdmitCard>(ADMIT_CARDS_API, values, { entityName: "AdmitCard" });
+        res = await createEntity<IAdmitCard>(ADMIT_CARDS_API, payload, { entityName: "AdmitCard" });
         if (res.success) setSuccess("Admit Card created successfully!");
       }
       if (!res.success) setError(res.message || "Failed to submit");
@@ -261,7 +400,7 @@ export function AdmitCardForm({ isAdmin, initialValues, onSubmit, isEditMode }: 
         form.reset(admitCardDefaultValues);
       }
 
-      if (onSubmit) await onSubmit(values);
+      if (onSubmit) await onSubmit(payload);
     } catch (e: any) {
       setError(e.message || "Error occurred");
     } finally {

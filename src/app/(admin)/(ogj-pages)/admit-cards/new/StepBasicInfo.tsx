@@ -10,32 +10,34 @@ import { FormMultiSelectIds } from "../../jobs/sections/FormMultiSelectIds";
 import { MultiSelect } from "@/components/shadcn/ui/multi-select";
 import { IOrganization } from "@/app/helper/interfaces/IOrganization";
 import { IJob } from "@/app/helper/interfaces/IJob";
-import { AdmitCardStatus } from "@/app/helper/interfaces/IAdmitCard";
-import { IResult } from "@/app/helper/interfaces/IResult";
-import { IAnswerKey } from "@/app/helper/interfaces/IAnswerKey";
-import { IQualification } from "@/app/helper/interfaces/IQualification";
+import { AdmitCardExamStatus, AdmitCardLifecycleStatus } from "@/app/helper/interfaces/IAdmitCard";
 import { INewsAndNtfn } from "@/app/helper/interfaces/INewsAndNtfn";
 import { DateTimePicker } from "@/components/shadcn/ui/date-time-picker";
 import { ExamShiftsField } from "@/components/form/ExamShiftsField";
 import { AdmitCardFormValues } from "@/lib/schemas/AdmitCardSchema";
 
 
-export function StepBasicInfo({ onJobChange, jobs, organizations, categories, allStates, allNewsAndNotifications, allQualifications }
+export function StepBasicInfo({ onJobChange, jobs, organizations, categories, allStates, allNewsAndNotifications }
   : { onJobChange: (jobId: string | null) => void; jobs: IJob[]; organizations: IOrganization[]; categories: ICategory[]; allStates: IState[]; 
-    allNewsAndNotifications: INewsAndNtfn[]; allQualifications: IQualification[]; }) {
-  const { control, setValue } = useFormContext<AdmitCardFormValues>();
+    allNewsAndNotifications: INewsAndNtfn[]; }) {
+  const { control } = useFormContext<AdmitCardFormValues>();
 
   const admitCardStatusOptions = [
-    { value: AdmitCardStatus.ACTIVE, label: 'Active' },
-    { value: AdmitCardStatus.POSTPONED, label: 'Postponed' },
-    { value: AdmitCardStatus.LINK_INACTIVE, label: 'Link Inactive' },
-    { value: AdmitCardStatus.RELEASED, label: 'Released' },
-    { value: AdmitCardStatus.UPCOMING, label: 'Upcoming' },
-    { value: AdmitCardStatus.CLOSED, label: 'Closed' },
-    { value: AdmitCardStatus.DELETED, label: 'Deleted' },
-    { value: AdmitCardStatus.DRAFT, label: 'Draft' },
-    { value: AdmitCardStatus.ARCHIVED, label: 'Archived' },
-  ];
+    { value: "upcoming", label: 'Upcoming' },
+    { value: "released", label: 'Released' },
+    { value: "postponed", label: 'Postponed' },
+    { value: "closed", label: 'Closed' },
+    { value: "expired", label: 'Expired' },
+    { value: "link_inactive", label: 'Link Inactive' },
+    { value: "cancelled", label: 'Cancelled' },
+  ] satisfies Array<{ value: AdmitCardExamStatus; label: string }>;
+
+  const lifecycleStatusOptions = [
+    { value: "draft", label: "Draft" },
+    { value: "pending_review", label: "Pending Review" },
+    { value: "published", label: "Published" },
+    { value: "archived", label: "Archived" },
+  ] satisfies Array<{ value: AdmitCardLifecycleStatus; label: string }>;
 
   return (
     <div>
@@ -87,6 +89,19 @@ export function StepBasicInfo({ onJobChange, jobs, organizations, categories, al
           <FormItem>
             {/* <FormLabel>Status</FormLabel> */}
             <FormSelect {...field} name="status" control={control} label="Select Status" placeholder="Select Status" options={admitCardStatusOptions} />
+            <FormMessage />
+          </FormItem>
+        )} />
+        <FormField name="lifecycleStatus" control={control} render={({ field }) => (
+          <FormItem>
+            <FormSelect
+              {...field}
+              name="lifecycleStatus"
+              control={control}
+              label="Lifecycle Status"
+              placeholder="Select lifecycle status"
+              options={lifecycleStatusOptions}
+            />
             <FormMessage />
           </FormItem>
         )} />
@@ -201,7 +216,7 @@ export function StepBasicInfo({ onJobChange, jobs, organizations, categories, al
         <FormField name="jobSnapshot.totalVacancies" control={control} render={({ field }) => (
           <FormItem>
             <FormLabel>Total Vacancies</FormLabel>
-            <FormControl><Input type="number" value={field.value ?? ""} onChange={(e) =>
+            <FormControl><Input type="number" value={field.value} onChange={(e) =>
               field.onChange(e.target.value === "" ? undefined : e.target.valueAsNumber)
             }
             /></FormControl>
@@ -251,7 +266,7 @@ export function StepBasicInfo({ onJobChange, jobs, organizations, categories, al
           <FormItem>
             <FormLabel>Min Age</FormLabel>
             <FormControl>
-              <Input type="number" value={field.value} onChange={(e) =>
+              <Input type="number" value={field?.value} onChange={(e) =>
                 field.onChange(e.target.value === "" ? undefined : e.target.valueAsNumber)
               }
               />

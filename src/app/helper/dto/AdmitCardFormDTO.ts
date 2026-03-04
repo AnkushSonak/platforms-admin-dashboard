@@ -140,12 +140,27 @@
 // }
 
 
-import { AdmitCardStatus, IExamShift } from "@/app/helper/interfaces/IAdmitCard";
+import { IExamShift } from "@/app/helper/interfaces/IAdmitCard";
 import { IJobSnapshot } from "../interfaces/IJobSnapshot";
 import { ISeoSettings } from "../interfaces/ISeoSettings";
 import { IDynamicField } from "../interfaces/IDynamicField";
 import { IImportantLink } from "../interfaces/IImportantLink";
 import { IImportantDate } from "../interfaces/IImportantDate";
+
+export type AdmitCardExamStatus =
+  | "upcoming"
+  | "released"
+  | "postponed"
+  | "closed"
+  | "expired"
+  | "link_inactive"
+  | "cancelled";
+
+export type AdmitCardLifecycleStatus =
+  | "draft"
+  | "pending_review"
+  | "published"
+  | "archived";
 
 export interface AdmitCardFormDTO {
   /* ================= Core ================= */
@@ -162,7 +177,8 @@ export interface AdmitCardFormDTO {
   organizationId: string;
   categoryId?: string | null;
 
-  status: AdmitCardStatus;
+  status: AdmitCardExamStatus;
+  lifecycleStatus: AdmitCardLifecycleStatus;
 
   /* ================= Dates ================= */
 
@@ -183,6 +199,7 @@ export interface AdmitCardFormDTO {
   /* ================= Relations (IDs only) ================= */
 
   jobId?: string | null;
+  relatedJobIds?: string[];
   stateIds: string[];
   tagIds: string[];
   newsAndNotificationIds: string[];
@@ -211,6 +228,6 @@ export interface AdmitCardFormDTO {
   isFeatured?: boolean;
 
   /* ================= Admin ================= */
-  reviewStatus: string;
+  // reviewStatus: string;
   lastUpdatedBy?: string | null;
 }
