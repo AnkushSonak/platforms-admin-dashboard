@@ -1,7 +1,7 @@
 // app/components/RichTextEditor.tsx
 "use client";
 
-import React, { useRef, useState, useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useRef } from "react";
 import dynamic from "next/dynamic";
 import { SerializedEditorState, LexicalEditor } from "lexical";
 import { convertLexicalToHtml } from "@/lib/utils/LaxicalToHtml";
@@ -13,6 +13,7 @@ interface RichTextEditorProps {
   placeholder?: string;
   className?: string;
   namespace?: string;
+  mode?: "full" | "lite";
 }
 
 /**
@@ -40,6 +41,7 @@ export default React.memo(function RichTextEditor({
   placeholder = "",
   className = "",
   namespace,
+  mode = "full",
 }: RichTextEditorProps) {
   const editorRef = useRef<LexicalEditor | null>(null);
 
@@ -202,8 +204,7 @@ export default React.memo(function RichTextEditor({
     } as unknown as SerializedEditorState;
   }, [value, placeholder]);
 
-  // const [initialState] = useState<SerializedEditorState>(() => parseInitial());
-  const initialState = parseInitial();
+  const initialState = React.useMemo(() => parseInitial(), [parseInitial]);
 
   // called by inner Editor when it's ready
   const handleEditorReady = (editor: LexicalEditor) => {
@@ -211,8 +212,9 @@ export default React.memo(function RichTextEditor({
   };
 
   // Debounced publisher
-  const publishChange = useCallback(
-    debounce((state: SerializedEditorState) => {
+  const publishChangeRef = useRef<(state: SerializedEditorState) => void>(() => undefined);
+  useEffect(() => {
+    publishChangeRef.current = debounce((state: SerializedEditorState) => {
       let html = "";
       try {
         if (editorRef.current) {
@@ -222,19 +224,18 @@ export default React.memo(function RichTextEditor({
         html = "";
       }
       onChange({ id, json: state, html });
-    }, 120),
-    [id, onChange]
-  );
+    }, 120);
+  }, [id, onChange]);
 
   // called by inner Editor plugin when serialized state changes
   const handleSerializedChange = (state: SerializedEditorState) => {
     if (!state || typeof state !== "object" || !("root" in state)) {
       // coerce to safe doc (avoid passing invalid states)
       const safe = parseInitial();
-      publishChange(safe);
+      publishChangeRef.current(safe);
       return;
     }
-    publishChange(state);
+    publishChangeRef.current(state);
   };
 
   useEffect(() => {
@@ -251,6 +252,7 @@ export default React.memo(function RichTextEditor({
       <Editor
         key={wrapperKey}
         namespace={resolvedNamespace}
+        mode={mode}
         editorSerializedState={initialState}
         onSerializedChange={handleSerializedChange}
         onEditorReady={handleEditorReady}

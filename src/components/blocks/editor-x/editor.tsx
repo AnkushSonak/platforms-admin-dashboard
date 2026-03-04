@@ -19,6 +19,7 @@ interface EditorProps {
   onChange?: (editorState: EditorState) => void;
   onSerializedChange?: (editorSerializedState: SerializedEditorState) => void;
   onEditorReady?: (editor: LexicalEditor) => void;
+  mode?: "full" | "lite";
 }
 
 /** Notify parent when Lexical is ready */
@@ -39,6 +40,7 @@ export function Editor({
   onChange,
   onSerializedChange,
   onEditorReady,
+  mode = "full",
 }: EditorProps) {
   // Build initialConfig: always use passed `namespace` (no internal static namespace)
   const initialConfig: InitialConfigType = {
@@ -68,7 +70,7 @@ export function Editor({
     <div className="bg-background overflow-hidden rounded-lg border shadow">
       <LexicalComposer initialConfig={initialConfig}>
         <TooltipProvider>
-          <Plugins />
+          <Plugins mode={mode} />
           <OnReadyPlugin onEditorReady={onEditorReady} />
           <OnChangePlugin
             ignoreSelectionChange={true}

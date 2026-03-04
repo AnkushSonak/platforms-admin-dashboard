@@ -108,7 +108,15 @@ import { Separator } from "@/components/shadcn/ui/separator"
 const placeholder = "Press / for commands..."
 const maxLength = 9999999999999
 
-export function Plugins({}) {
+interface PluginsProps {
+  mode?: "full" | "lite"
+}
+
+export function Plugins({ mode = "full" }: PluginsProps) {
+  const isLite = mode === "lite"
+  const contentEditableClassName = isLite
+    ? "ContentEditable__root relative block min-h-40 max-h-96 overflow-auto px-4 py-3 focus:outline-none"
+    : "ContentEditable__root relative block h-[calc(100vh-90px)] min-h-72 overflow-auto px-8 py-4 focus:outline-none"
   const [floatingAnchorElem, setFloatingAnchorElem] =
     useState<HTMLDivElement | null>(null)
   const [isLinkEditMode, setIsLinkEditMode] = useState<boolean>(false)
@@ -121,53 +129,55 @@ export function Plugins({}) {
 
   return (
     <div className="relative">
-      <ToolbarPlugin>
-        {({ blockType }) => (
-          <div className="vertical-align-middle sticky top-0 z-10 flex items-center gap-2 overflow-auto border-b p-1">
-            <HistoryToolbarPlugin />
-            <Separator orientation="vertical" className="!h-7" />
-            <BlockFormatDropDown>
-              <FormatParagraph />
-              <FormatHeading levels={["h1", "h2", "h3"]} />
-              <FormatNumberedList />
-              <FormatBulletedList />
-              <FormatCheckList />
-              <FormatCodeBlock />
-              <FormatQuote />
-            </BlockFormatDropDown>
-            {blockType === "code" ? (
-              <CodeLanguageToolbarPlugin />
-            ) : (
-              <>
-                <FontFamilyToolbarPlugin />
-                <FontSizeToolbarPlugin />
-                <Separator orientation="vertical" className="!h-7" />
-                <FontFormatToolbarPlugin />
-                <Separator orientation="vertical" className="!h-7" />
-                <SubSuperToolbarPlugin />
-                <LinkToolbarPlugin setIsLinkEditMode={setIsLinkEditMode} />
-                <Separator orientation="vertical" className="!h-7" />
-                <ClearFormattingToolbarPlugin />
-                <Separator orientation="vertical" className="!h-7" />
-                <ButtonGroup>
-                  <FontColorToolbarPlugin />
-                  <FontBackgroundToolbarPlugin />
-                </ButtonGroup>
-                <Separator orientation="vertical" className="!h-7" />
-                <ElementFormatToolbarPlugin />
-                <Separator orientation="vertical" className="!h-7" />
-                <BlockInsertPlugin>
-                  <InsertHorizontalRule />
-                  <InsertImage />
-                  <InsertTable />
-                  <InsertColumnsLayout />
-                  <InsertEmbeds />
-                </BlockInsertPlugin>
-              </>
-            )}
-          </div>
-        )}
-      </ToolbarPlugin>
+      {!isLite && (
+        <ToolbarPlugin>
+          {({ blockType }) => (
+            <div className="vertical-align-middle sticky top-0 z-10 flex items-center gap-2 overflow-auto border-b p-1">
+              <HistoryToolbarPlugin />
+              <Separator orientation="vertical" className="!h-7" />
+              <BlockFormatDropDown>
+                <FormatParagraph />
+                <FormatHeading levels={["h1", "h2", "h3"]} />
+                <FormatNumberedList />
+                <FormatBulletedList />
+                <FormatCheckList />
+                <FormatCodeBlock />
+                <FormatQuote />
+              </BlockFormatDropDown>
+              {blockType === "code" ? (
+                <CodeLanguageToolbarPlugin />
+              ) : (
+                <>
+                  <FontFamilyToolbarPlugin />
+                  <FontSizeToolbarPlugin />
+                  <Separator orientation="vertical" className="!h-7" />
+                  <FontFormatToolbarPlugin />
+                  <Separator orientation="vertical" className="!h-7" />
+                  <SubSuperToolbarPlugin />
+                  <LinkToolbarPlugin setIsLinkEditMode={setIsLinkEditMode} />
+                  <Separator orientation="vertical" className="!h-7" />
+                  <ClearFormattingToolbarPlugin />
+                  <Separator orientation="vertical" className="!h-7" />
+                  <ButtonGroup>
+                    <FontColorToolbarPlugin />
+                    <FontBackgroundToolbarPlugin />
+                  </ButtonGroup>
+                  <Separator orientation="vertical" className="!h-7" />
+                  <ElementFormatToolbarPlugin />
+                  <Separator orientation="vertical" className="!h-7" />
+                  <BlockInsertPlugin>
+                    <InsertHorizontalRule />
+                    <InsertImage />
+                    <InsertTable />
+                    <InsertColumnsLayout />
+                    <InsertEmbeds />
+                  </BlockInsertPlugin>
+                </>
+              )}
+            </div>
+          )}
+        </ToolbarPlugin>
+      )}
       <div className="relative">
         <AutoFocusPlugin />
         <RichTextPlugin
@@ -176,7 +186,7 @@ export function Plugins({}) {
               <div className="" ref={onRef}>
                 <ContentEditable
                   placeholder={placeholder}
-                  className="ContentEditable__root relative block h-[calc(100vh-90px)] min-h-72 overflow-auto px-8 py-4 focus:outline-none"
+                  className={contentEditableClassName}
                 />
               </div>
             </div>
@@ -185,50 +195,61 @@ export function Plugins({}) {
         />
 
         <ClickableLinkPlugin />
-        <CheckListPlugin />
-        <HorizontalRulePlugin />
-        <TablePlugin />
+        {!isLite && <CheckListPlugin />}
+        {!isLite && <HorizontalRulePlugin />}
+        {!isLite && <TablePlugin />}
         <ListPlugin />
-        <TabIndentationPlugin />
-        <HashtagPlugin />
+        {!isLite && <TabIndentationPlugin />}
+        {!isLite && <HashtagPlugin />}
         <HistoryPlugin />
 
-        <MentionsPlugin />
-        <DraggableBlockPlugin anchorElem={floatingAnchorElem} />
-        <KeywordsPlugin />
-        <EmojisPlugin />
-        <ImagesPlugin />
+        {!isLite && <MentionsPlugin />}
+        {!isLite && <DraggableBlockPlugin anchorElem={floatingAnchorElem} />}
+        {!isLite && <KeywordsPlugin />}
+        {!isLite && <EmojisPlugin />}
+        {!isLite && <ImagesPlugin />}
 
-        <LayoutPlugin />
+        {!isLite && <LayoutPlugin />}
 
-        <AutoEmbedPlugin />
-        <TwitterPlugin />
-        <YouTubePlugin />
+        {!isLite && <AutoEmbedPlugin />}
+        {!isLite && <TwitterPlugin />}
+        {!isLite && <YouTubePlugin />}
 
-        <CodeHighlightPlugin />
-        <CodeActionMenuPlugin anchorElem={floatingAnchorElem} />
+        {!isLite && <CodeHighlightPlugin />}
+        {!isLite && <CodeActionMenuPlugin anchorElem={floatingAnchorElem} />}
 
-        <MarkdownShortcutPlugin
-          transformers={[
-            TABLE,
-            HR,
-            IMAGE,
-            EMOJI,
-            TWEET,
-            CHECK_LIST,
-            ...ELEMENT_TRANSFORMERS,
-            ...MULTILINE_ELEMENT_TRANSFORMERS,
-            ...TEXT_FORMAT_TRANSFORMERS,
-            ...TEXT_MATCH_TRANSFORMERS,
-          ]}
-        />
-        <TypingPerfPlugin />
-        <TabFocusPlugin />
-        <AutocompletePlugin />
+        {!isLite ? (
+          <MarkdownShortcutPlugin
+            transformers={[
+              TABLE,
+              HR,
+              IMAGE,
+              EMOJI,
+              TWEET,
+              CHECK_LIST,
+              ...ELEMENT_TRANSFORMERS,
+              ...MULTILINE_ELEMENT_TRANSFORMERS,
+              ...TEXT_FORMAT_TRANSFORMERS,
+              ...TEXT_MATCH_TRANSFORMERS,
+            ]}
+          />
+        ) : (
+          <MarkdownShortcutPlugin
+            transformers={[
+              ...ELEMENT_TRANSFORMERS,
+              ...MULTILINE_ELEMENT_TRANSFORMERS,
+              ...TEXT_FORMAT_TRANSFORMERS,
+              ...TEXT_MATCH_TRANSFORMERS,
+            ]}
+          />
+        )}
+        {!isLite && <TypingPerfPlugin />}
+        {!isLite && <TabFocusPlugin />}
+        {!isLite && <AutocompletePlugin />}
         <AutoLinkPlugin />
         <LinkPlugin />
 
-        <ComponentPickerMenuPlugin
+        {!isLite && <ComponentPickerMenuPlugin
           baseOptions={[
             ParagraphPickerPlugin(),
             HeadingPickerPlugin({ n: 1 }),
@@ -251,25 +272,25 @@ export function Plugins({}) {
             AlignmentPickerPlugin({ alignment: "justify" }),
           ]}
           dynamicOptionsFn={DynamicTablePickerPlugin}
-        />
+        />}
 
-        <ContextMenuPlugin />
-        <DragDropPastePlugin />
-        <EmojiPickerPlugin />
+        {!isLite && <ContextMenuPlugin />}
+        {!isLite && <DragDropPastePlugin />}
+        {!isLite && <EmojiPickerPlugin />}
 
-        <FloatingLinkEditorPlugin
+        {!isLite && <FloatingLinkEditorPlugin
           anchorElem={floatingAnchorElem}
           isLinkEditMode={isLinkEditMode}
           setIsLinkEditMode={setIsLinkEditMode}
-        />
-        <FloatingTextFormatToolbarPlugin
+        />}
+        {!isLite && <FloatingTextFormatToolbarPlugin
           anchorElem={floatingAnchorElem}
           setIsLinkEditMode={setIsLinkEditMode}
-        />
+        />}
 
-        <ListMaxIndentLevelPlugin />
+        {!isLite && <ListMaxIndentLevelPlugin />}
       </div>
-      <ActionsPlugin>
+      {!isLite && <ActionsPlugin>
         <div className="clear-both flex items-center justify-between gap-2 overflow-auto border-t p-1">
           <div className="flex flex-1 justify-start">
             <MaxLengthPlugin maxLength={maxLength} />
@@ -305,7 +326,7 @@ export function Plugins({}) {
             <TreeViewPlugin />
           </div>
         </div>
-      </ActionsPlugin>
+      </ActionsPlugin>}
     </div>
   )
 }

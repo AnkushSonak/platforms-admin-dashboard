@@ -60,10 +60,12 @@ export const DEFAULT_PAGINATED_RESULT: PaginatedResult<never> = {
 
 const FETCH_TIMEOUT_MS = 10_000;
 const IS_DEV = process.env.NODE_ENV !== "production";
+const VERBOSE_DEV_API_LOGS = process.env.NEXT_PUBLIC_DEBUG_API === "true";
 const inFlightRequests = new Map<string, Promise<unknown>>();
 
 function devLog(level: "debug" | "info" | "error", ...args: unknown[]) {
   if (!IS_DEV) return;
+  if (level !== "error" && !VERBOSE_DEV_API_LOGS) return;
   console[level](...args);
 }
 
