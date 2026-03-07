@@ -139,13 +139,12 @@
 //   lastUpdatedBy?: UUID | null;
 // }
 
-
-import { IExamShift } from "@/app/helper/interfaces/IAdmitCard";
 import { IJobSnapshot } from "../interfaces/IJobSnapshot";
 import { ISeoSettings } from "../interfaces/ISeoSettings";
 import { IDynamicField } from "../interfaces/IDynamicField";
 import { IImportantLink } from "../interfaces/IImportantLink";
 import { IImportantDate } from "../interfaces/IImportantDate";
+import { IExamShift } from "../interfaces/IExamShift";
 
 export type AdmitCardExamStatus =
   | "upcoming"

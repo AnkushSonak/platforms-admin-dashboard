@@ -14,7 +14,7 @@ import { StepSEOAndAI } from "./StepSEOAndAI"
 import { StepReviewAndSubmit } from "./StepReviewAndSubmit"
 import { StepBasicInfo } from "./StepBasicInfo"
 import { createEntity, getPaginatedEntity, updateEntity } from "@/lib/api/global/Generic"
-import { IAdmitCard } from "@/app/helper/interfaces/IAdmitCard"
+import { AdmitCardExamStatus, AdmitCardLifecycleStatus, IAdmitCard } from "@/app/helper/interfaces/IAdmitCard"
 import { ADMIT_CARDS_API, CATEGORY_API, JOBS_API, NEWS_AND_NTFN_API, ORGANIZATION_API, STATE_API } from "@/app/envConfig"
 import { AdmitCardFormValues, AdmitCardSchema } from "@/lib/schemas/AdmitCardSchema"
 import { IJob } from "@/app/helper/interfaces/IJob"
@@ -51,8 +51,8 @@ const admitCardDefaultValues = {
   organizationId: "",
   categoryId: null,
 
-  status: "upcoming",
-  lifecycleStatus: "draft",
+  status: AdmitCardExamStatus.UPCOMING,
+  lifecycleStatus: AdmitCardLifecycleStatus.DRAFT,
 
   /* ================= Dates ================= */
 

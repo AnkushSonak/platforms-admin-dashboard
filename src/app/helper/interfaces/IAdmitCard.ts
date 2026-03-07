@@ -1,6 +1,7 @@
 
 import { ICategory } from "./ICategory";
 import { IDynamicField } from "./IDynamicField";
+import { IExamShift } from "./IExamShift";
 import { IImportantDate } from "./IImportantDate";
 import { IImportantLink } from "./IImportantLink";
 import { IJob } from "./IJob";
@@ -11,48 +12,53 @@ import { ISeoSettings } from "./ISeoSettings";
 import { IState } from "./IState";
 import { ITag } from "./ITag";
 
-// export enum AdmitCardStatus {
-//   ACTIVE = 'active',
-//   POSTPONED = 'postponed',
-//   LINK_INACTIVE = 'link_inactive',
-//   RELEASED = 'released',
-//   UPCOMING = 'upcoming',
-//   CLOSED = 'closed',
-//   DELETED = 'deleted',
-//   DRAFT = 'draft',
-//   ARCHIVED = 'archived',
-// }
-
-export type AdmitCardExamStatus =
-  | "upcoming"
-  | "released"
-  | "postponed"
-  | "closed"
-  | "expired"
-  | "link_inactive"
-  | "cancelled";
-
-export type AdmitCardLifecycleStatus =
-  | "draft"
-  | "pending_review"
-  | "published"
-  | "archived";
-
-export interface IExamShift {
-  shiftName: string;
-  shiftDate: string; // ISO date
-  reportingTime: string;
-  gateClosingTime: string;
-  examTime: string;
-  examEndTime?: string;
-  instructions?: string[];
-  status?: "active" | "postponed" | "completed" | "cancelled";
-  language?: string;
-  examType?: string;
-  maxCapacity?: number;
-  isSpecialShift?: boolean;
-  otherDetails?: string;
+export enum AdmitCardExamStatus {
+  UPCOMING = 'upcoming',
+  RELEASED = 'released',
+  POSTPONED = 'postponed',
+  CLOSED = 'closed',
+  EXPIRED = 'expired',
+  CANCELLED = 'cancelled',
+  LINK_INACTIVE = 'link_inactive',
 }
+
+export enum AdmitCardLifecycleStatus {
+  DRAFT = 'draft',
+  PENDING_REVIEW = 'pending_review',
+  PUBLISHED = 'published',
+  ARCHIVED = 'archived',
+}
+
+// export type AdmitCardExamStatus =
+//   | "upcoming"
+//   | "released"
+//   | "postponed"
+//   | "closed"
+//   | "expired"
+//   | "link_inactive"
+//   | "cancelled";
+
+// export type AdmitCardLifecycleStatus =
+//   | "draft"
+//   | "pending_review"
+//   | "published"
+//   | "archived";
+
+// export interface IExamShift {
+//   shiftName: string;
+//   shiftDate: string; // ISO date
+//   reportingTime: string;
+//   gateClosingTime: string;
+//   examTime: string;
+//   examEndTime?: string;
+//   instructions?: string[];
+//   status?: "active" | "postponed" | "completed" | "cancelled";
+//   language?: string;
+//   examType?: string;
+//   maxCapacity?: number;
+//   isSpecialShift?: boolean;
+//   otherDetails?: string;
+// }
 
 export interface IAdmitCard {
   id: string;

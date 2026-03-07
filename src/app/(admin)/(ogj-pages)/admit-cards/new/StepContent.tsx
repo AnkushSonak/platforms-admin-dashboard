@@ -12,7 +12,7 @@ import { ITag } from "@/app/helper/interfaces/ITag"
 import { TAGS_API } from "@/app/envConfig"
 import { FormVideoLinksInput } from "../../jobs/sections/FormVideoLinksInput"
 import { DynamicLinksEditorPro } from "@/components/form/DynamicLinksEditorPro"
-import { ImportantDatesDialog } from "@/components/form/ImportantDatesDialog"
+import ImportantDatesManager from "@/components/form/ImportantDatesDialog"
 
 let tagsEndpointUnavailableInSession = false;
 
@@ -157,14 +157,22 @@ export function StepContent() {
         </FormItem>
       )} />
 
-      <FormField name="importantDates" control={control} render={({ field }) => (
-        <FormItem>
-          <FormControl>
-              <ImportantDatesDialog value={field.value || []} onChange={(v) => field.onChange(v)} />
-          </FormControl>
-          <FormMessage />
-        </FormItem>
-      )} />
+      <FormField
+        name="importantDates"
+        control={control}
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Important Dates</FormLabel>
+            <FormControl>
+              <ImportantDatesManager
+                value={field.value || []}
+                onChange={(v) => field.onChange(v)}
+              />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
 
       {/* <FormField name="importantInstructions" control={control} render={({ field }) => (
         <FormItem>

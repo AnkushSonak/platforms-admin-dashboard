@@ -23,20 +23,20 @@ export function StepBasicInfo({ onJobChange, jobs, organizations, categories, al
   const { control } = useFormContext<AdmitCardFormValues>();
 
   const admitCardStatusOptions = [
-    { value: "upcoming", label: 'Upcoming' },
-    { value: "released", label: 'Released' },
-    { value: "postponed", label: 'Postponed' },
-    { value: "closed", label: 'Closed' },
-    { value: "expired", label: 'Expired' },
-    { value: "link_inactive", label: 'Link Inactive' },
-    { value: "cancelled", label: 'Cancelled' },
-  ] satisfies Array<{ value: AdmitCardExamStatus; label: string }>;
+  { value: AdmitCardExamStatus.UPCOMING, label: 'Upcoming' },
+  { value: AdmitCardExamStatus.RELEASED, label: 'Released' },
+  { value: AdmitCardExamStatus.POSTPONED, label: 'Postponed' },
+  { value: AdmitCardExamStatus.CLOSED, label: 'Closed' },
+  { value: AdmitCardExamStatus.EXPIRED, label: 'Expired' },
+  { value: AdmitCardExamStatus.LINK_INACTIVE, label: 'Link Inactive' },
+  { value: AdmitCardExamStatus.CANCELLED, label: 'Cancelled' },
+] satisfies Array<{ value: AdmitCardExamStatus; label: string }>;
 
   const lifecycleStatusOptions = [
-    { value: "draft", label: "Draft" },
-    { value: "pending_review", label: "Pending Review" },
-    { value: "published", label: "Published" },
-    { value: "archived", label: "Archived" },
+    { value: AdmitCardLifecycleStatus.DRAFT, label: "Draft" },
+    { value: AdmitCardLifecycleStatus.PENDING_REVIEW, label: "Pending Review" },
+    { value: AdmitCardLifecycleStatus.PUBLISHED, label: "Published" },
+    { value: AdmitCardLifecycleStatus.ARCHIVED, label: "Archived" },
   ] satisfies Array<{ value: AdmitCardLifecycleStatus; label: string }>;
 
   return (

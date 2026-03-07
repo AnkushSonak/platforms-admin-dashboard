@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { ExamShiftSchema } from "./ExamShiftSchema";
 
 /* ---------------------------------- */
 /* Helpers */
@@ -17,45 +18,45 @@ const requiredTrimmedString = (message: string) =>
 
 const compareTime = (left: string, right: string) => left.localeCompare(right);
 
-const ExamShiftSchema = z
-  .object({
-    shiftName: requiredTrimmedString("Shift name is required"),
-    shiftDate: requiredTrimmedString("Shift date is required"),
-    reportingTime: requiredTrimmedString("Reporting time is required"),
-    gateClosingTime: requiredTrimmedString("Gate closing time is required"),
-    examTime: requiredTrimmedString("Exam start time is required"),
-    examEndTime: z.string().trim().optional(),
-    instructions: z.array(z.string().min(1)).optional(),
-    status: z.enum(["active", "postponed", "completed", "cancelled"]).optional(),
-    language: z.string().trim().optional(),
-    examType: z.string().trim().optional(),
-    maxCapacity: z.coerce.number().int().min(0).optional(),
-    isSpecialShift: z.boolean().optional(),
-    otherDetails: z.string().optional(),
-  })
-  .superRefine((shift, ctx) => {
-    if (compareTime(shift.reportingTime, shift.gateClosingTime) > 0) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ["gateClosingTime"],
-        message: "Gate closing time must be after or equal to reporting time",
-      });
-    }
-    if (compareTime(shift.gateClosingTime, shift.examTime) > 0) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ["examTime"],
-        message: "Exam start time must be after or equal to gate closing time",
-      });
-    }
-    if (shift.examEndTime && compareTime(shift.examTime, shift.examEndTime) >= 0) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ["examEndTime"],
-        message: "Exam end time must be after exam start time",
-      });
-    }
-  });
+// const ExamShiftSchema = z
+//   .object({
+//     shiftName: requiredTrimmedString("Shift name is required"),
+//     shiftDate: requiredTrimmedString("Shift date is required"),
+//     reportingTime: requiredTrimmedString("Reporting time is required"),
+//     gateClosingTime: requiredTrimmedString("Gate closing time is required"),
+//     examTime: requiredTrimmedString("Exam start time is required"),
+//     examEndTime: z.string().trim().optional(),
+//     instructions: z.array(z.string().min(1)).optional(),
+//     status: z.enum(["active", "postponed", "completed", "cancelled"]).optional(),
+//     language: z.string().trim().optional(),
+//     examType: z.string().trim().optional(),
+//     maxCapacity: z.coerce.number().int().min(0).optional(),
+//     isSpecialShift: z.boolean().optional(),
+//     otherDetails: z.string().optional(),
+//   })
+//   .superRefine((shift, ctx) => {
+//     if (compareTime(shift.reportingTime, shift.gateClosingTime) > 0) {
+//       ctx.addIssue({
+//         code: z.ZodIssueCode.custom,
+//         path: ["gateClosingTime"],
+//         message: "Gate closing time must be after or equal to reporting time",
+//       });
+//     }
+//     if (compareTime(shift.gateClosingTime, shift.examTime) > 0) {
+//       ctx.addIssue({
+//         code: z.ZodIssueCode.custom,
+//         path: ["examTime"],
+//         message: "Exam start time must be after or equal to gate closing time",
+//       });
+//     }
+//     if (shift.examEndTime && compareTime(shift.examTime, shift.examEndTime) >= 0) {
+//       ctx.addIssue({
+//         code: z.ZodIssueCode.custom,
+//         path: ["examEndTime"],
+//         message: "Exam end time must be after exam start time",
+//       });
+//     }
+//   });
 
 const ImportantLinkSchema = z.object({
   label: z.string().min(1),
